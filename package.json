@@ -1,0 +1,26 @@
+{
+  "name": "virusantivirus-game",
+  "version": "0.1.0",
+  "description": "A game of cosmic proportions",
+  "keywords": [
+    "game"
+  ],
+  "homepage": "https://github.com/weraf/VirusAntivirus-Game#readme",
+  "bugs": {
+    "url": "https://github.com/weraf/VirusAntivirus-Game/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weraf/VirusAntivirus-Game.git"
+  },
+  "license": "ISC",
+  "author": "Grupp 6 D0020E",
+  "type": "module",
+  "main": "webserver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  }
+}
