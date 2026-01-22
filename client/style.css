@@ -1,0 +1,4 @@
+/*Fixa så att skärmen inte har vita kanter runt sig*/
+body, html {
+    margin: 0;
+}

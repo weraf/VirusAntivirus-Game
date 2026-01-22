@@ -1,1 +1,1 @@
-import {Board} from "../shared/board"
+import { Socket } from "socket.io";
