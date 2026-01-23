@@ -2,3 +2,10 @@
 body, html {
     margin: 0;
 }
+
+/*Stil för testui*/
+.panel {
+    padding: 1em;
+    background-color: darkgray;
+    border: 2px solid gray;
+}

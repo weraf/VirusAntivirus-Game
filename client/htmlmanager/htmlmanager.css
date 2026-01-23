@@ -1,0 +1,74 @@
+/* CSS använd av htmlmanager, css för ui i allmänhet bör placeras i en annan fil */
+
+:root {
+    --edge-padding: 1rem;
+}
+
+#game {
+    position: relative;
+    width: min-content;
+    height: min-content;
+    margin-inline: auto;
+}
+
+#ui {
+    position: absolute;
+    /*Positionera ui så att det som standard alltid finns en marginal till kanten av spelskärmen*/
+    top: var(--edge-padding);
+    left: var(--edge-padding);
+    width: calc(100% - var(--edge-padding) * 2);
+    height: calc(100% - var(--edge-padding) * 2);
+    box-sizing: border-box;
+}
+
+#ui > * {
+    position: absolute;
+}
+
+/*Stilar under ska kombineras t.ex. center bottom för att få ui att vara centerarat längst med nedre kanten*/
+.center {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.left {
+    left: 0px;
+}
+
+.top {
+    top: 0px;
+}
+
+.bottom {
+    bottom: 0px;
+    top: unset;
+}
+
+.right {
+    right: 0px;
+    left: unset;
+}
+
+.fill {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.left.fill, .right.fill {
+    width: fit-content;
+}
+
+.top.fill, .bottom.fill {
+    height: fit-content;
+}
+
+
+.left.center, .right.center {
+    transform: translateY(-50%);
+}
+
+.top.center, .bottom.center {
+    transform: translateX(-50%);
+}
