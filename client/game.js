@@ -7,12 +7,6 @@ testPrint(); // Ska skriva ut i konsolen
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();
 
-setTimeout(() => {
-    console.log("Looking for opponent");
-    socket.emit("find_game")
-}, 4000)
-
-socket.on("game_found", () => {console.log("Game start!")})
 // Game klassen (skulle kunna sättas i egen fil men detta funkar bra än så länge)
 class Game extends Phaser.Scene {
     create() {
@@ -24,7 +18,8 @@ class Game extends Phaser.Scene {
         htmlManager.loadAll(["./ui/testui.html", "./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
             let testui = htmlManager.create("testui");
             let mainmenu = htmlManager.create("mainmenu");
-            let queue = htmlManager.create("queue", {state: "Testing"})
+            let queue = htmlManager.create("queue", {"state": "Testing"})
+            socket.on("game_found", () => {queue.setPlaceholder("state", "Game Found!")})
             htmlManager.showOnly(mainmenu);
 
             //testui.testbutton.onclick = () => {
@@ -47,6 +42,7 @@ class Game extends Phaser.Scene {
 
             mainmenu.start.onclick = () => {
                 mainmenu.switchTo(queue)
+                socket.emit("find_game")
             }
         })
     }
