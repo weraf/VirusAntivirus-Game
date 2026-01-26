@@ -1,7 +1,11 @@
 import { Socket } from "socket.io";
 import EventEmitter from "node:events";
 
-// User is a wrapper of socket, so we can add data like username
+/**
+ * User is a wrapper for socket.
+ * Use user.emit(event, data) to send things to this user
+ * Use user.on(event, callback) to trigger a callback when the socket receives data
+ */
 export class User extends EventEmitter {
     /**
      * @type {Socket}
@@ -13,7 +17,7 @@ export class User extends EventEmitter {
     constructor(socket) {
         super();
         this.socket = socket;
-        this.socket.onAny(this.gotEvent)
+        this.socket.onAny(this.gotEvent.bind(this))
 
         // Forward the special disconnect event
         this.socket.on("disconnect", (reason) => {super.emit("disconnect",reason)})
@@ -26,11 +30,13 @@ export class User extends EventEmitter {
 
     gotEvent(eventName, ...args) {
         // Call the real event emitter function
-        console.log("Got event", eventName)
+        console.log("Got event", eventName, ...args)
         super.emit(eventName,...args);
+        
     }
 
     emit(eventName, ...args) {
+        // Don't send a event emitter event, send to the client instead
         this.socket.emit(eventName, ...args)
     }
 

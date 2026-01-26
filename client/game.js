@@ -7,7 +7,12 @@ testPrint(); // Ska skriva ut i konsolen
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();
 
-socket.emit("hello",{data:123})
+setTimeout(() => {
+    console.log("Looking for opponent");
+    socket.emit("find_game",{data:123})
+}, 4000)
+
+socket.on("game_found", () => {console.log("Game start!")})
 // Game klassen (skulle kunna sättas i egen fil men detta funkar bra än så länge)
 class Game extends Phaser.Scene {
     create() {
