@@ -30,11 +30,13 @@ export class User extends EventEmitter {
 
     gotEvent(eventName, ...args) {
         // Call the real event emitter function
-        console.log("Got event", eventName, ...args)
         super.emit(eventName,...args);
+        //console.log("Got event", eventName, ...args)
         
     }
 
+    // Overrides the default event emitter emit function with the socket behavior instead.
+    // This function sends an event to the client
     emit(eventName, ...args) {
         // Don't send a event emitter event, send to the client instead
         this.socket.emit(eventName, ...args)

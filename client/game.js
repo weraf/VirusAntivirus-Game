@@ -9,7 +9,7 @@ const socket = io();
 
 setTimeout(() => {
     console.log("Looking for opponent");
-    socket.emit("find_game",{data:123})
+    socket.emit("find_game")
 }, 4000)
 
 socket.on("game_found", () => {console.log("Game start!")})
