@@ -9,3 +9,50 @@ body, html {
     background-color: darkgray;
     border: 2px solid gray;
 }
+
+.main {
+    border-color:rgb(75, 92, 168);
+    border-radius: 30px;
+    border-width: 15px;
+}
+
+.text {
+    /*
+    Source - https://stackoverflow.com/a
+    Posted by Guffa, modified by community. See post 'Timeline' for change history
+    Retrieved 2026-01-26, License - CC BY-SA 3.0
+    */
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    color:white;
+    font-size: 20px;
+}
+
+.swag {
+    color:rgb(255, 255, 255);
+    text-align: center;
+    font-size: 15px;
+}
+
+.undertext {
+    color:aqua;
+    text-align: center;
+    font-size: 15px;
+}
+
+
+.lowest {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#start {
+    width: 100%;
+    text-align: center;
+}
+
+.overbutton {
+    width: 100px;
+    text-align: center;
+}
+
