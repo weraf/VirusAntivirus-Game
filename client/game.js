@@ -1,10 +1,13 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
 import { testPrint } from "./shared/test_shared.js";
 import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
+
 testPrint(); // Ska skriva ut i konsolen
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
+const socket = io();
 
+socket.emit("hello",{data:123})
 // Game klassen (skulle kunna sättas i egen fil men detta funkar bra än så länge)
 class Game extends Phaser.Scene {
     create() {

@@ -1,14 +1,22 @@
-// Installera biblioteksfilen med: npm install (behöver göras första gången)
+// Installera biblioteksfilerna med: npm install (behöver göras första gången)
 // Starta genom att skriva "node webserver.js" i terminalen, gå sedan in på http://localhost:3000
 
 import express, {static as staticServe} from "express"
+import {createServer} from "node:http"
+import { startSocketServer } from "./server/server.js";
 
-const webServer = express()
+const app = express()
+const httpServer = createServer(app);
+startSocketServer(httpServer)
+
+// Setup so we can serve socket files and websocket end point
+httpServer.listen(3000, () => {
+    console.log("Socket server started!")
+}) 
 
 function startWebServer() {
-    webServer.use(staticServe("client"))
-    webServer.use(staticServe("shared"))
-    webServer.listen(3000,() => {
+    app.use(staticServe("./client/"))
+    app.listen(3000,() => {
         console.log("Web Server Started!")
     })
 }
