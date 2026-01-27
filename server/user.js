@@ -1,6 +1,8 @@
 import { Socket } from "socket.io";
 import EventEmitter from "node:events";
 
+import { EVENTS } from "../client/shared/enums.js";
+
 /**
  * User is a wrapper for socket.
  * Use user.emit(event, data) to send things to this user
@@ -20,7 +22,7 @@ export class User extends EventEmitter {
         this.socket.onAny(this.gotEvent.bind(this))
 
         // Forward the special disconnect event
-        this.socket.on("disconnect", (reason) => {super.emit("disconnect",reason)})
+        this.socket.on(EVENTS.DISCONNECT, (reason) => {super.emit(EVENTS.DISCONNECT,reason)})
         this.username = this.getRandomUsername();
     }
 
