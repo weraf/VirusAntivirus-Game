@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import EventEmitter from "node:events";
 
-import { EVENTS } from "../client/shared/enums.js";
+import { ACTIONS } from "../client/shared/enums.js";
 
 /**
  * User is a wrapper for socket.
@@ -22,7 +22,7 @@ export class User extends EventEmitter {
         this.socket.onAny(this.gotEvent.bind(this))
 
         // Forward the special disconnect event
-        this.socket.on(EVENTS.DISCONNECT, (reason) => {super.emit(EVENTS.DISCONNECT,reason)})
+        this.socket.on(ACTIONS.DISCONNECT, this.gotEvent.bind(this,ACTIONS.DISCONNECT))
         this.username = this.getRandomUsername();
     }
 
@@ -31,10 +31,9 @@ export class User extends EventEmitter {
     }
 
     gotEvent(eventName, ...args) {
-        // Call the real event emitter function
+        // Call the real event emitter function from EventEmitter
         super.emit(eventName,...args);
         //console.log("Got event", eventName, ...args)
-        
     }
 
     // Overrides the default event emitter emit function with the socket behavior instead.

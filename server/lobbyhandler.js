@@ -8,11 +8,6 @@ export class LobbyHandler extends EventEmitter {
     queue = []
     games = []
 
-    constructor() {
-        super();
-        setInterval(() => {console.log(this.games.length)},2000)
-    }
-
     /**
      * 
      * @param {User} user 
@@ -22,7 +17,7 @@ export class LobbyHandler extends EventEmitter {
         // If a user disconnects while in the queue, remove the user from the queue 
         user.on(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user));
         // If a user sends action to stop searching for games, 
-        user.on(ACTIONS.STOP_FIND_GAME,this.removeUserFromQueue.bind(this,user));
+        user.on(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user));
         
         if (this.queue.length >= 2) {
             // Take the first two users in the queue and remove them
@@ -44,11 +39,12 @@ export class LobbyHandler extends EventEmitter {
 
     gameFinished(game) {
         this.games = this.games.filter((g) => {return g != game});
+        console.log("Game finished")
     }
 
     removeUserFromQueue(user) {
         user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user))
-        user.removeListener(ACTIONS.STOP_FIND_GAME,this.removeUserFromQueue.bind(this,user))
+        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user))
         this.queue = this.queue.filter((u) => {return u != user});
         return user // Returns the user that got removed
     }

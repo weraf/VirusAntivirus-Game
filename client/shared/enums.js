@@ -5,7 +5,7 @@
  */
 export const ACTIONS = {
     FIND_GAME: "find_game", // Looking for game (join the game queue)
-    STOP_FIND_GAME: "stop_find_game", // Left the looking for game queue
+    STOP_FINDING_GAME: "stop_finding_game", // Left the looking for game queue
     DISCONNECT: "disconnect", // When the user disconnects
 } 
 

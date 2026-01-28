@@ -1,10 +1,12 @@
 import { Player } from "./player.js";
 import { ACTIONS, EVENTS } from "../client/shared/enums.js";
 import EventEmitter from "node:events";
-// Class for handling the flow of an match
+
+// Class for handling the flow and events of a match
 export class GameServer extends EventEmitter {
     p1;
     p2;
+    gameOver = false;
 
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -16,6 +18,7 @@ export class GameServer extends EventEmitter {
      */
     constructor(player1, player2) {
         super();
+        console.log("Game started!")
         this.p1 = player1;
         this.p2 = player2;
         this.emitAll(EVENTS.GAME_FOUND);
@@ -34,8 +37,12 @@ export class GameServer extends EventEmitter {
     }
 
     gameFinished() {
-        console.log("ud")
-        this.emit(SIGNAL_GAME_FINISHED)
+        if (this.gameOver) {
+            return;
+        }
+        this.gameOver = true;
+        // The lobbyhandler listens to this and removed the GameServer instance from the games array
+        this.emit(GameServer.SIGNAL_GAME_FINISHED);
     }
 
 

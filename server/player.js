@@ -21,7 +21,6 @@ export class Player extends EventEmitter {
     gotEvent(eventName, ...args) {
         // Call the real event emitter function
         super.emit(eventName,...args);
-        //console.log("Got event", eventName, ...args)
         
     }
 
