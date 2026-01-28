@@ -1,11 +1,9 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
-
-// Importera klasser från Task 2.1:
 import { testPrint } from "./shared/test_shared.js";
+
 import { Board } from "./shared/board.js";
-import { Virus } from "./shared/virus.js";
-import { Antivirus } from "./shared/antivirus.js";
-import { Bug } from "./shared/bug.js"; // Kontrollera att filen heter bug.js och inte bugg.js
+import { BoardCreator } from "./boardCreator.js";
+
 import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 
 testPrint();// Ska skriva ut i konsolen
@@ -29,26 +27,13 @@ class Game extends Phaser.Scene {
         // Hämta datan från JSON-filen
         const data = this.cache.json.get('minKarta');
         
-        // Skapa en instans av Brädes klassen
+        // Skapa Brädet
         this.gameBoard = new Board();
+        
+        // fyller brädet med boardCreator klassen
+        BoardCreator.createFromJSON(this.gameBoard, data);
 
-        // BoardCreator
-        if (data) {
-            data.nodes.forEach(node => {
-                // Viktigt: kolla att namnen stämmer!!
-                this.gameBoard.addNode(node.id, node.pos_x, node.pos_y, node.type);
-            });
-
-            data.edges.forEach(edge => {
-                this.gameBoard.addEdge(edge.from, edge.to);
-            });
-            
-            console.log("Funkar! Antal noder:", this.gameBoard.nodes.size);
-        } else {
-            console.error("Kunde inte hitta kartdata");
-        }
-		
-		// -=< STORY 2 || TASK 4 >=-
+        // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
 		this.gameDrawer.draw();
