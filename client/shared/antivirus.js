@@ -1,4 +1,3 @@
-//client//shared//antivirus.js
 
 /** 
  * 
