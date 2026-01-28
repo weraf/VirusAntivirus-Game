@@ -18,7 +18,7 @@ class Game extends Phaser.Scene {
         htmlManager.loadAll(["./ui/testui.html", "./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
             let testui = htmlManager.create("testui");
             let mainmenu = htmlManager.create("mainmenu");
-            let queue = htmlManager.create("queue", {"state": "Testing"})
+            let queue = htmlManager.create("queue", {"state": "Searching for game."})
             socket.on("game_found", () => {queue.setPlaceholder("state", "Game Found!")})
             htmlManager.showOnly(mainmenu);
 
