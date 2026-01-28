@@ -47,6 +47,11 @@ class Game extends Phaser.Scene {
         } else {
             console.error("Kunde inte hitta kartdata");
         }
+		
+		// -=< STORY 2 || TASK 4 >=-
+		// Create GameDrawer and print board
+		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+		this.gameDrawer.draw();
 
         // ----- TESTLOGIK: ------
 
