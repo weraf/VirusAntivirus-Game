@@ -1,14 +1,14 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
 
 // Importera klasser från Task 2.1:
+import { testPrint } from "./shared/test_shared.js";
 import { Board } from "./shared/board.js";
 import { Virus } from "./shared/virus.js";
 import { Antivirus } from "./shared/antivirus.js";
-import { Bug } from "./shared/bug.js";
+import { Bug } from "./shared/bug.js"; // Kontrollera att filen heter bug.js och inte bugg.js
+import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 
-import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
-
-testPrint(); // Ska skriva ut i konsolen
+testPrint();// Ska skriva ut i konsolen
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 
@@ -19,7 +19,7 @@ class Game extends Phaser.Scene {
     preload() {
         
         // Första kartan
-        this.load.json('minKarta', './assets/map1.json'); 
+        this.load.json('minKarta', './assets/map1.json');
     }
 
     create() {
@@ -29,8 +29,22 @@ class Game extends Phaser.Scene {
         
         // Skapa en instans av Brädes klassen
         this.gameBoard = new Board();
-        // Här nere kan man sätta in logiken för att fylla brädet...
 
+        // BoardCreator
+        if (data) {
+            data.nodes.forEach(node => {
+                // Viktigt: kolla att namnen stämmer!!
+                this.gameBoard.addNode(node.id, node.pos_x, node.pos_y, node.type);
+            });
+
+            data.edges.forEach(edge => {
+                this.gameBoard.addEdge(edge.from, edge.to);
+            });
+            
+            console.log("Funkar! Antal noder:", this.gameBoard.nodes.size);
+        } else {
+            console.error("Kunde inte hitta kartdata");
+        }
 
         // ----- TESTLOGIK: ------
         // Rita en röd testcirkel i mitten av skärmen

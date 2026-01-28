@@ -6,7 +6,7 @@
  * 
  * */ 
 
-class Antivirus {
+export class Antivirus {
     
     constructor() {
         

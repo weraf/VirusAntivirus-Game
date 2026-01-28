@@ -6,7 +6,7 @@
  * 
  */
 
-export class Bugg {
+export class Bug {
     
     constructor() {
         
