@@ -20,6 +20,7 @@ class Game extends Phaser.Scene {
         
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
+        // Kan ändras när man lägger in fler kartor!
     }
 
     create() {
