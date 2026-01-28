@@ -50,7 +50,7 @@ class Game extends Phaser.Scene {
             let mainmenu = htmlManager.create("mainmenu");
             let queue = htmlManager.create("queue", {"state": "Testing"})
             socket.on("game_found", () => {queue.setPlaceholder("state", "Game Found!")})
-            htmlManager.showOnly(mainmenu);
+            htmlManager.showOnly(null);
 
             //testui.testbutton.onclick = () => {
             //    testui.switchTo(mainmenu)
