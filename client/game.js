@@ -1,8 +1,5 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
-import { testPrint } from "./shared/test_shared.js";
 import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
-
-testPrint(); // Ska skriva ut i konsolen
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();

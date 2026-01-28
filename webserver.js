@@ -17,7 +17,7 @@ httpServer.listen(3000, () => {
 function startWebServer() {
     app.use(staticServe("./client/"))
     app.listen(3000,() => {
-        console.log("Web Server Started!")
+        console.log("Web Server Started at http://localhost:3000")
     })
 }
 
