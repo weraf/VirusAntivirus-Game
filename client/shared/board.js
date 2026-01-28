@@ -1,6 +1,6 @@
 //client//shared//Board.js
 
-class Board {
+export class Board {
     
     constructor() {
         /**

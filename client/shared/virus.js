@@ -6,7 +6,7 @@
  * 
  * */ 
 
-class Virus {
+export class Virus {
     
     constructor() {
         
