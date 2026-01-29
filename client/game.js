@@ -46,9 +46,6 @@ class Game extends Phaser.Scene {
         // Rita en röd testcirkel i mitten av skärmen
         //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
         //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
-        console.log(this.scale.width);
-        this.cameras.main.setZoom(2.0);
-        console.log(this.scale.width);
 
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/testui.html", "./ui/mainmenu.html", "./ui/queue.html"]).then(() => {

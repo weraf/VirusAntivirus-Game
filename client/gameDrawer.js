@@ -18,6 +18,7 @@ export class GameDrawer {
 
     // Moves and zooms the camera so that the entire board fits
     centerCamera() {
+        // Find the bounds of the nodes on the board
         let minX = 9999;
         let minY = 9999;
         let maxX = -9999;
