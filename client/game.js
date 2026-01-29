@@ -39,7 +39,6 @@ class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-		
 
         // ----- TESTLOGIK: ------
 
@@ -57,10 +56,8 @@ class Game extends Phaser.Scene {
                 
                 //brädet ska ej visas förrän ett spel har startat!
                 this.gameDrawer.draw(); 
-            
-                // centrera kameran för att allt ska synas
-                this.cameras.main.centerOn(400, 450); 
-                this.cameras.main.setZoom(0.6);
+                // Gör så att brädet ritas om om skärmstorleken ändras (då håller den sig centrerad)
+                this.scale.on("resize",() => {this.gameDrawer.draw();})
 
             });
             htmlManager.showOnly(mainmenu);
@@ -92,8 +89,8 @@ class Game extends Phaser.Scene {
 }
 
 const config = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth*window.devicePixelRatio,
+    height: window.innerHeight*window.devicePixelRatio,
     type: Phaser.AUTO,
     scale: {
             // För att spelet ska fylla hela skärmen
