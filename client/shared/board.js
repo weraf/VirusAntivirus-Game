@@ -1,4 +1,4 @@
-//client//shared//Board.js
+
 
 export class Board {
     

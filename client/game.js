@@ -6,6 +6,8 @@ import { BoardCreator } from "./boardCreator.js";
 
 import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 
+import { GameDrawer } from "./gameDrawer.js";
+
 testPrint();// Ska skriva ut i konsolen
 
 
@@ -34,6 +36,11 @@ class Game extends Phaser.Scene {
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
 
+        // -=< STORY 2 || TASK 4 >=-
+		// Create GameDrawer and print board
+		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+		// kameran ska automatiskt zooma ut
+
         // ----- TESTLOGIK: ------
 
         // Rita en röd testcirkel i mitten av skärmen
@@ -45,7 +52,16 @@ class Game extends Phaser.Scene {
             let testui = htmlManager.create("testui");
             let mainmenu = htmlManager.create("mainmenu");
             let queue = htmlManager.create("queue", {"state": "Testing"})
-            socket.on("game_found", () => {queue.setPlaceholder("state", "Game Found!")})
+            socket.on("game_found", () => {
+                queue.setPlaceholder("state", "Game Found!");
+                
+                //brädet ska ej visas förrän ett spel har startat!
+                this.gameDrawer.draw(); 
+            
+                // centrera kameran för att allt ska synas
+                this.cameras.main.centerOn(400, 450); 
+                this.cameras.main.setZoom(0.6);
+            });
             htmlManager.showOnly(mainmenu);
 
             //testui.testbutton.onclick = () => {
