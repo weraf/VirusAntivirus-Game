@@ -39,7 +39,7 @@ class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-		// kameran ska automatiskt zooma ut
+		
 
         // ----- TESTLOGIK: ------
 
