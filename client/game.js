@@ -39,7 +39,7 @@ class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-		// kameran ska automatiskt zooma ut
+		
 
         // ----- TESTLOGIK: ------
 
@@ -61,6 +61,7 @@ class Game extends Phaser.Scene {
                 // centrera kameran för att allt ska synas
                 this.cameras.main.centerOn(400, 450); 
                 this.cameras.main.setZoom(0.6);
+
             });
             htmlManager.showOnly(mainmenu);
 
