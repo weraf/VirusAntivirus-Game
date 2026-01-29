@@ -46,6 +46,9 @@ class Game extends Phaser.Scene {
         // Rita en röd testcirkel i mitten av skärmen
         //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
         //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
+        console.log(this.scale.width);
+        this.cameras.main.setZoom(2.0);
+        console.log(this.scale.width);
 
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/testui.html", "./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
@@ -54,13 +57,9 @@ class Game extends Phaser.Scene {
             let queue = htmlManager.create("queue", {"state": "Testing"})
             socket.on("game_found", () => {
                 queue.setPlaceholder("state", "Game Found!");
-                
                 //brädet ska ej visas förrän ett spel har startat!
                 this.gameDrawer.draw(); 
             
-                // centrera kameran för att allt ska synas
-                this.cameras.main.centerOn(400, 450); 
-                this.cameras.main.setZoom(0.6);
             });
             htmlManager.showOnly(mainmenu);
 
@@ -91,8 +90,8 @@ class Game extends Phaser.Scene {
 }
 
 const config = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth*window.devicePixelRatio,
+    height: window.innerHeight*window.devicePixelRatio,
     type: Phaser.AUTO,
     scale: {
             // För att spelet ska fylla hela skärmen
