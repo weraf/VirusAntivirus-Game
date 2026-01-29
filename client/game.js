@@ -54,14 +54,9 @@ class Game extends Phaser.Scene {
             let queue = htmlManager.create("queue", {"state": "Testing"})
             socket.on("game_found", () => {
                 queue.setPlaceholder("state", "Game Found!");
-                
                 //brädet ska ej visas förrän ett spel har startat!
                 this.gameDrawer.draw(); 
             
-                // centrera kameran för att allt ska synas
-                this.cameras.main.centerOn(400, 450); 
-                this.cameras.main.setZoom(0.6);
-
             });
             htmlManager.showOnly(mainmenu);
 
@@ -92,8 +87,8 @@ class Game extends Phaser.Scene {
 }
 
 const config = {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth*window.devicePixelRatio,
+    height: window.innerHeight*window.devicePixelRatio,
     type: Phaser.AUTO,
     scale: {
             // För att spelet ska fylla hela skärmen
