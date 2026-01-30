@@ -11,9 +11,13 @@ export class Node {
 
     // för att hitta grannar och läga till i grann-listan
     addNeighbor(nodeInstance) {
-        if (!this.neighbors.includes(nodeInstance)) {
+        if (!this.hasNeighbor(nodeInstance)) {
             this.neighbors.push(nodeInstance);
         }
+    }
+
+    hasNeighbor(nodeInstance) {
+        return this.neighbors.includes(nodeInstance);
     }
 
     // Hämta bara ID:n på grannarna
