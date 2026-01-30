@@ -12,10 +12,16 @@ export class GameDrawer {
         this.scene = scene;
         this.board = board;
         this.graphics = scene.add.graphics();
+
+		// kolla om skärmen är högre än den är bred
+        this.isRotated = scene.scale.width > scene.scale.height;
     }
     
-    draw(highlightIds = []) {
+	draw(highlightIds = []) {
         this.graphics.clear();
+        // Uppdatera rotation baserat på skärmen
+        this.isRotated = this.scene.scale.width > this.scene.scale.height;
+        
         this.centerCamera();
         this.drawEdges();
         this.drawNodes(highlightIds);
@@ -23,72 +29,56 @@ export class GameDrawer {
     
     drawNodes(highlightIds) {
         for (const node of this.board.getAllNodes()) {
-            if (highlightIds.includes(node.id)) {
-                this.graphics.fillStyle(0xffff00, 1);
-            } else {
-                this.graphics.fillStyle(node.type === 'server' ? 0xb5b5b5 : 0xe5e5e5, 1);
-            }
+            this.graphics.fillStyle(highlightIds.includes(node.id) ? 0xffff00 : 
+                                   (node.type === 'server' ? 0xb5b5b5 : 0xe5e5e5), 1);
     
-            // Bytt plats på X och Y för att rotera 90 grader
+            //koordinater beroende på isRotated
+            let drawX = this.isRotated ? node.y : node.x;
+            let drawY = this.isRotated ? node.x : node.y;
+
             if (node.type === 'server') {
-                this.graphics.fillRect(node.y - 20, node.x - 20, 40, 40);
+                this.graphics.fillRect(drawX - 20, drawY - 20, 40, 40);
             } else {
-                this.graphics.fillCircle(node.y, node.x, 18);
+                this.graphics.fillCircle(drawX, drawY, 18);
             }
         }
     }
     
     drawEdges() {
         this.graphics.lineStyle(3, 0xffffff, 0.3); 
-        
         for (const node of this.board.getAllNodes()) {
             for (const neighbor of node.neighbors) {
-                
                 if (node.id < neighbor.id) {
-                    this.graphics.lineBetween(node.y, node.x, neighbor.y, neighbor.x);
+                    
+                    let x1 = this.isRotated ? node.y : node.x;
+                    let y1 = this.isRotated ? node.x : node.y;
+                    let x2 = this.isRotated ? neighbor.y : neighbor.x;
+                    let y2 = this.isRotated ? neighbor.x : neighbor.y;
+
+                    this.graphics.lineBetween(x1, y1, x2, y2);
                 }
             }
         }
     }
 
     centerCamera() {
-        // Find the bounds of the nodes on the board
-        let minX = 9999;
-        let minY = 9999;
-        let maxX = -9999;
-        let maxY = -9999;
-
-        const rotated = true;
+        let minX = 9999, minY = 9999, maxX = -9999, maxY = -9999;
 
         for (const node of this.board.getAllNodes()) {
-            let x = rotated ? node.y : node.x;
-            let y = rotated ? node.x : node.y;
-            minX = Math.min(x,minX);
-            minY = Math.min(y,minY);
-            maxX = Math.max(x,maxX);
-            maxY = Math.max(y,maxY);
+            
+            let x = this.isRotated ? node.y : node.x;
+            let y = this.isRotated ? node.x : node.y;
+            minX = Math.min(x, minX); minY = Math.min(y, minY);
+            maxX = Math.max(x, maxX); maxY = Math.max(y, maxY);
         }
 
-        // Add node margins:
-        const margin = 30;
-        minX -= margin;
-        minY -= margin;
-        maxX += margin;
-        maxY += margin;
-
-        // The center is the average
-        const centerX = (minX+maxX)/2;
-        const centerY = (minY+maxY)/2;
+        const margin = 50;
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
         
-        this.scene.cameras.main.centerOn(centerX,centerY)
-
-        let sizeX = maxX-minX;
-        let sizeY = maxY-minY;
-
-        // Take the lowest zoom so that nothing goes outside the camera bounds
-        let zoom = Math.min(this.scene.scale.width/sizeX, this.scene.scale.height/sizeY);
-
+        this.scene.cameras.main.centerOn(centerX, centerY);
+        let zoom = Math.min(this.scene.scale.width / (maxX - minX + margin * 2), 
+                            this.scene.scale.height / (maxY - minY + margin * 2));
         this.scene.cameras.main.setZoom(zoom);
-
     }
 }
