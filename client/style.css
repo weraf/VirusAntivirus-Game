@@ -56,3 +56,13 @@ body, html {
     text-align: center;
 }
 
+#abort {
+    width: 240px;
+    border-radius: 10px;
+    text-align: center;
+    height: 50px;
+}
+
+.language {
+    margin-top: 100px;
+}

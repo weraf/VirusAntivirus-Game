@@ -1,5 +1,7 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
 import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
+import { ACTIONS }  from "./shared/enums.js";
+import { Translator } from "./translator.js";
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();
@@ -15,9 +17,29 @@ class Game extends Phaser.Scene {
         htmlManager.loadAll(["./ui/testui.html", "./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
             let testui = htmlManager.create("testui");
             let mainmenu = htmlManager.create("mainmenu");
-            let queue = htmlManager.create("queue", {"state": "Searching for game."})
-            socket.on("game_found", () => {queue.setPlaceholder("state", "Game Found!")})
+            let queue = htmlManager.create("queue", {"state": "Väntar på motståndare..."})
+
+            //http://localhost:3000/
+
+            // Testing
+
             htmlManager.showOnly(mainmenu);
+
+
+            
+            let test = Translator.getText("startbutton");
+            mainmenu.setPlaceholder("startbutton", test);
+
+            
+        
+        
+            socket.on("game_found", () => {
+                queue.setPlaceholder("state", "Match hittad!")
+                HtmlManager.hide(queue.abort)
+                }
+            )
+            
+
 
             //testui.testbutton.onclick = () => {
             //    testui.switchTo(mainmenu)
@@ -36,14 +58,22 @@ class Game extends Phaser.Scene {
 //            mainmenu.spectator.onclick = () => {
 //
 //            }
-
             mainmenu.start.onclick = () => {
                 mainmenu.switchTo(queue)
-                socket.emit("find_game")
+                socket.emit(ACTIONS.FIND_GAME)
             }
+
+            queue.abort.onclick = () => {
+                queue.switchTo(mainmenu)
+                socket.emit(ACTIONS.STOP_FINDING_GAME)
+                
+            }
+
+            
         })
     }
 }
+
 
 const config = {
     width: window.innerWidth,
@@ -58,4 +88,6 @@ const config = {
     scene: Game
 };
 
+
+await Translator.init();
 const game = new Phaser.Game(config);
