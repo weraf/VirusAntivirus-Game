@@ -57,7 +57,9 @@ class Game extends Phaser.Scene {
                 //brädet ska ej visas förrän ett spel har startat!
                 this.gameDrawer.draw(); 
                 // Gör så att brädet ritas om om skärmstorleken ändras (då håller den sig centrerad)
-                this.scale.on("resize",() => {this.gameDrawer.draw();})
+                this.scale.on("resize", () => {
+                    this.gameDrawer.draw();
+                });
 
             });
             htmlManager.showOnly(mainmenu);
