@@ -15,7 +15,7 @@ export class Translator {
 
     static async setText() {
         try {
-            const response = await fetch("./test.json");
+            const response = await fetch("./languages.json");
             const data = await response.json();
 
             Translator.dictionary = data;
