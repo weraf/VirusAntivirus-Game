@@ -58,7 +58,7 @@ class Game extends Phaser.Scene {
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
             let mainmenu = htmlManager.create("mainmenu");
-            let queue = htmlManager.create("queue", {"state": "Testing"})
+            let queue = htmlManager.create("queue", {"state": "Söker spel"})
             socket.on("game_found", () => {
                 queue.setPlaceholder("state", "Game Found!");
                 
@@ -83,7 +83,7 @@ class Game extends Phaser.Scene {
             socket.on("game_found", () => {
                 queue.setPlaceholder("state", "Match hittad!")
                 queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                HtmlManager.hide(queue.abort)
+                queue.hide();
                 }
             )
             
