@@ -44,8 +44,11 @@ class Game extends Phaser.Scene {
 
 
         // STORY 3
+        // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-        this.inputHandler.enableInput();
+        this.inputHandler.addInput(this.gameBoard.getNode('n0'), (node) => {
+        //    console.log('Klickade på ', node.id)
+        });
 
 
         // ----- TESTLOGIK: ------
