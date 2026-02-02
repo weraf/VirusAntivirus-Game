@@ -5,35 +5,23 @@ export default class InputHandler {
         this.activeObjects = new Set();
     }
 
-    enableInput() {
-        this.disableAllInput();
+    addInput(node, func) {
+        let clickZone;
+        const hitArea = new Phaser.Geom.Circle(0, 0, 25);
+        clickZone = this.scene.add.zone(node.y, node.x);
+        clickZone.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
 
-        for (const node of this.board.getAllNodes()) {
-            let clickZone;
+        clickZone.on('pointerdown', () => {
+            func(node);
+        });
 
-            if (node.type === 'node') {
-                const hitNode = new Phaser.Geom.Circle(0, 0, 18);
-                clickZone = this.scene.add.zone(node.y, node.x);
-                clickZone.setInteractive(hitNode, Phaser.Geom.Circle.Contains);
-            } else {
-                const hitServer = new Phaser.Geom.Rectangle(0, 0, 40, 40);
-                clickZone = this.scene.add.zone(node.y, node.x, 40, 40);
-                clickZone.setInteractive(hitServer, Phaser.Geom.Rectangle.Contains);
-            }
-
-            clickZone.on('pointerdown', () => {
-                console.log("id:", node.id, "x:", node.x, "y:", node.y, "nodtyp:", node.type);
-                console.log("Grannar: ", node.getNeighborIds().join(', '));
-            });
-
-            this.activeObjects.add(clickZone);
-        }
+        this.activeObjects.add(clickZone);
     }
 
-    disableAllInput() {
-        this.activeObjects.forEach(node => {
-            node.removeAllListeners();
-            node.disableInteractive();
+    removeAllInput() {
+        this.activeObjects.forEach(clickZone => {
+            clickZone.removeAllListeners();
+            clickZone.disableInteractive();
         });
         this.activeObjects.clear();
     }
