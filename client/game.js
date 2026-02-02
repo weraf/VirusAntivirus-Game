@@ -8,6 +8,8 @@ import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 
+import InputHandler from "./inputhandler.js"
+
 testPrint();// Ska skriva ut i konsolen
 
 
@@ -39,6 +41,12 @@ class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+
+
+        // STORY 3
+        this.inputHandler = new InputHandler(this, this.gameBoard);
+        this.inputHandler.enableInput();
+
 
         // ----- TESTLOGIK: ------
 
