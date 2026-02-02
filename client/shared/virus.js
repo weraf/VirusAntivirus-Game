@@ -69,7 +69,7 @@ export class Virus {
     getValidMoves() {
         const moves = [];
         for (let node of this.getHeadNode().neighbors) {
-            if (!this.nodes.includes(node)) { //this.board.isNodeEmpty(node)
+            if (!this.nodes.includes(node) || node == this.nodes[this.nodes.length-1]) { //this.board.isNodeEmpty(node)
                 moves.push(node);
             }
         }

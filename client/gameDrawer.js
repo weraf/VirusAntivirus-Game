@@ -18,8 +18,8 @@ export class GameDrawer {
         this.isRotated = scene.scale.width > scene.scale.height;
         this.virusSprites = [];
         this.virusSprites = [];
-        this.snakeLineGraphics = scene.add.graphics();
-        this.snakeLineGraphics.lineStyle(14, 0xff0020)
+        this.virusLineGraphics = scene.add.graphics();
+        this.virusMoveTweens = [];
     }
     
 	draw(highlightIds = []) {
@@ -47,18 +47,30 @@ export class GameDrawer {
      * @param {Virus} virus 
      */
     drawVirus(virus) {
+        const HEAD_RADIUS = 14;
+        const LINE_RADIUS = 10;
+
+        // First, clear already running tweens to avoid graphical glitches
+        for (const tween of this.virusMoveTweens) {
+            tween.remove();
+            tween.destroy();
+        }
+        
+        // Empty the array
+        this.virusMoveTweens = [];
+
         if (virus.nodes.length > this.virusSprites.length) {
             // First: Add missing sprites
             for (let n = this.virusSprites.length; n < virus.nodes.length; n++) {
                 let node = virus.nodes[n];
-                this.virusSprites.push(this.scene.add.circle(this.getNodeX(node),this.getNodeY(node),14,0xff0020));
+                this.virusSprites.push(this.scene.add.circle(this.getNodeX(node),this.getNodeY(node),n == 0 ? HEAD_RADIUS : LINE_RADIUS,0xff0020));
             }
         }
         // Then: Animate each sprite to it's rightful position
-        for (let n = 0; n < virus.nodes.length; n++) {
-            let node = virus.nodes[n];
-            let sprite = this.virusSprites[n];
-            this.scene.tweens.add({
+        for (let index = 0; index < virus.nodes.length; index++) {
+            let node = virus.nodes[index];
+            let sprite = this.virusSprites[index];
+            const moveTween = this.scene.tweens.add({
                 targets:sprite,
                 x: this.getNodeX(node),
                 y: this.getNodeY(node),
@@ -69,16 +81,25 @@ export class GameDrawer {
                         return // Only update on y
                     }
                     if (target == this.virusSprites[0]) {
-                        this.snakeLineGraphics.clear(); // First in the line, clear last frame
+                        this.virusLineGraphics.clear(); // First in the line, clear last frame
                     }
-                    // TODO: draw line bwteen the sprites
-                    if (target == this.virusSprites[this.virusSprites.length-1]) {
-
+                    
+                    this.virusLineGraphics.lineStyle(LINE_RADIUS*2, 0xff0020);
+                    this.virusLineGraphics.fillStyle(0xff0020);
+                    // If not the head node, draw a line forward to the next node
+                    if (index != 0) {
+                        this.virusLineGraphics.lineBetween(target.x,target.y,this.getNodeX(node),this.getNodeY(node));
                     }
-                    this.snakeLineGraphics.lineBetween()
+                    if (index != virus.nodes.length-1) {
+                        const lastNode = virus.nodes[index+1];
+                        this.virusLineGraphics.lineBetween(target.x,target.y,this.getNodeX(lastNode),this.getNodeY(lastNode));
+                        this.virusLineGraphics.fillCircle(this.getNodeX(lastNode),this.getNodeY(lastNode),LINE_RADIUS)
+                    }
+                    
 
                 }
             })
+            this.virusMoveTweens.push(moveTween);
 
         }
     }

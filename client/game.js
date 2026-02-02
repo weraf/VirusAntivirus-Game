@@ -39,7 +39,7 @@ class Game extends Phaser.Scene {
         BoardCreator.createFromJSON(this.gameBoard, data);
         
         // Skapa en orm (OBS, ska vara i board senare)
-        this.virus = new Virus(this.gameBoard,[this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.virus = new Virus(this.gameBoard,[this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2"),this.gameBoard.getNode("n2"),this.gameBoard.getNode("n2")]);
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
@@ -52,7 +52,7 @@ class Game extends Phaser.Scene {
             }
             this.virus.moveTo(validMoves[Math.floor(Math.random()*validMoves.length)]);
             this.gameDrawer.drawVirus(this.virus);
-        },1000)
+        },200)
         // ----- TESTLOGIK: ------
 
         // Rita en röd testcirkel i mitten av skärmen
