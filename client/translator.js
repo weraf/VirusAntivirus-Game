@@ -3,12 +3,13 @@ export class Translator {
     static language = "sv"; // sv = svenska, en = engelska, da = danska, no = norska, fi = finska, zh = kinesiska
 
 
-    // NU laddas det in
+    static init = async () => {
+        await Translator.setText();
+    }
+
+    // Nu laddas det in
     static dictionary = {
-//        "startbutton": {
-//            sv: "Spela",
-//            zh: "Balala"
-//        }
+
     }
     
 
@@ -25,12 +26,9 @@ export class Translator {
         }
     }
 
-    static init = async () => {
-        await Translator.setText();
+    static setLanguage(language) {
+        Translator.language = language;
     }
-
-
-
 
     // Placeholdernodes.keys, iterera genom dem för att replacea placeholders
 
@@ -38,8 +36,12 @@ export class Translator {
         return Translator.dictionary[key][Translator.language];
     }
 
+    static getDictionary() {
+        return Translator.dictionary;
 
-    
+    }
 
-
+    static getLanguage() {
+        return Translator.language;
+    }
 }

@@ -21,20 +21,19 @@ class Game extends Phaser.Scene {
 
             //http://localhost:3000/
 
-            // Testing
-
             htmlManager.showOnly(mainmenu);
 
+            mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
 
-            
-            let test = Translator.getText("startbutton");
-            mainmenu.setPlaceholder("startbutton", test);
+            //mainmenu.setPlaceholders(
+            //    Object.fromEntries(Object.entries(Translator.getDictionary()).map(([k,v]) => [k, v[Translator.language]]))
+            //);
 
-            
-        
-        
+            // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
+ 
             socket.on("game_found", () => {
                 queue.setPlaceholder("state", "Match hittad!")
+                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 HtmlManager.hide(queue.abort)
                 }
             )
@@ -61,12 +60,18 @@ class Game extends Phaser.Scene {
             mainmenu.start.onclick = () => {
                 mainmenu.switchTo(queue)
                 socket.emit(ACTIONS.FIND_GAME)
+                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             }
 
             queue.abort.onclick = () => {
                 queue.switchTo(mainmenu)
                 socket.emit(ACTIONS.STOP_FINDING_GAME)
                 
+            }
+
+            mainmenu.language_button.onclick = () => {
+                Translator.setLanguage("zh");
+                mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             }
 
             

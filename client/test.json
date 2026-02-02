@@ -6,5 +6,18 @@
     "no": "Spille",
     "fi": "Pelaa",
     "zh": "玩"
+  },
+  "languagebutton": {
+    "sv": "Ändra språk",
+    "en": "Change language",
+    "da": "Skift sprog",
+    "no": "Bytt språk",
+    "fi": "Vaihda kieli",
+    "zh": "更改语言"
+  },
+  "abort": {
+    "sv": "Avbryt",
+    "zh": "取消"
   }
+
 }
