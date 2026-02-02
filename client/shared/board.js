@@ -1,39 +1,30 @@
-//client//shared//Board.js
+import { Node } from "./node.js";
 
-class Board {
-    
+export class Board {
     constructor() {
-        /**
-         * Klass för spelbrädet
-         * Lagrar alla noder och deras kopplingar.
-         */
-        
-        this.nodes = new Map(); // nod-data med Nyckel: ID
-        
-        this.edges = [];   // kopplingar mellan nod-ID:n
+        this.nodes = new Map();
     }
 
-    // Lägg till en nod på brädet:
-    addNode(id, x, y, typ) {
-        
-        this.nodes.set(id, { 
-            
-            id, x, y, typ
-        });
+    addNode(id, x, y, type) {
+        const newNode = new Node(id, x, y, type);
+        this.nodes.set(id, newNode);
     }
 
-    // Koppla två noder:
     addEdge(fromId, toId) {
-        
-        this.edges.push({ 
-            
-            from: fromId, to: toId 
-        });
+        const fromNode = this.nodes.get(fromId);
+        const toNode = this.nodes.get(toId);
+
+        if (fromNode && toNode) {
+            fromNode.addNeighbor(toNode);
+            toNode.addNeighbor(fromNode);
+        }
     }
 
-    // Hämta alla noder som en lista
+    getNode(id) {
+        return this.nodes.get(id);
+    }
+
     getAllNodes() {
         return Array.from(this.nodes.values());
     }
-
 }

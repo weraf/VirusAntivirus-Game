@@ -1,4 +1,4 @@
-//client//shared//bug.js
+
 
 /**
  * 
@@ -6,7 +6,7 @@
  * 
  */
 
-export class Bugg {
+export class Bug {
     
     constructor() {
         

@@ -1,4 +1,4 @@
-//client//shared//virus.js
+
 
 /** 
  * 
@@ -6,7 +6,7 @@
  * 
  * */ 
 
-class Virus {
+export class Virus {
     
     constructor() {
         

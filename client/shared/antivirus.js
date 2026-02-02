@@ -1,4 +1,3 @@
-//client//shared//antivirus.js
 
 /** 
  * 
@@ -6,7 +5,7 @@
  * 
  * */ 
 
-class Antivirus {
+export class Antivirus {
     
     constructor() {
         
