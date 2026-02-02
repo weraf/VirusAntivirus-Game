@@ -5,25 +5,29 @@ export default class InputHandler {
         this.activeObjects = new Set();
     }
 
-    enableInput() {
+    enableInput(isRotated) {
         this.disableAllInput();
 
         for (const node of this.board.getAllNodes()) {
             let clickZone;
 
+            let drawX = isRotated ? node.y : node.x;
+            let drawY = isRotated ? node.x : node.y;
+
             if (node.type === 'node') {
                 const hitNode = new Phaser.Geom.Circle(0, 0, 18);
-                clickZone = this.scene.add.zone(node.y, node.x);
+                clickZone = this.scene.add.zone(drawX, drawY);
                 clickZone.setInteractive(hitNode, Phaser.Geom.Circle.Contains);
             } else {
                 const hitServer = new Phaser.Geom.Rectangle(0, 0, 40, 40);
-                clickZone = this.scene.add.zone(node.y, node.x, 40, 40);
+                clickZone = this.scene.add.zone(drawX, drawY, 40, 40);
                 clickZone.setInteractive(hitServer, Phaser.Geom.Rectangle.Contains);
             }
 
             clickZone.on('pointerdown', () => {
                 console.log("id:", node.id, "x:", node.x, "y:", node.y, "nodtyp:", node.type);
                 console.log("Grannar: ", node.getNeighborIds().join(', '));
+                this.scene.handleNodeClick(node.id);
             });
 
             this.activeObjects.add(clickZone);

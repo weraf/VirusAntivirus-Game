@@ -60,13 +60,17 @@ class Game extends Phaser.Scene {
             let mainmenu = htmlManager.create("mainmenu");
             let queue = htmlManager.create("queue", {"state": "Söker spel"})
             socket.on("game_found", () => {
+                queue.hide();
                 queue.setPlaceholder("state", "Game Found!");
                 
                 //brädet ska ej visas förrän ett spel har startat!
-                this.gameDrawer.draw(); 
+                this.gameDrawer.draw();
+                
+                this.inputHandler.enableInput(this.gameDrawer.isRotated);
                 // Gör så att brädet ritas om om skärmstorleken ändras (då håller den sig centrerad)
                 this.scale.on("resize", () => {
                     this.gameDrawer.draw();
+                    this.inputHandler.enableInput(this.gameDrawer.isRotated);
                 });
 
             });
@@ -79,15 +83,7 @@ class Game extends Phaser.Scene {
             //);
 
             // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
- 
-            socket.on("game_found", () => {
-                queue.setPlaceholder("state", "Match hittad!")
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                queue.hide();
-                }
-            )
-            
-
+        
 
             //testui.testbutton.onclick = () => {
             //    testui.switchTo(mainmenu)
