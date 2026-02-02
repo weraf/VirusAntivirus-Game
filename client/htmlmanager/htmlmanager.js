@@ -168,9 +168,18 @@ class HTMLInstance {
 
     setPlaceholder(key,value) {
         if (this.placeholderNodes[key] === undefined) {
-            throw new Error("Couldn't find placeholder: "+key)
+            return
+
+            // lägg till extraparameter ignore om det kommer från translatorklassen 
+
+            // throw new Error("Couldn't find placeholder: "+key)
         }
+
         this.placeholderNodes[key].nodeValue = value;
+    }
+
+    setLanguagePlaceholders(dict, language) {
+        this.setPlaceholders(Object.fromEntries(Object.entries(dict).map(([k,v]) => [k, v[language]])));
     }
 
     findIds(parent) {
