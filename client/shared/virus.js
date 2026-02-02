@@ -30,7 +30,7 @@ export class Virus {
      * @returns {Node}
      */
     getHeadNode() {
-        return nodes[0];
+        return this.nodes[0];
     }
 
     moveTo(node) {
@@ -39,7 +39,7 @@ export class Virus {
         }
         // Insert the new node at the beginning of the array (the head)
         this.nodes.unshift(node)
-        if (!this.board.hasNodeBug(node)) {
+        if (true) { // !this.board.hasNodeBug(node)
             // If we didn't eat an apple, remove the last element (the tail) to make the whole snake move forward
             this.nodes.pop();
         }
@@ -60,7 +60,7 @@ export class Virus {
 
     canMoveToNode(node) {
         // Can't move to a non adjacent or non-empty node (unless theres an bug on the node)
-        return this.getHeadNode().hasNeighbor(node) && (this.board.isNodeEmpty(node) || this.board.hasNodeBug(node));
+        return this.getHeadNode().hasNeighbor(node);
     }
 
     /**
@@ -69,7 +69,7 @@ export class Virus {
     getValidMoves() {
         const moves = [];
         for (let node of this.getHeadNode().neighbors) {
-            if (this.board.isNodeEmpty(node)) {
+            if (!this.nodes.includes(node)) { //this.board.isNodeEmpty(node)
                 moves.push(node);
             }
         }

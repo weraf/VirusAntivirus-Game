@@ -7,6 +7,7 @@ import { BoardCreator } from "./boardCreator.js";
 import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 
 import { GameDrawer } from "./gameDrawer.js";
+import { Virus } from "./shared/virus.js";
 
 testPrint();// Ska skriva ut i konsolen
 
@@ -33,13 +34,25 @@ class Game extends Phaser.Scene {
         // Skapa Brädet
         this.gameBoard = new Board();
         
+        
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
-
+        
+        // Skapa en orm (OBS, ska vara i board senare)
+        this.virus = new Virus(this.gameBoard,[this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-
+        this.gameDrawer.draw();
+        this.gameDrawer.drawVirus(this.virus);
+        setInterval(() => {
+            const validMoves = this.virus.getValidMoves();
+            if (validMoves.length == 0) {
+                return;
+            }
+            this.virus.moveTo(validMoves[Math.floor(Math.random()*validMoves.length)]);
+            this.gameDrawer.drawVirus(this.virus);
+        },1000)
         // ----- TESTLOGIK: ------
 
         // Rita en röd testcirkel i mitten av skärmen
@@ -63,6 +76,7 @@ class Game extends Phaser.Scene {
 
             });
             htmlManager.showOnly(mainmenu);
+            mainmenu.hide();
 
             //testui.testbutton.onclick = () => {
             //    testui.switchTo(mainmenu)
