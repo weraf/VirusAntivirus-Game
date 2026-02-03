@@ -17,9 +17,7 @@ export class GameDrawer {
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(scene.virus, scene);
         
-        this.scene.scale.on("resize",this.centerCamera.bind(this));
-        
-        this.isRotated = null;
+        this.isRotated = false;
     }
     
 	draw(highlightIds = []) {
@@ -34,7 +32,7 @@ export class GameDrawer {
         this.centerCamera();
         this.drawEdges();
         this.drawNodes(highlightIds);
-        this.virusDrawer.draw();
+        this.virusDrawer.update();
     }
 
     // Returns the displayed x position (after potential flipping)
@@ -134,8 +132,13 @@ class VirusDrawer {
         }
     }
 
-    draw() {
+    update() {
         
+        if (this.nextNodes[0] === this.virus.nodes[0]) {
+            // Head hasn't moved, therefor, no animation is needed.
+            this.renderSnakeProgress(this.prevNodes,this.nextNodes,1.0)
+            return;
+        }
         
         // First, clear already running tween to avoid running two tweens at once
         if (this.tween) {
@@ -153,11 +156,6 @@ class VirusDrawer {
             }
         }
 
-        if (this.nextNodes[0] === this.virus.nodes[0]) {
-            // Head hasn't moved, therefor, no animation is needed.
-            this.renderSnakeProgress(this.prevNodes,this.nextNodes,1.0)
-            return;
-        }
 
         this.tween = this.scene.tweens.add({
             targets: this,

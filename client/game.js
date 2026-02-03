@@ -142,14 +142,23 @@ export class Game extends Phaser.Scene {
         htmlManager.hideAll();
         //Rita brädet
         this.gameDrawer.draw(); 
-        
-        //Aktivera input första gången
-        this.refreshInput();
     
         //Hantera resize
         this.scale.on("resize", () => {
             this.gameDrawer.draw();
         });
+        this.virusTurn();
+    }
+
+    virusTurn() {
+        this.inputHandler.removeAllInput();
+        for (const node of this.virus.getValidMoves()) {
+            this.inputHandler.addInput(node, (clicked) => {
+                this.virus.moveTo(clicked);
+                this.gameDrawer.virusDrawer.update();
+                this.virusTurn();
+            })
+        }
     }
     
 }
