@@ -27,14 +27,14 @@ export class GameServer extends EventEmitter {
 
         // If either player disconnect, the game is over and can be removed from the server
         // TODO: send message to players that opponent disconnected
-        this.p1.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
-        this.p2.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
+        this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
+        this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
     }
 
     // Sends an event to both players (and spectators)
     emitAll(eventName, ...args) {
-        this.p1.emit(eventName,...args);
-        this.p2.emit(eventName,...args);
+        this.virusP.emit(eventName,...args);
+        this.antivirusP.emit(eventName,...args);
         // TODO: Send to spectators
     }
 
