@@ -9,6 +9,8 @@ import { BoardCreator } from "./boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 
+import { GameState } from "./gamestate.js"
+
 import InputHandler from "./inputhandler.js"
 
 testPrint();// Ska skriva ut i konsolen
