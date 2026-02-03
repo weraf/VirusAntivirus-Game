@@ -63,15 +63,21 @@ class Game extends Phaser.Scene {
             let mainmenu = htmlManager.create("mainmenu");
             let queue = htmlManager.create("queue", {"state": "Söker spel"})
             socket.on("game_found", () => {
-                queue.setPlaceholder("state", "Game Found!");
+                //UI-logik
+                queue.setPlaceholder("state", "Match hittad!");
+                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+                queue.hide();
                 
-                //brädet ska ej visas förrän ett spel har startat!
+                //Rita brädet
                 this.gameDrawer.draw(); 
-                // Gör så att brädet ritas om om skärmstorleken ändras (då håller den sig centrerad)
+                
+                //Aktivera input första gången
+                this.refreshInput();
+            
+                //Hantera resize
                 this.scale.on("resize", () => {
                     this.gameDrawer.draw();
                 });
-
             });
             htmlManager.showOnly(mainmenu);
 
@@ -82,14 +88,6 @@ class Game extends Phaser.Scene {
             //);
 
             // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
- 
-            socket.on("game_found", () => {
-                queue.setPlaceholder("state", "Match hittad!")
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                queue.hide();
-                }
-            )
-            
 
 
             //testui.testbutton.onclick = () => {
@@ -128,7 +126,20 @@ class Game extends Phaser.Scene {
 
             
         })
+        
     }
+    refreshInput() {
+        this.inputHandler.removeAllInput();
+        const nodes = this.gameBoard.getAllNodes();
+        
+        nodes.forEach(node => {
+            this.inputHandler.addInput(node, (clickedNode) => {
+                console.log("Klickade på:", clickedNode.id);
+                // Här anropar du din klick-logik
+            });
+        });
+    }
+    
 }
 
 
