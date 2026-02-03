@@ -3,22 +3,18 @@ export default class InputHandler {
         this.scene = scene;
         this.board = board;
         this.activeObjects = new Set();
-
-        this.board.addEventListener("board is flipped", () => {
-            this.scene.refreshInput(); 
-        });
     }
 
     addInput(node, func) {
         let clickZone;
         const hitArea = new Phaser.Geom.Circle(0, 0, 25);
-        
-        clickZone = this.scene.add.zone(node.x, node.y); 
-        
+        clickZone = this.scene.add.zone(node.y, node.x);
         clickZone.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
+
         clickZone.on('pointerdown', () => {
             func(node);
         });
+
         this.activeObjects.add(clickZone);
     }
 

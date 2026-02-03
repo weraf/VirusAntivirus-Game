@@ -18,33 +18,30 @@ export class GameDrawer {
     }
     
 	draw(highlightIds = []) {
-		this.graphics.clear();
-		
-		const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
-	
-		
-		if (this.isRotated !== shouldBeRotated) {
-			this.isRotated = shouldBeRotated;
-			this.board.flipCoordinates();
-		}
-	
-		this.centerCamera();
-		this.drawEdges();
-		this.drawNodes(highlightIds);
-	}
+        this.graphics.clear();
+        // Uppdatera rotation baserat på skärmen
+        this.isRotated = this.scene.scale.width > this.scene.scale.height;
+        
+        this.centerCamera();
+        this.drawEdges();
+        this.drawNodes(highlightIds);
+    }
     
     drawNodes(highlightIds) {
-		for (const node of this.board.getAllNodes()) {
-			this.graphics.fillStyle(highlightIds.includes(node.id) ? 0xffff00 : 
-								   (node.type === 'server' ? 0xb5b5b5 : 0xe5e5e5), 1);
-			
-			
-			if (node.type === 'server') {
-				this.graphics.fillRect(node.x - 20, node.y - 20, 40, 40);
-			} else {
-				this.graphics.fillCircle(node.x, node.y, 18);
-			}
-		}
+        for (const node of this.board.getAllNodes()) {
+            this.graphics.fillStyle(highlightIds.includes(node.id) ? 0xffff00 : 
+                                   (node.type === 'server' ? 0xb5b5b5 : 0xe5e5e5), 1);
+    
+            //koordinater beroende på isRotated
+            let drawX = this.isRotated ? node.y : node.x;
+            let drawY = this.isRotated ? node.x : node.y;
+
+            if (node.type === 'server') {
+                this.graphics.fillRect(drawX - 20, drawY - 20, 40, 40);
+            } else {
+                this.graphics.fillCircle(drawX, drawY, 18);
+            }
+        }
     }
     
     drawEdges() {
