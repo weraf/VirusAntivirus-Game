@@ -18,8 +18,8 @@ testPrint();// Ska skriva ut i konsolen
 const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();
 
-// Game klassen (skulle kunna sättas i egen fil men detta funkar bra än så länge)
-class Game extends Phaser.Scene {
+// Game klassen. Exporteras för att kunna använda som type-hint
+export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
@@ -59,8 +59,13 @@ class Game extends Phaser.Scene {
         //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
         //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
 
+        this.startGame();
+        
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
+            
+            return;
+
             let mainmenu = htmlManager.create("mainmenu");
             let queue = htmlManager.create("queue", {"state": "Söker spel"})
             socket.on("game_found", () => {
@@ -69,19 +74,10 @@ class Game extends Phaser.Scene {
                 queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 queue.hide();
                 
-                //Rita brädet
-                this.gameDrawer.draw(); 
-                
-                //Aktivera input första gången
-                this.refreshInput();
-            
-                //Hantera resize
-                this.scale.on("resize", () => {
-                    this.gameDrawer.draw();
-                });
+                this.startGame();
             });
             htmlManager.showOnly(mainmenu);
-            mainmenu.hide();
+            
 
             mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
 
@@ -139,6 +135,20 @@ class Game extends Phaser.Scene {
                 console.log("Klickade på:", clickedNode.id);
                 // Här anropar du din klick-logik
             });
+        });
+    }
+
+    startGame() {
+        htmlManager.hideAll();
+        //Rita brädet
+        this.gameDrawer.draw(); 
+        
+        //Aktivera input första gången
+        this.refreshInput();
+    
+        //Hantera resize
+        this.scale.on("resize", () => {
+            this.gameDrawer.draw();
         });
     }
     

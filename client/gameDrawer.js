@@ -16,8 +16,9 @@ export class GameDrawer {
 
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(scene.virus, scene);
+        
         this.scene.scale.on("resize",this.centerCamera.bind(this));
-        this.centerCamera();
+        
         this.isRotated = null;
     }
     
@@ -30,9 +31,10 @@ export class GameDrawer {
             this.board.flipCoordinates(); 
         }
 
+        this.centerCamera();
         this.drawEdges();
         this.drawNodes(highlightIds);
-        this.virusDrawer.update();
+        this.virusDrawer.draw();
     }
 
     // Returns the displayed x position (after potential flipping)
@@ -89,7 +91,7 @@ class VirusDrawer {
     /**
      * 
      * @param {Virus} virus
-     * @param {Scene} scene
+     * @param {Game} scene
      */
     constructor(virus, scene) {
         this.scene = scene;
@@ -99,13 +101,42 @@ class VirusDrawer {
         this.nextNodes = {...this.virus.nodes};
         this.animationProgress = 0.0; // Number between 0 and 1
         this.graphics = this.scene.add.graphics();
-        
+        this.lastRotation = false;
     }
 
-    update() {
+    renderSnakeProgress(fromNodes,toNodes,progress) {
         const HEAD_RADIUS = 14;
         const LINE_RADIUS = 10;
         const BODY_COLOR = 0xff0030;
+        this.graphics.clear();
+        this.graphics.fillStyle(BODY_COLOR);
+        this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
+
+        // For each "body part"
+        for (let i = 0; i < this.virus.nodes.length; i++) {
+            const fromNode = fromNodes[i]; // The node we started at
+            const toNode = toNodes[i]; // The node we will travel to
+
+            const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
+            const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
+            this.graphics.fillCircle(x,y,i == 0 ? HEAD_RADIUS : LINE_RADIUS);
+            // If not the head node, draw a line forward to the next node
+            if (i != 0) {
+                this.graphics.lineBetween(x,y,toNode.x,toNode.y);
+            }
+            // If not the last node, draw a line backward to the previous node
+            if (i != this.virus.nodes.length-1) {
+                const fromNode = this.virus.nodes[i+1];
+                this.graphics.lineBetween(x,y,fromNode.x,fromNode.y);
+                // Draw a circle on the node, connecting the two lines drawn by two adjacent body parts 
+                this.graphics.fillCircle(fromNode.x,fromNode.y,LINE_RADIUS);
+            }
+        }
+    }
+
+    draw() {
+        
+        
         // First, clear already running tween to avoid running two tweens at once
         if (this.tween) {
             const t = this.tween;
@@ -122,32 +153,19 @@ class VirusDrawer {
             }
         }
 
+        if (this.nextNodes[0] === this.virus.nodes[0]) {
+            // Head hasn't moved, therefor, no animation is needed.
+            this.renderSnakeProgress(this.prevNodes,this.nextNodes,1.0)
+            return;
+        }
+
         this.tween = this.scene.tweens.add({
             targets: this,
             animationProgress: {from: 0.0, to:1.0}, 
             duration: 400,
             ease: 'Quad.easeInOut',
             onUpdate: (tween, target, key, current, previous, param) => {
-                this.graphics.clear();
-                this.graphics.fillStyle(BODY_COLOR);
-                this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
-                for (let i = 0; i < this.virus.nodes.length; i++) {
-                    // Hard coded to be flipped x y for now. Will get fixed later
-                    const targetNode = this.nextNodes[i];
-                    const lastNode = this.prevNodes[i];
-                    const x = Phaser.Math.Linear(lastNode.x,targetNode.x,current);
-                    const y = Phaser.Math.Linear(lastNode.y,targetNode.y,current);
-                    this.graphics.fillCircle(y,x,i == 0 ? HEAD_RADIUS : LINE_RADIUS);
-                    // If not the head node, draw a line forward to the next node
-                    if (i != 0) {
-                        this.graphics.lineBetween(y,x,targetNode.y,targetNode.x);
-                    }
-                    if (i != this.virus.nodes.length-1) {
-                        const lastNode = this.virus.nodes[i+1];
-                        this.graphics.lineBetween(y,x,lastNode.y,lastNode.x);
-                        this.graphics.fillCircle(lastNode.y,lastNode.x,LINE_RADIUS);
-                    }
-                }
+                this.renderSnakeProgress(this.prevNodes,this.nextNodes,current)
             },
             onComplete: (tween, targets) => {
                 this.prevNodes = this.nextNodes;

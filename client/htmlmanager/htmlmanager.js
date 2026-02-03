@@ -100,6 +100,12 @@ export class HtmlManager {
         }
     }
 
+    hideAll() {
+        for (let instance of this.instances) {
+            instance.hide();
+        }
+    }
+
     /**
      * Helper function to show a hidden html element
      * @param {*} element 
