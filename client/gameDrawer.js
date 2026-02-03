@@ -16,10 +16,10 @@ export class GameDrawer {
 
 		// kolla om skärmen är högre än den är bred
         this.isRotated = scene.scale.width > scene.scale.height;
-        this.virusSprites = [];
-        this.virusSprites = [];
-        this.virusLineGraphics = scene.add.graphics();
-        this.virusMoveTweens = [];
+        // Later the virus will be part of the board
+        this.virusDrawer = new VirusDrawer(scene.virus, scene);
+        this.scene.scale.on("resize",this.centerCamera.bind(this));
+        this.centerCamera();
     }
     
 	draw(highlightIds = []) {
@@ -27,9 +27,9 @@ export class GameDrawer {
         // Uppdatera rotation baserat på skärmen
         this.isRotated = this.scene.scale.width > this.scene.scale.height;
         
-        this.centerCamera();
         this.drawEdges();
         this.drawNodes(highlightIds);
+        this.virusDrawer.update();
     }
 
     // Returns the displayed x position (after potential flipping)
@@ -40,68 +40,6 @@ export class GameDrawer {
     // Returns the displayed y position (after potential flipping)
     getNodeY(node) {
         return this.isRotated ? node.x : node.y;
-    }
-
-    /**
-     * 
-     * @param {Virus} virus 
-     */
-    drawVirus(virus) {
-        const HEAD_RADIUS = 14;
-        const LINE_RADIUS = 10;
-
-        // First, clear already running tweens to avoid graphical glitches
-        for (const tween of this.virusMoveTweens) {
-            tween.remove();
-            tween.destroy();
-        }
-        
-        // Empty the array
-        this.virusMoveTweens = [];
-
-        if (virus.nodes.length > this.virusSprites.length) {
-            // First: Add missing sprites
-            for (let n = this.virusSprites.length; n < virus.nodes.length; n++) {
-                let node = virus.nodes[n];
-                this.virusSprites.push(this.scene.add.circle(this.getNodeX(node),this.getNodeY(node),n == 0 ? HEAD_RADIUS : LINE_RADIUS,0xff0020));
-            }
-        }
-        // Then: Animate each sprite to it's rightful position
-        for (let index = 0; index < virus.nodes.length; index++) {
-            let node = virus.nodes[index];
-            let sprite = this.virusSprites[index];
-            const moveTween = this.scene.tweens.add({
-                targets:sprite,
-                x: this.getNodeX(node),
-                y: this.getNodeY(node),
-                ease: 'Quad.easeInOut',
-                duration: 500,
-                onUpdate: (tween,target,key,current,previous, param) => {
-                    if (key == "x") {
-                        return // Only update on y
-                    }
-                    if (target == this.virusSprites[0]) {
-                        this.virusLineGraphics.clear(); // First in the line, clear last frame
-                    }
-                    
-                    this.virusLineGraphics.lineStyle(LINE_RADIUS*2, 0xff0020);
-                    this.virusLineGraphics.fillStyle(0xff0020);
-                    // If not the head node, draw a line forward to the next node
-                    if (index != 0) {
-                        this.virusLineGraphics.lineBetween(target.x,target.y,this.getNodeX(node),this.getNodeY(node));
-                    }
-                    if (index != virus.nodes.length-1) {
-                        const lastNode = virus.nodes[index+1];
-                        this.virusLineGraphics.lineBetween(target.x,target.y,this.getNodeX(lastNode),this.getNodeY(lastNode));
-                        this.virusLineGraphics.fillCircle(this.getNodeX(lastNode),this.getNodeY(lastNode),LINE_RADIUS)
-                    }
-                    
-
-                }
-            })
-            this.virusMoveTweens.push(moveTween);
-
-        }
     }
     
     drawNodes(highlightIds) {
@@ -157,5 +95,78 @@ export class GameDrawer {
         let zoom = Math.min(this.scene.scale.width / (maxX - minX + margin * 2), 
                             this.scene.scale.height / (maxY - minY + margin * 2));
         this.scene.cameras.main.setZoom(zoom);
+    }
+}
+
+class VirusDrawer {
+    /**
+     * 
+     * @param {Virus} virus
+     * @param {Scene} scene
+     */
+    constructor(virus, scene) {
+        this.scene = scene;
+        this.tween = null;
+        this.virus = virus;
+        this.prevNodes = {...this.virus.nodes};
+        this.nextNodes = {...this.virus.nodes};
+        this.animationProgress = 0.0; // Number between 0 and 1
+        this.graphics = this.scene.add.graphics();
+        
+    }
+
+    update() {
+        const HEAD_RADIUS = 14;
+        const LINE_RADIUS = 10;
+        const BODY_COLOR = 0xff0030;
+        // First, clear already running tween to avoid running two tweens at once
+        if (this.tween) {
+            const t = this.tween;
+            this.tween.nextState(); // This will set this.tween to null, there for the t const
+            t.destroy();
+        }
+
+        this.nextNodes = {...this.virus.nodes}; // shallow copy
+
+        if (this.virus.nodes.length > this.prevNodes.length) {
+            // First: Add missing previous nodes
+            for (let n = this.prevNodes.length; n < this.virus.nodes.length; n++) {
+                this.prevNodes.push(virus.nodes[n]);
+            }
+        }
+
+        this.tween = this.scene.tweens.add({
+            targets: this,
+            animationProgress: {from: 0.0, to:1.0}, 
+            duration: 400,
+            ease: 'Quad.easeInOut',
+            onUpdate: (tween, target, key, current, previous, param) => {
+                this.graphics.clear();
+                this.graphics.fillStyle(BODY_COLOR);
+                this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
+                for (let i = 0; i < this.virus.nodes.length; i++) {
+                    // Hard coded to be flipped x y for now. Will get fixed later
+                    const targetNode = this.nextNodes[i];
+                    const lastNode = this.prevNodes[i];
+                    const x = Phaser.Math.Linear(lastNode.x,targetNode.x,current);
+                    const y = Phaser.Math.Linear(lastNode.y,targetNode.y,current);
+                    this.graphics.fillCircle(y,x,i == 0 ? HEAD_RADIUS : LINE_RADIUS);
+                    // If not the head node, draw a line forward to the next node
+                    if (i != 0) {
+                        this.graphics.lineBetween(y,x,targetNode.y,targetNode.x);
+                    }
+                    if (i != this.virus.nodes.length-1) {
+                        const lastNode = this.virus.nodes[i+1];
+                        this.graphics.lineBetween(y,x,lastNode.y,lastNode.x);
+                        this.graphics.fillCircle(lastNode.y,lastNode.x,LINE_RADIUS);
+                    }
+                }
+            },
+            onComplete: (tween, targets) => {
+                this.prevNodes = this.nextNodes;
+                this.tween = null;
+            }
+        })        
+        
     }
 }

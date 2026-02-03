@@ -44,15 +44,14 @@ class Game extends Phaser.Scene {
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
         this.gameDrawer.draw();
-        this.gameDrawer.drawVirus(this.virus);
         setInterval(() => {
             const validMoves = this.virus.getValidMoves();
             if (validMoves.length == 0) {
                 return;
             }
             this.virus.moveTo(validMoves[Math.floor(Math.random()*validMoves.length)]);
-            this.gameDrawer.drawVirus(this.virus);
-        },200)
+            this.gameDrawer.virusDrawer.update();
+        },500)
         // ----- TESTLOGIK: ------
 
         // Rita en röd testcirkel i mitten av skärmen
