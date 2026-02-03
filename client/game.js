@@ -67,6 +67,10 @@ class Game extends Phaser.Scene {
                 
                 //brädet ska ej visas förrän ett spel har startat!
                 this.gameDrawer.draw(); 
+
+                this.refreshInput();
+                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+                queue.hide();
                 // Gör så att brädet ritas om om skärmstorleken ändras (då håller den sig centrerad)
                 this.scale.on("resize", () => {
                     this.gameDrawer.draw();
@@ -82,13 +86,6 @@ class Game extends Phaser.Scene {
             //);
 
             // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
- 
-            socket.on("game_found", () => {
-                queue.setPlaceholder("state", "Match hittad!")
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                queue.hide();
-                }
-            )
             
 
 
@@ -128,6 +125,14 @@ class Game extends Phaser.Scene {
 
             
         })
+    }
+    refreshInput() {
+        this.inputHandler.removeAllInput();
+        for (const node of this.gameBoard.getAllNodes()) {
+            this.inputHandler.addInput(node, (clickedNode) => {
+                this.handleNodeClick(clickedNode.id);
+            });
+        }
     }
 }
 
