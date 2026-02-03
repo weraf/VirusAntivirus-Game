@@ -27,7 +27,7 @@ function newConnection(socket) {
     const newUser = new User(socket)
     users.push(newUser)
     newUser.on(ACTIONS.DISCONNECT,userDisconnected.bind(this, newUser))
-    newUser.on(ACTIONS.FIND_GAME,() => {lobbyHandler.addUserToQueue(newUser)})
+    newUser.on(ACTIONS.FIND_GAME,(queueType) => {lobbyHandler.addUserToQueue(newUser,queueType)})
 }
 
 function userDisconnected(user, reason) {

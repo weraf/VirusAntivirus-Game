@@ -4,6 +4,7 @@ import { ACTIONS } from "../client/shared/enums.js";
 
 export class Player extends EventEmitter {
     user
+    isVirus = false // False as standard
     /**
      * 
      * @param {User} user 
@@ -11,11 +12,17 @@ export class Player extends EventEmitter {
     constructor(user) {
         super();
         this.user = user;
-
         // We connect directly to the socket since User doesn't have a "onAny" of it's own
         this.user.socket.onAny(this.gotEvent.bind(this))
         // Connect the special disconnect event
         this.user.on(ACTIONS.DISCONNECT,this.gotEvent.bind(this,ACTIONS.DISCONNECT))
+    }
+
+    /**
+     * Marks this player as a virus player
+     */
+    setVirus() {
+        this.isVirus = true;
     }
 
     gotEvent(eventName, ...args) {

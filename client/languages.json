@@ -18,6 +18,18 @@
   "abort": {
     "sv": "Avbryt",
     "zh": "取消"
+  },
+  "pvirus": {
+    "sv": "Virus",
+    "en": "Virus"
+  },
+  "pantivirus": {
+    "sv": "Antivirus",
+    "en": "Antivirus"
+  },
+  "playingas": {
+    "sv": "Du spelar som",
+    "en": "You're playing as"
   }
 
 }
