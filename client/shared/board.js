@@ -1,8 +1,18 @@
 import { Node } from "./node.js";
 
-export class Board {
+export class Board extends EventTarget {
     constructor() {
+        super();
         this.nodes = new Map();
+    }
+
+    flipCoordinates() {
+        for (const node of this.getAllNodes()) {
+            const tempX = node.x;
+            node.x = node.y;
+            node.y = tempX;
+        }
+        this.dispatchEvent(new Event("board is flipped"));
     }
 
     addNode(id, x, y, type) {
