@@ -38,8 +38,8 @@ export class Game extends Phaser.Scene {
         BoardCreator.createFromJSON(this.gameBoard, data);
         
         // Lägg till en ormen
-        this.gameBoard.createVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
-        this.gameBoard.createStartBugs();
+        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.gameBoard.spawnStartBugs();
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
@@ -48,23 +48,7 @@ export class Game extends Phaser.Scene {
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-        this.inputHandler.addInput(this.gameBoard.getNode('n0'), (node) => {
-        //    console.log('Klickade på ', node.id)
-        });
 
-
-
-        // STORY 3
-        // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
-        this.inputHandler = new InputHandler(this, this.gameBoard);
-
-
-        // ----- TESTLOGIK: ------
-
-        // Rita en röd testcirkel i mitten av skärmen
-        //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
-        //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
-        
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/gameui.html"]).then(() => {
             let mainmenu = htmlManager.create("mainmenu");
@@ -72,8 +56,15 @@ export class Game extends Phaser.Scene {
             let queue = htmlManager.create("queue")
             
             socket.on("game_found", (isVirus) => {
+                
+                this.isVirus = isVirus;
+                // lägg ut antivirus
+                this.gameBoard.spawnAntivirus();
+
                 //UI-logik
-                let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
+                let gameui = htmlManager.create("gameui", {
+                    "myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))
+                });
                 gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 queue.switchTo(gameui);
                 this.startGame(isVirus);
@@ -143,17 +134,6 @@ export class Game extends Phaser.Scene {
         })
         
     }
-    refreshInput() {
-        this.inputHandler.removeAllInput();
-        const nodes = this.gameBoard.getAllNodes();
-        
-        nodes.forEach(node => {
-            this.inputHandler.addInput(node, (clickedNode) => {
-                console.log("Klickade på:", clickedNode.id);
-                // Här anropar du din klick-logik
-            });
-        });
-    }
 
     startGame(isVirus) {
         
@@ -166,6 +146,8 @@ export class Game extends Phaser.Scene {
         });
         if (isVirus) {
             this.virusTurn();
+        } else {
+            this.antivirusTurn();
         }
     }
 
@@ -178,6 +160,29 @@ export class Game extends Phaser.Scene {
             })
         }
     }
+    antivirusTurn() {
+        const av = this.gameBoard.antivirus;
+        this.inputHandler.removeAllInput();
+
+        
+        av.getNodesToEnableInput(this.gameBoard).forEach(node => {
+            this.inputHandler.addInput(node, (clicked) => {
+                if (av.nodes.includes(clicked.id)) {
+                    av.selectAVNode(clicked.id);
+                } else {
+                    av.moveAVNode(clicked.id);
+                }
+
+                const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
+                const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
+                
+                this.gameDrawer.draw(selectedId, validMoveIds);
+                
+                this.antivirusTurn(); 
+            });
+        })
+    }
+    
     
 }
 
