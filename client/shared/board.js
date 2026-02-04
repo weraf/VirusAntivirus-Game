@@ -33,6 +33,15 @@ export class Board extends EventTarget {
         this.dispatchEvent(new Event("board is flipped"));
     }
 
+    flipCoordinates() {
+        for (const node of this.getAllNodes()) {
+            const tempX = node.x;
+            node.x = node.y;
+            node.y = tempX;
+        }
+        this.dispatchEvent(new Event("board is flipped"));
+    }
+
     addNode(id, x, y, type) {
         const newNode = new Node(id, x, y, type);
         this.nodes.set(id, newNode);

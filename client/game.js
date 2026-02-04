@@ -1,6 +1,6 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
 import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
-import { ACTIONS }  from "./shared/enums.js";
+import { ACTIONS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 import { Translator } from "./translator.js";
 import { testPrint } from "./shared/test_shared.js";
 
@@ -9,6 +9,8 @@ import { BoardCreator } from "./boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 import { Virus } from "./shared/virus.js";
+
+import InputHandler from "./inputhandler.js"
 
 import InputHandler from "./inputhandler.js"
 
@@ -47,6 +49,15 @@ export class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+        this.queuePreference = QUEUE_PREFERENCE.ANY;
+
+        // STORY 3
+        // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
+        this.inputHandler = new InputHandler(this, this.gameBoard);
+        this.inputHandler.addInput(this.gameBoard.getNode('n0'), (node) => {
+        //    console.log('Klickade på ', node.id)
+        });
+
 
 
         // STORY 3
@@ -59,26 +70,28 @@ export class Game extends Phaser.Scene {
         // Rita en röd testcirkel i mitten av skärmen
         //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
         //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
-
-        this.startGame();
         
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
-        htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html"]).then(() => {
-            
-            return;
-
+        htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/gameui.html"]).then(() => {
             let mainmenu = htmlManager.create("mainmenu");
-            let queue = htmlManager.create("queue", {"state": "Söker spel"})
-            socket.on("game_found", () => {
-                //UI-logik
-                queue.setPlaceholder("state", "Match hittad!");
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                queue.hide();
+            
+            let queue = htmlManager.create("queue")
+            
+            socket.on("game_found", (isVirus) => {
+                this.startGame(isVirus);
                 
-                this.startGame();
             });
             htmlManager.showOnly(mainmenu);
             
+
+            mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+
+            //mainmenu.setPlaceholders(
+            //    Object.fromEntries(Object.entries(Translator.getDictionary()).map(([k,v]) => [k, v[Translator.language]]))
+            //);
+
+            // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
+
 
             mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
 
@@ -93,22 +106,23 @@ export class Game extends Phaser.Scene {
             //    testui.switchTo(mainmenu)
             //    // testui.testtext.innerText = "Du klickade på knappen!";
             //}
+            mainmenu.virus.onclick = () => {
+                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                // Visa en linje på den markerade knappen
+                mainmenu.virus.classList.add("selected");
+                mainmenu.antivirus.classList.remove("selected");
+            }
+            
+            mainmenu.antivirus.onclick = () => {
+                this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+                // Visa en linje på den markerade knappen
+                mainmenu.antivirus.classList.add("selected");
+                mainmenu.virus.classList.remove("selected");
+            }
 
-//            mainmenu.virus.onClick = () => {
-//
-//            }
-//
-//
-//            mainmenu.antivirus.onclick = () => {
-//
-//            }
-//
-//            mainmenu.spectator.onclick = () => {
-//
-//            }
             mainmenu.start.onclick = () => {
                 mainmenu.switchTo(queue)
-                socket.emit(ACTIONS.FIND_GAME)
+                socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
                 queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             }
 
@@ -119,7 +133,11 @@ export class Game extends Phaser.Scene {
             }
 
             mainmenu.language_button.onclick = () => {
-                Translator.setLanguage("zh");
+                if (Translator.language === "en") {
+                    Translator.setLanguage("sv");
+                } else {
+                    Translator.setLanguage("en");
+                }
                 mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             }
 
@@ -140,7 +158,11 @@ export class Game extends Phaser.Scene {
     }
 
     startGame() {
-        htmlManager.hideAll();
+        //UI-logik
+        let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
+        gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+        queue.switchTo(gameui);
+        
         //Rita brädet
         this.gameDrawer.draw(); 
     

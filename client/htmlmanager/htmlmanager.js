@@ -142,7 +142,7 @@ class HTMLInstance {
         // Go through all text in the instance, finding {tags}. Place them in a dictionary to be adressed later.
         let walker = document.createTreeWalker(this.root,NodeFilter.SHOW_TEXT)
         const foundPlaceholders = {};
-        const regex = /{(\S)+}/g;
+        const regex = /{(\S)+}/;
         while (walker.nextNode()) {
             const node = walker.currentNode;
             let match;
@@ -151,6 +151,7 @@ class HTMLInstance {
                 const key = pKey.slice(1,pKey.length-1);
                 
                 const split = node.nodeValue.split(pKey,2) // Split only the first one. Leave the rest of the string for treewalker to deal with
+                
                 const before = document.createTextNode(split[0])
                 const placeholder = document.createTextNode(key)
                 foundPlaceholders[key] = placeholder
@@ -160,7 +161,7 @@ class HTMLInstance {
                 node.parentNode.insertBefore(placeholder,node) 
                 node.parentNode.insertBefore(after,node) 
                 node.parentNode.removeChild(node)
-                walker.currentNode = after; // Move the search position to the end of this replacement
+                walker.currentNode = placeholder; // Move the search position to the replaced node, so that the next node will be new unseen text
             }
         }
         return foundPlaceholders

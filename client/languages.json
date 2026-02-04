@@ -15,9 +15,34 @@
     "fi": "Vaihda kieli",
     "zh": "更改语言"
   },
+  "searchinggame": {
+    "sv": "Söker spel...",
+    "en": "Looking for game..."
+  },
   "abort": {
     "sv": "Avbryt",
+    "en": "Cancel",
     "zh": "取消"
+  },
+  "pvirus": {
+    "sv": "Virus",
+    "en": "Virus"
+  },
+  "pantivirus": {
+    "sv": "Antivirus",
+    "en": "Antivirus"
+  },
+  "pspectator": {
+    "sv": "Åskådare",
+    "en": "Spectator"
+  },
+  "playingas": {
+    "sv": "Du spelar som",
+    "en": "You're playing as"
+  },
+  "pickmode": {
+    "sv": "Välj din spelare",
+    "en": "Pick your player"
   }
 
 }

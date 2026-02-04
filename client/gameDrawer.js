@@ -18,7 +18,7 @@ export class GameDrawer {
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         this.bugsDrawer = new BugsDrawer(board.bugs,scene);
-        this.isRotated = false;
+        this.isRotated = null;
     }
     
 	draw(highlightIds = []) {
