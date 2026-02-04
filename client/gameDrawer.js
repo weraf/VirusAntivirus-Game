@@ -15,7 +15,7 @@ export class GameDrawer {
         this.isRotated = null;
     }
     
-	draw(highlightIds = []) {
+	draw(highlightIds = [], possibleMoveIds = []) {
         this.graphics.clear();
         const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
 
@@ -26,21 +26,51 @@ export class GameDrawer {
 
         this.centerCamera();
         this.drawEdges();
-        this.drawNodes(highlightIds);
+        this.drawNodes(highlightIds, possibleMoveIds);
     }
     
-	drawNodes(highlightIds) {
-        for (const node of this.board.getAllNodes()) {
-            this.graphics.fillStyle(highlightIds.includes(node.id) ? 0xffff00 : 
-                                   (node.type === 'server' ? 0xb5b5b5 : 0xe5e5e5), 1);
-            
-            if (node.type === 'server') {
-                this.graphics.fillRect(node.x - 20, node.y - 20, 40, 40);
-            } else {
-                this.graphics.fillCircle(node.x, node.y, 18);
-            }
-        }
-    }
+	drawNodes(highlightIds, possibleMoveIds) {
+		const av = this.board.antivirus;
+	
+		for (const node of this.board.getAllNodes()) {
+			let color = 0xe5e5e5; 
+			if (node.type === 'server') color = 0xb5b5b5;
+	
+			// vald nod
+			if (highlightIds.includes(node.id)) {
+				color = 0x0077ff; 
+			}
+	
+			this.graphics.fillStyle(color, 1);
+			
+			// rita nod
+			if (node.type === 'server') {
+				this.graphics.fillRect(node.x - 20, node.y - 20, 40, 40);
+			} else {
+				this.graphics.fillCircle(node.x, node.y, 18);
+			}
+	
+			// highlighta möjliga drag
+			if (possibleMoveIds.includes(node.id)) {
+				this.graphics.lineStyle(3, 0x00ff00, 0.8); 
+				this.graphics.strokeCircle(node.x, node.y, 22);
+				
+				this.graphics.fillStyle(0x00ff00, 0.15);
+				this.graphics.fillCircle(node.x, node.y, 22);
+			}
+	
+			// rita antivirus nod
+			if (av && av.nodes.includes(node.id)) {
+				this.graphics.lineStyle(4, 0x0000ff, 1); 
+				this.graphics.strokeCircle(node.x, node.y, 24); 
+	
+				if (av.selectedNodeId === node.id) {
+					this.graphics.fillStyle(0x0077ff, 0.4);
+					this.graphics.fillCircle(node.x, node.y, 24);
+				}
+			}
+		}
+	}
     
     drawEdges() {
         this.graphics.lineStyle(3, 0xffffff, 0.3); 

@@ -51,13 +51,6 @@ class Game extends Phaser.Scene {
         //    console.log('Klickade på ', node.id)
         });
 
-
-        // ----- TESTLOGIK: ------
-
-        // Rita en röd testcirkel i mitten av skärmen
-        //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
-        //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
-
         // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
         htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/gameui.html"]).then(() => {
             let mainmenu = htmlManager.create("mainmenu");
@@ -65,8 +58,15 @@ class Game extends Phaser.Scene {
             let queue = htmlManager.create("queue")
             
             socket.on("game_found", (isVirus) => {
+                
+                this.isVirus = isVirus;
+                // lägg ut antivirus
+                this.gameBoard.spawnAntivirus();
+
                 //UI-logik
-                let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
+                let gameui = htmlManager.create("gameui", {
+                    "myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))
+                });
                 gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 queue.switchTo(gameui);
                 
@@ -136,16 +136,36 @@ class Game extends Phaser.Scene {
         
     }
     refreshInput() {
-        this.inputHandler.removeAllInput();
-        const nodes = this.gameBoard.getAllNodes();
-        
-        nodes.forEach(node => {
-            this.inputHandler.addInput(node, (clickedNode) => {
-                console.log("Klickade på:", clickedNode.id);
-                // Här anropar du din klick-logik
-            });
-        });
+        if (!this.isVirus) {
+            this.antivirusTurn();
+        } else {
+            // this.virusTurn(); 
+        }
     }
+
+    antivirusTurn() {
+        const av = this.gameBoard.antivirus;
+        this.inputHandler.removeAllInput();
+
+        
+        av.getNodesToEnableInput(this.gameBoard).forEach(node => {
+            this.inputHandler.addInput(node, (clicked) => {
+                if (av.nodes.includes(clicked.id)) {
+                    av.selectAVNode(clicked.id);
+                } else {
+                    av.moveAVNode(clicked.id);
+                }
+
+                const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
+                const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
+                
+                this.gameDrawer.draw(selectedId, validMoveIds);
+                
+                this.antivirusTurn(); 
+            });
+        })
+    }
+    
     
 }
 
