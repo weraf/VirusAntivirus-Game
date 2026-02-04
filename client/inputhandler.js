@@ -1,8 +1,26 @@
+import { Game } from "./game.js";
+import { Board } from "./shared/board.js";
+
 export default class InputHandler {
+    /**
+     * 
+     * @param {Game} scene 
+     * @param {Board} board 
+     */
     constructor(scene, board) {
         this.scene = scene;
         this.board = board;
-        this.activeObjects = new Set();
+        this.clickZones = new Set();
+        // Rotera zoner när brädet roterar
+        this.board.addEventListener(Board.EVENTS.BOARD_FLIP,this.flipClickZones.bind(this));
+    }
+
+    flipClickZones() {
+        this.clickZones.forEach((clickZone) => {
+            const tempX = clickZone.x;
+            clickZone.x = clickZone.y;
+            clickZone.y = tempX;
+        })
     }
 
     addInput(node, func) {
@@ -17,14 +35,14 @@ export default class InputHandler {
             func(node);
         });
     
-        this.activeObjects.add(clickZone);
+        this.clickZones.add(clickZone);
     }
 
     removeAllInput() {
-        this.activeObjects.forEach(clickZone => {
+        this.clickZones.forEach(clickZone => {
             clickZone.removeAllListeners();
             clickZone.disableInteractive();
         });
-        this.activeObjects.clear();
+        this.clickZones.clear();
     }
 }
