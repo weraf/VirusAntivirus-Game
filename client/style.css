@@ -34,12 +34,27 @@ body, html {
     font-size: 15px;
 }
 
+.modelist {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+    gap: 2px;
+    margin-bottom: 2px;
+}
+
+.modelist > button {
+    min-width: 110px;
+}
+
 .undertext {
     color:aqua;
     text-align: center;
     font-size: 15px;
 }
 
+.selected {
+    text-decoration: underline;
+}
 
 .lowest {
     width: 50%;
@@ -49,12 +64,6 @@ body, html {
 
 #start {
     width: 100%;
-    text-align: center;
-}
-
-.overbutton {
-    width: 100px;
-    text-align: center;
 }
 
 #abort {
