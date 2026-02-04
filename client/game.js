@@ -41,8 +41,9 @@ export class Game extends Phaser.Scene {
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
         
-        // Skapa en orm (OBS, ska vara i board senare)
-        this.virus = new Virus(this.gameBoard,[this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2"),this.gameBoard.getNode("n2"),this.gameBoard.getNode("n2")]);
+        // Lägg till en ormen
+        this.gameBoard.createVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.gameBoard.createStartBugs();
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
@@ -152,10 +153,9 @@ export class Game extends Phaser.Scene {
 
     virusTurn() {
         this.inputHandler.removeAllInput();
-        for (const node of this.virus.getValidMoves()) {
+        for (const node of this.gameBoard.virus.getValidMoves()) {
             this.inputHandler.addInput(node, (clicked) => {
-                this.virus.moveTo(clicked);
-                this.gameDrawer.virusDrawer.update();
+                this.gameBoard.virus.moveTo(clicked);
                 this.virusTurn();
             })
         }

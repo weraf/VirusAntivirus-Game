@@ -1,25 +1,34 @@
 import { Board } from "./board.js";
 
 // Valde att byta namn på klassen till bugs då den innehåller alla buggar, inte bara en per instans
-export class Bugs {
+export class Bugs extends EventTarget {
     // An array holding all the nodes where bugs are at currently
     nodes = []
     board
-
+    static EVENTS = {
+        BUG_MOVED: "bug_moved"
+    }
     /**
      * 
      * @param {Board} board 
      */
     constructor(board) {
+        super();
         this.board = board
     }
 
-    hasNodeBug(node) {
+    hasNode(node) {
         return this.nodes.includes(node);
     }
 
     removeBugAtNode(node) {
         this.nodes = this.nodes.filter((n) => {return n != node});
+    }
+
+    respawnBugAtNode(node) {
+        this.removeBugAtNode(node);
+        this.createBugAtRandom();
+        this.dispatchEvent(new Event(Bugs.EVENTS.BUG_MOVED));
     }
 
     /**
@@ -29,9 +38,9 @@ export class Bugs {
         const nodes = this.board.getAllNodes();
         let randomNode = null;
         while (randomNode === null || !this.board.isNodeEmpty(randomNode)) {
-            randomNode = nodes[Math.random()];
+            randomNode = nodes[Math.floor(Math.random()*nodes.length)];
         }
-        createBugAtNode(randomNode);
+        this.createBugAtNode(randomNode);
     }
 
     createBugAtNode(node) {

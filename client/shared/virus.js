@@ -7,13 +7,17 @@ import { Node } from "./node.js";
  * 
  * */ 
 
-export class Virus {
+export class Virus extends EventTarget {
     
     /**All the nodes the virus has. Index 0 is the head
      * @type {Node[]}
      */
     nodes = [];
     board;
+    static EVENTS = {
+        MOVED: "moved",
+        BUG_EATEN: "bug_eaten"
+    }
 
     /**
      * 
@@ -21,6 +25,7 @@ export class Virus {
      * @param {Node[]} startNodes 
      */
     constructor(board,startNodes) {
+        super();
         this.nodes = startNodes;
         this.board = board;
     }
@@ -33,16 +38,22 @@ export class Virus {
         return this.nodes[0];
     }
 
+    hasNode(node) {
+        return this.nodes.includes(node);
+    }
+
     moveTo(node) {
         if (!this.canMoveToNode(node)) {
             return; 
         }
         // Insert the new node at the beginning of the array (the head)
         this.nodes.unshift(node)
-        if (true) { // !this.board.hasNodeBug(node)
-            // If we didn't eat an apple, remove the last element (the tail) to make the whole snake move forward
+        if (this.board.hasNodeBug(node)) {
+            this.dispatchEvent(new CustomEvent(Virus.EVENTS.BUG_EATEN,{"detail":{"node":node}})) // Skicka event så att bugs kan reagera och flytta
+        } else { // If we didn't eat an apple, remove the last element (the tail) to make the whole snake move forward
             this.nodes.pop();
         }
+        this.dispatchEvent(new Event(Virus.EVENTS.MOVED)); // used to make virusDrawer update
     }
 
     /**
@@ -69,7 +80,9 @@ export class Virus {
     getValidMoves() {
         const moves = [];
         for (let node of this.getHeadNode().neighbors) {
-            if (!this.nodes.includes(node) || node == this.nodes[this.nodes.length-1]) { //this.board.isNodeEmpty(node)
+            if (this.board.isNodeEmpty(node)
+                || node == this.nodes[this.nodes.length-1] // The node has our tail on it, we can move here
+                || this.board.hasNodeBug(node)) {
                 moves.push(node);
             }
         }

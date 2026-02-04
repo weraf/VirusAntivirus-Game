@@ -1,4 +1,5 @@
 import { Board } from "./shared/board.js";
+import { Bugs } from "./shared/bugs.js";
 import { Virus } from "./shared/virus.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
@@ -15,8 +16,8 @@ export class GameDrawer {
         this.graphics = scene.add.graphics();
 
         // Later the virus will be part of the board
-        this.virusDrawer = new VirusDrawer(scene.virus, scene);
-        
+        this.virusDrawer = new VirusDrawer(board.virus, scene);
+        this.bugsDrawer = new BugsDrawer(board.bugs,scene);
         this.isRotated = false;
     }
     
@@ -33,6 +34,7 @@ export class GameDrawer {
         this.drawEdges();
         this.drawNodes(highlightIds);
         this.virusDrawer.update();
+        this.bugsDrawer.update();
     }
 
     // Returns the displayed x position (after potential flipping)
@@ -85,6 +87,29 @@ export class GameDrawer {
     }
 }
 
+class BugsDrawer {
+    /**
+     * 
+     * @param {Bugs} bugs 
+     * @param {Game} scene 
+     */
+    constructor(bugs,scene) {
+        this.scene = scene;
+        this.bugs = bugs;
+        this.graphics = this.scene.add.graphics();
+        // Rita om buggarna om de har flyttat på sig
+        this.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED,this.update.bind(this));
+    }
+
+    update() {
+        this.graphics.clear();
+        this.graphics.fillStyle(0xee20ee);
+        for (const node of this.bugs.nodes) {
+            this.graphics.fillCircle(node.x,node.y,10);
+        }
+    }
+}
+
 class VirusDrawer {
     /**
      * 
@@ -95,17 +120,25 @@ class VirusDrawer {
         this.scene = scene;
         this.tween = null;
         this.virus = virus;
-        this.prevNodes = {...this.virus.nodes};
-        this.nextNodes = {...this.virus.nodes};
+        this.prevNodes = [...this.virus.nodes];
+        this.nextNodes = [...this.virus.nodes];
         this.animationProgress = 0.0; // Number between 0 and 1
         this.graphics = this.scene.add.graphics();
         this.lastRotation = false;
+        // Automatically redraw snake when it has moved
+        this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
-    renderSnakeProgress(fromNodes,toNodes,progress) {
-        const HEAD_RADIUS = 14;
-        const LINE_RADIUS = 10;
+    renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
+        let HEAD_RADIUS = 14;
+        let LINE_RADIUS = 10;
         const BODY_COLOR = 0xff0030;
+
+        if (growAnim) {
+            HEAD_RADIUS += (1-progress)*6;
+            LINE_RADIUS += (1-progress)*2;
+        }
+
         this.graphics.clear();
         this.graphics.fillStyle(BODY_COLOR);
         this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
@@ -147,15 +180,15 @@ class VirusDrawer {
             t.destroy();
         }
 
-        this.nextNodes = {...this.virus.nodes}; // shallow copy
-
+        this.nextNodes = [...this.virus.nodes]; // shallow copy
+        let hasGrown = false;
         if (this.virus.nodes.length > this.prevNodes.length) {
             // First: Add missing previous nodes
-            for (let n = this.prevNodes.length; n < this.virus.nodes.length; n++) {
-                this.prevNodes.push(virus.nodes[n]);
+            for (let n = this.prevNodes.length-1; n < this.virus.nodes.length; n++) {
+                this.prevNodes.push(this.virus.nodes[n]);
             }
+            hasGrown = true;
         }
-
 
         this.tween = this.scene.tweens.add({
             targets: this,
@@ -163,7 +196,7 @@ class VirusDrawer {
             duration: 400,
             ease: 'Quad.easeInOut',
             onUpdate: (tween, target, key, current, previous, param) => {
-                this.renderSnakeProgress(this.prevNodes,this.nextNodes,current)
+                this.renderSnakeProgress(this.prevNodes,this.nextNodes,current,hasGrown)
             },
             onComplete: (tween, targets) => {
                 this.prevNodes = this.nextNodes;

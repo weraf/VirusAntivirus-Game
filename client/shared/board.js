@@ -1,9 +1,27 @@
+import { Bugs } from "./bugs.js";
 import { Node } from "./node.js";
+import { Virus } from "./virus.js";
 
 export class Board extends EventTarget {
     constructor() {
         super();
         this.nodes = new Map();
+        this.virus = null;
+        this.bugs = new Bugs(this);
+    }
+
+    createVirus(startNodes) {
+        this.virus = new Virus(this,startNodes);
+        // Make bugs respawn a bug that got eaten
+        this.virus.addEventListener(Virus.EVENTS.BUG_EATEN,(event) => {
+            this.bugs.respawnBugAtNode(event.detail.node);
+        })
+    }
+
+    createStartBugs() {
+        // Create two bugs at random positions
+        this.bugs.createBugAtRandom();
+        this.bugs.createBugAtRandom();
     }
 
     flipCoordinates() {
@@ -36,5 +54,20 @@ export class Board extends EventTarget {
 
     getAllNodes() {
         return Array.from(this.nodes.values());
+    }
+
+    isNodeEmpty(node) {
+        if (this.virus && this.virus.hasNode(node)) {
+            return false;
+        }
+        if (this.bugs && this.bugs.hasNode(node)) {
+            return false;
+        }
+        // Todo: kolla om antivirusär på noden
+        return true;
+    }
+
+    hasNodeBug(node) {
+        return this.bugs.hasNode(node);
     }
 }
