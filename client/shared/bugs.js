@@ -37,7 +37,7 @@ export class Bugs extends EventTarget {
     createBugAtRandom() {
         const nodes = this.board.getAllNodes();
         let randomNode = null;
-        while (randomNode === null || !this.board.isNodeEmpty(randomNode)) {
+        while (randomNode === null || !this.board.isNodeEmpty(randomNode) || randomNode.isServer()) {
             randomNode = nodes[Math.floor(Math.random()*nodes.length)];
         }
         this.createBugAtNode(randomNode);

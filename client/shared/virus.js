@@ -1,12 +1,6 @@
 import { Board } from "./board.js";
 import { Node } from "./node.js";
 
-/** 
- * 
- * Tom klass för Virus!
- * 
- * */ 
-
 export class Virus extends EventTarget {
     
     /**All the nodes the virus has. Index 0 is the head

@@ -18,7 +18,7 @@ export class GameDrawer {
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         this.bugsDrawer = new BugsDrawer(board.bugs,scene);
-        this.isRotated = null;
+        this.isRotated = false; // It's starts not rotated
     }
     
 	draw(highlightIds = [], possibleMoveIds = []) {
@@ -68,11 +68,11 @@ export class GameDrawer {
 			}
 	
 			// rita antivirus nod
-			if (av && av.nodes.includes(node.id)) {
+			if (av && av.hasNode(node)) {
 				this.graphics.lineStyle(4, 0x0000ff, 1); 
 				this.graphics.strokeCircle(node.x, node.y, 24); 
 	
-				if (av.selectedNodeId === node.id) {
+				if (av.selectedNode === node) {
 					this.graphics.fillStyle(0x0077ff, 0.4);
 					this.graphics.fillCircle(node.x, node.y, 24);
 				}
@@ -145,8 +145,10 @@ class VirusDrawer {
         this.animationProgress = 0.0; // Number between 0 and 1
         this.graphics = this.scene.add.graphics();
         this.lastRotation = false;
+        
         // Automatically redraw snake when it has moved
-        this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
+        // For now not used since whole board is redrawn on move anyway
+        // this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
     renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {

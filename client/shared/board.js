@@ -4,6 +4,10 @@ import { Virus } from "./virus.js";
 import { Antivirus } from "./antivirus.js";
 
 export class Board extends EventTarget {
+    static EVENTS = {
+        BOARD_FLIP: "board_flip"
+    }
+
     constructor() {
         super();
         this.nodes = new Map();
@@ -32,38 +36,19 @@ export class Board extends EventTarget {
             node.x = node.y;
             node.y = tempX;
         }
-        this.dispatchEvent(new Event("board is flipped"));
+        this.dispatchEvent(new Event(Board.EVENTS.BOARD_FLIP));
     }
 
     spawnAntivirus() {
-        const possibleNodes = this.getAllNodes().filter(node => node.type !== 'server');
+        const possibleNodes = this.getAllNodes().filter(node => node.type !== 'server' && this.isNodeEmpty(node));
     
         // Slumpa positioner
         possibleNodes.sort(() => Math.random() - 0.5);
-        const av_n1 = possibleNodes[0].id;
-        const av_n2 = possibleNodes[1].id;
+        const av_n1 = possibleNodes[0];
+        const av_n2 = possibleNodes[1];
         
-        this.antivirus = new Antivirus(av_n1, av_n2);
-        console.log(`Antivirus satta på nod ${av_n1} och ${av_n2}`);
-    }
-
-    isNodeEmpty(nodeId) {
-        
-        // är antivirus där?
-        if (this.antivirus && this.antivirus.nodes.includes(nodeId)) return false;
-        
-        // här kan man ha andra villkor för virus och buggar tillexempel...
-        
-        return true; 
-    }
-
-    flipCoordinates() {
-        for (const node of this.getAllNodes()) {
-            const tempX = node.x;
-            node.x = node.y;
-            node.y = tempX;
-        }
-        this.dispatchEvent(new Event("board is flipped"));
+        this.antivirus = new Antivirus([av_n1, av_n2]);
+        console.log(`Antivirus satta på nod ${av_n1.id} och ${av_n2.id}`);
     }
 
     addNode(id, x, y, type) {
@@ -96,6 +81,9 @@ export class Board extends EventTarget {
         if (this.bugs && this.bugs.hasNode(node)) {
             return false;
         }
+        if (this.antivirus && this.antivirus.hasNode(node)) {
+            return false;
+        } 
         // Todo: kolla om antivirusär på noden
         return true;
     }

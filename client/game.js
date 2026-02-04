@@ -40,6 +40,9 @@ export class Game extends Phaser.Scene {
         // Lägg till en ormen
         this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
         this.gameBoard.spawnStartBugs();
+        // lägg ut antivirus
+        this.gameBoard.spawnAntivirus();
+
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
@@ -58,8 +61,7 @@ export class Game extends Phaser.Scene {
             socket.on("game_found", (isVirus) => {
                 
                 this.isVirus = isVirus;
-                // lägg ut antivirus
-                this.gameBoard.spawnAntivirus();
+                
 
                 //UI-logik
                 let gameui = htmlManager.create("gameui", {
@@ -153,12 +155,14 @@ export class Game extends Phaser.Scene {
 
     virusTurn() {
         this.inputHandler.removeAllInput();
-        for (const node of this.gameBoard.virus.getValidMoves()) {
+        const valid = this.gameBoard.virus.getValidMoves()
+        for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
                 this.gameBoard.virus.moveTo(clicked);
                 this.virusTurn();
             })
         }
+        this.gameDrawer.draw([], valid.map((n) => {return n.id}));
     }
     antivirusTurn() {
         const av = this.gameBoard.antivirus;
@@ -167,10 +171,10 @@ export class Game extends Phaser.Scene {
         
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
-                if (av.nodes.includes(clicked.id)) {
-                    av.selectAVNode(clicked.id);
+                if (av.hasNode(clicked)) {
+                    av.selectAVNode(clicked);
                 } else {
-                    av.moveAVNode(clicked.id);
+                    av.moveAVNode(clicked);
                 }
 
                 const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);

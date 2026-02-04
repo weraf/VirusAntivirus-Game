@@ -16,6 +16,11 @@ body, html {
     border-width: 15px;
 }
 
+#ui {
+    /*Så man inte kan markera text i spelet*/
+    user-select: none;
+}
+
 .text {
     /*
     Source - https://stackoverflow.com/a

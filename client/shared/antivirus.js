@@ -5,16 +5,17 @@
  * 
  * */ 
 
-export class Antivirus {
-    constructor(nodeId1, nodeId2) {
-        this.nodes = [nodeId1, nodeId2]; 
-        this.selectedNodeId = null; 
+export class Antivirus extends EventTarget {
+    constructor(startNodes) {
+        super();
+        this.nodes = startNodes; 
+        this.selectedNode = null; 
     }
     
     // välj nod att flytta
-    select(nodeId) {
-        if (this.nodes.includes(nodeId)) {
-            this.selectedNodeId = nodeId;
+    select(node) {
+        if (this.nodes.includes(node)) {
+            this.selectedNode = node;
             return true;
         }
         return false;
@@ -22,37 +23,40 @@ export class Antivirus {
 
     getNodesToEnableInput(board) {
         
-        if (!this.selectedNodeId) {
-            return this.nodes.map(id => board.getNode(id));
+        if (!this.selectedNode) {
+            return this.nodes;
         }
         
-        const validMoves = this.getValidMoves(board);
-        const currentPiece = board.getNode(this.selectedNodeId);
-        
-        return [...validMoves, currentPiece];
+        const validMoves = this.getValidMoves(board);        
+        return [...validMoves, ...this.nodes];
     }
 
     // Check-logik flyttad hit från game
     getValidMoves(board) {
-        if (!this.selectedNodeId) return [];
+        if (!this.selectedNode) return [];
 
-        const currentNode = board.getNode(this.selectedNodeId);
-        return currentNode.neighbors.filter(neighbor => 
-            neighbor.type !== 'server' && 
-            board.isNodeEmpty(neighbor.id)
+        
+        return this.selectedNode.neighbors.filter((neighbor) => {
+            return !neighbor.isServer() && 
+            (board.isNodeEmpty(neighbor) || board.hasNodeBug(neighbor))
+        }
         );
+    }
+
+    hasNode(node) {
+        return this.nodes.includes(node);
     }
     
     // välj en nod att flytta
-    selectAVNode(nodeId) {
-        this.selectedNodeId = (this.selectedNodeId === nodeId) ? null : nodeId;
+    selectAVNode(node) {
+        this.selectedNode = (this.selectedNode === node) ? null : node;
     }
 
-    moveAVNode(newNodeId) {
-        const index = this.nodes.indexOf(this.selectedNodeId);
+    moveAVNode(newNode) {
+        const index = this.nodes.indexOf(this.selectedNode);
         if (index !== -1) {
-            this.nodes[index] = newNodeId;
-            this.selectedNodeId = null; 
+            this.nodes[index] = newNode;
+            this.selectedNode = null; 
             return true;
         }
         return false;

@@ -16,6 +16,10 @@ export class Node {
         }
     }
 
+    isServer() {
+        return this.type === "server";
+    }
+
     hasNeighbor(nodeInstance) {
         return this.neighbors.includes(nodeInstance);
     }
