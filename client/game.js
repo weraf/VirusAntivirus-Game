@@ -9,11 +9,14 @@ import { BoardCreator } from "./boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 
-import { GameState } from "./gamestate.js"
+import { GameState } from "./shared/gamestate.js"
 
 import InputHandler from "./inputhandler.js"
 
 testPrint();// Ska skriva ut i konsolen
+
+// Game kommunicerar först med gameserver, gameserver uppdaterar sin gamestate, skickar
+//  tillbaka och då uppdaterar vi vår gamestate
 
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
@@ -37,6 +40,8 @@ class Game extends Phaser.Scene {
         
         // Skapa Brädet
         this.gameBoard = new Board();
+
+        //this.GameState = new GameState(this.gameBoard);
         
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
@@ -44,6 +49,8 @@ class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+
+        this.gameState = new GameState(this.gameBoard, 2000);
 
 
         // STORY 3
@@ -72,6 +79,18 @@ class Game extends Phaser.Scene {
                 });
 
             });
+
+
+            this.gameState.addEventListener('moveMade', () =>  {
+                console.log("YOLO. 🍆🍆🍆🍆🍆🍆🍆🍆🍆")
+            })
+
+            this.gameState.addEventListener('turnChanged', () => {
+                console.log("yeap, it has been changed 💕💕💕💕💕💕❤️❤️❤️😂😂😎😎😎")
+            })
+
+            this.gameState.handleMove();
+
             htmlManager.showOnly(mainmenu);
 
             mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
@@ -88,6 +107,8 @@ class Game extends Phaser.Scene {
                 queue.hide();
                 }
             )
+
+
             
 
 

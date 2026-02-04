@@ -31,7 +31,7 @@ export class LobbyHandler extends EventEmitter {
     createGame(user1,user2) {
         const p1 = new Player(user1);
         const p2 = new Player(user2);
-        const newGame = new GameServer(p1,p2);
+        const newGame = new GameServer(p1,p2); // Add a gameState to the constructor?
         this.games.push(newGame);
         // Remove the game from the active games array when the game is finished
         newGame.on(GameServer.SIGNAL_GAME_FINISHED,this.gameFinished.bind(this,newGame))
