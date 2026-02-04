@@ -1,4 +1,5 @@
 import { Node } from "./node.js";
+import { Antivirus } from "./antivirus.js";
 
 export class Board extends EventTarget {
     constructor() {
