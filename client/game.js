@@ -2,19 +2,13 @@
 import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
 import { ACTIONS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 import { Translator } from "./translator.js";
-import { testPrint } from "./shared/test_shared.js";
 
 import { Board } from "./shared/board.js";
 import { BoardCreator } from "./boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
-import { Virus } from "./shared/virus.js";
 
 import InputHandler from "./inputhandler.js"
-
-import InputHandler from "./inputhandler.js"
-
-testPrint();// Ska skriva ut i konsolen
 
 
 const htmlManager = new HtmlManager(document.getElementById("ui"));
@@ -78,6 +72,10 @@ export class Game extends Phaser.Scene {
             let queue = htmlManager.create("queue")
             
             socket.on("game_found", (isVirus) => {
+                //UI-logik
+                let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
+                gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+                queue.switchTo(gameui);
                 this.startGame(isVirus);
                 
             });
@@ -157,11 +155,7 @@ export class Game extends Phaser.Scene {
         });
     }
 
-    startGame() {
-        //UI-logik
-        let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
-        gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-        queue.switchTo(gameui);
+    startGame(isVirus) {
         
         //Rita brädet
         this.gameDrawer.draw(); 
@@ -170,7 +164,9 @@ export class Game extends Phaser.Scene {
         this.scale.on("resize", () => {
             this.gameDrawer.draw();
         });
-        this.virusTurn();
+        if (isVirus) {
+            this.virusTurn();
+        }
     }
 
     virusTurn() {
