@@ -62,12 +62,10 @@ class Game extends Phaser.Scene {
         htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/gameui.html"]).then(() => {
             let mainmenu = htmlManager.create("mainmenu");
             
-            let queue = htmlManager.create("queue", {"state": "Söker spel"})
+            let queue = htmlManager.create("queue")
             
             socket.on("game_found", (isVirus) => {
                 //UI-logik
-                queue.setPlaceholder("state", "Match hittad!");
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
                 gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
                 queue.switchTo(gameui);
@@ -100,10 +98,16 @@ class Game extends Phaser.Scene {
             //}
             mainmenu.virus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                // Visa en linje på den markerade knappen
+                mainmenu.virus.classList.add("selected");
+                mainmenu.antivirus.classList.remove("selected");
             }
-
+            
             mainmenu.antivirus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+                // Visa en linje på den markerade knappen
+                mainmenu.antivirus.classList.add("selected");
+                mainmenu.virus.classList.remove("selected");
             }
 
             mainmenu.start.onclick = () => {

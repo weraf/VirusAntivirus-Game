@@ -14,7 +14,6 @@ export class LobbyHandler extends EventEmitter {
      * @param {User} user 
      */
     addUserToQueue(user,queueType) {
-        console.log("User queue type",queueType)
         switch (queueType) {
             case "virus":
                 this.queue.addUserToVirusQueue(user);
