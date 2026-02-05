@@ -25,21 +25,22 @@ export class GameState extends EventTarget {
         // this.board.antivirus.getValidMoves(); // om det returnerar tom, så förlorar antivirus.
         // Detta är win conditions för respektive spelare
 
-        //if (this.board.virus.getServerCount >= 2) {
-        //    this.gameOver = true;
-        //    this.winner = 0;
-        //} else {
-        //    if (this.board.virus.getValidMoves().length == 0) {
-        //        this.gameOver = true;
-        //        this.winner = 1;
-        //    }
-        //}
+        if (this.board.virus.getServerCount >= 2) {
+            this.gameOver = true;
+            this.winner = 0;
+        } else {
+            if (this.board.virus.getValidMoves().length == 0) {
+                this.gameOver = true;
+                this.winner = 1;
+            }
+        }
 
 
 
     }
 
     // bla bla bla emitta skit till GameServer
+
     gameOver() {
         
 
@@ -58,7 +59,7 @@ export class GameState extends EventTarget {
         this.timer = clearTimeout();
         this.startTimer()
 
-        this.dispatchEvent(new Event('turnChanged'))
+        //this.dispatchEvent(new Event('turnChanged'))
 
     }
 
@@ -67,7 +68,7 @@ export class GameState extends EventTarget {
             return
         }
 
-        this.dispatchEvent(new Event('moveMade'));
+        //this.dispatchEvent(new Event('moveMade'));
 
         this.changeTurn()
     }

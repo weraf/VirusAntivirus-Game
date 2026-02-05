@@ -35,8 +35,15 @@ export class GameServer extends EventEmitter {
 
         console.log("Test");
 
-        this.antivirusP.on(ACTIONS.TEST_ACTION, this.testFunction.bind(this, "AntiVirus"))
-        this.virusP.on(ACTIONS.TEST_ACTION, this.testFunction.bind(this, "Virus"))
+        this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (nodeid, selectedid) => {
+            console.log("Antivirus Bahaha", nodeid, selectedid)
+            this.emitAll(EVENTS.AVMOVE_SERVER, nodeid, selectedid)
+        })
+
+        this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
+            console.log("Bahaha",nodeid);
+            this.emitAll(EVENTS.VMOVE_SERVER, nodeid);
+        });
 
     }
 
