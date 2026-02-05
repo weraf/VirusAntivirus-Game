@@ -16,13 +16,18 @@ body, html {
     border-width: 15px;
 }
 
-.text {
-    /*
-    Source - https://stackoverflow.com/a
-    Posted by Guffa, modified by community. See post 'Timeline' for change history
-    Retrieved 2026-01-26, License - CC BY-SA 3.0
-    */
+#ui {
+    /*Så man inte kan markera text i spelet*/
+    user-select: none;
+}
+
+html, button {
+    /*Makes all text this font*/
     font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+.text {
+    
     color:rgb(255, 0, 0);
     font-size: 20px;
     text-align: center;
@@ -75,4 +80,12 @@ body, html {
 
 .language {
     margin-top: 100px;
+}
+
+.wintext {
+    font-size: 20vh;
+    color: yellow;
+    text-align: center;
+    line-height: 1em;
+    text-shadow: 1vh 1vh 0px black;
 }

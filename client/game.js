@@ -1,8 +1,6 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
-import { HtmlManager}  from "./htmlmanager/htmlmanager.js"
-import { ACTIONS, QUEUE_PREFERENCE }  from "./shared/enums.js";
+import { ACTIONS, EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 import { Translator } from "./translator.js";
-import { testPrint } from "./shared/test_shared.js";
 
 import { Board } from "./shared/board.js";
 import { BoardCreator } from "./boardCreator.js";
@@ -12,18 +10,12 @@ import { GameDrawer } from "./gameDrawer.js";
 import { GameState } from "./shared/gamestate.js"
 
 import InputHandler from "./inputhandler.js"
+import { GameUI } from "./ui/game_ui.js";
 
-testPrint();// Ska skriva ut i konsolen
-
-// Game kommunicerar först med gameserver, gameserver uppdaterar sin gamestate, skickar
-//  tillbaka och då uppdaterar vi vår gamestate
-
-
-const htmlManager = new HtmlManager(document.getElementById("ui"));
 const socket = io();
 
-// Game klassen (skulle kunna sättas i egen fil men detta funkar bra än så länge)
-class Game extends Phaser.Scene {
+// Game klassen. Exporteras för att kunna använda som type-hint
+export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
@@ -32,7 +24,7 @@ class Game extends Phaser.Scene {
         this.load.json('minKarta', './assets/map1.json');
         // Kan ändras när man lägger in fler kartor!
     }
-
+    
     create() {
 
         // Hämta datan från JSON-filen
@@ -45,6 +37,12 @@ class Game extends Phaser.Scene {
         
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
+        
+        // Lägg till en ormen
+        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.gameBoard.spawnStartBugs();
+        // lägg ut antivirus
+        this.gameBoard.spawnAntivirus();
 
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
@@ -57,44 +55,21 @@ class Game extends Phaser.Scene {
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-        this.inputHandler.addInput(this.gameBoard.getNode('n0'), (node) => {
-        //    console.log('Klickade på ', node.id)
+
+        this.ui = new GameUI(document.getElementById("ui"),socket);
+
+        socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
+            this.isVirus = isVirus;
+            this.startGame(isVirus);
+            
         });
 
+    }
 
-        // ----- TESTLOGIK: ------
+    startGame(isVirus) {
 
-        // Rita en röd testcirkel i mitten av skärmen
-        //const graphics = this.add.graphics({fillStyle:{color: 0xff0000}});
-        //graphics.fillCircle(this.scale.width/2,this.scale.height/2,40);
-
-        // Ladda in test UI och sätt upp så att något händer om man klickar på knappen
-        htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/gameui.html"]).then(() => {
-            let mainmenu = htmlManager.create("mainmenu");
-            
-            let queue = htmlManager.create("queue")
-            
-            socket.on("game_found", (isVirus) => {
-                //UI-logik
-                let gameui = htmlManager.create("gameui", {"myplayer": (isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"))});
-                gameui.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-                queue.switchTo(gameui);
-                
-                //Rita brädet
-                this.gameDrawer.draw(); 
-                
-                //Aktivera input första gången
-                this.refreshInput();
-            
-                //Hantera resize
-                this.scale.on("resize", () => {
-                    this.gameDrawer.draw();
-                });
-            });
-
-
-            this.gameState.addEventListener('moveMade', () =>  {
-                console.log("YOLO. 🍆🍆🍆🍆🍆🍆🍆🍆🍆")
+        this.gameState.addEventListener('moveMade', () =>  {
+                console.log("YOLO.")
             })
 
             this.gameState.addEventListener('turnChanged', () => {
@@ -102,72 +77,69 @@ class Game extends Phaser.Scene {
             })
 
             this.gameState.handleMove();
-
-            htmlManager.showOnly(mainmenu);
-
-            mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-
-            //mainmenu.setPlaceholders(
-            //    Object.fromEntries(Object.entries(Translator.getDictionary()).map(([k,v]) => [k, v[Translator.language]]))
-            //);
-
-            // mainmenu.setLanguagePlaceholders(Translator.getDictionary())
-
-
-            //testui.testbutton.onclick = () => {
-            //    testui.switchTo(mainmenu)
-            //    // testui.testtext.innerText = "Du klickade på knappen!";
-            //}
-            mainmenu.virus.onclick = () => {
-                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
-                // Visa en linje på den markerade knappen
-                mainmenu.virus.classList.add("selected");
-                mainmenu.antivirus.classList.remove("selected");
-            }
-            
-            mainmenu.antivirus.onclick = () => {
-                this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
-                // Visa en linje på den markerade knappen
-                mainmenu.antivirus.classList.add("selected");
-                mainmenu.virus.classList.remove("selected");
-            }
-
-            mainmenu.start.onclick = () => {
-                mainmenu.switchTo(queue)
-                socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
-                queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-            }
-
-            queue.abort.onclick = () => {
-                queue.switchTo(mainmenu)
-                socket.emit(ACTIONS.STOP_FINDING_GAME)
-                
-            }
-
-            mainmenu.language_button.onclick = () => {
-                if (Translator.language === "en") {
-                    Translator.setLanguage("sv");
-                } else {
-                    Translator.setLanguage("en");
-                }
-                mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
-            }
-
-            
-        })
         
-    }
-    refreshInput() {
-        this.inputHandler.removeAllInput();
-        const nodes = this.gameBoard.getAllNodes();
-        
-        nodes.forEach(node => {
-            this.inputHandler.addInput(node, (clickedNode) => {
-                console.log("Klickade på:", clickedNode.id);
-                // Här anropar du din klick-logik
-            });
+        //Rita brädet
+        this.gameDrawer.draw(); 
+        this.ui.showGameStart(isVirus);
+        //Hantera resize
+        this.scale.on("resize", () => {
+            this.gameDrawer.draw();
         });
+        if (isVirus) {
+            this.virusTurn();
+        } else {
+            this.antivirusTurn();
+        }
     }
+
+    virusTurn() {
+        this.inputHandler.removeAllInput();
+        const valid = this.gameBoard.virus.getValidMoves()
+        if (valid.length == 0) {
+            // Virus has lost
+            this.ui.showWinScreen(false);
+            this.gameDrawer.virusDrawer.update(); // Force it to update since we return
+            return;
+        }
+        for (const node of valid) {
+            this.inputHandler.addInput(node, (clicked) => {
+                this.gameBoard.virus.moveTo(clicked);
+                socket.emit(ACTIONS.TEST_ACTION) // test virus move
+                if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
+                    // Virus has won
+                    this.ui.showWinScreen(true);
+                    this.gameDrawer.virusDrawer.update(); // Force it to update since we return
+                    return;
+                }
+                this.virusTurn();
+            })
+        }
+        this.gameDrawer.draw([], valid.map((n) => {return n.id}));
+    }
+    antivirusTurn() {
+        const av = this.gameBoard.antivirus;
+        this.inputHandler.removeAllInput();
+
+        
+        av.getNodesToEnableInput(this.gameBoard).forEach(node => {
+            this.inputHandler.addInput(node, (clicked) => {
+                if (av.hasNode(clicked)) {
+                    av.selectAVNode(clicked);
+                } else {
+                    av.moveAVNode(clicked);
+                    socket.emit(ACTIONS.TEST_ACTION) // test emit
+                }
+
+                const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
+                const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
+                
+                this.gameDrawer.draw(selectedId, validMoveIds);
+
+                this.antivirusTurn(); 
+            });
+        })
+    }
+    
     
 }
 

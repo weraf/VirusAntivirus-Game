@@ -1,9 +1,33 @@
+import { Bugs } from "./bugs.js";
 import { Node } from "./node.js";
+import { Virus } from "./virus.js";
+import { Antivirus } from "./antivirus.js";
 
 export class Board extends EventTarget {
+    static EVENTS = {
+        BOARD_FLIP: "board_flip"
+    }
+
     constructor() {
         super();
         this.nodes = new Map();
+        this.virus = null;
+        this.antivirus = null;
+        this.bugs = new Bugs(this);
+    }
+
+    spawnVirus(startNodes) {
+        this.virus = new Virus(this,startNodes);
+        // Make bugs respawn a bug that got eaten
+        this.virus.addEventListener(Virus.EVENTS.BUG_EATEN,(event) => {
+            this.bugs.respawnBugAtNode(event.detail.node);
+        })
+    }
+
+    spawnStartBugs() {
+        // Create two bugs at random positions
+        this.bugs.createBugAtRandom();
+        this.bugs.createBugAtRandom();
     }
 
     flipCoordinates() {
@@ -12,7 +36,19 @@ export class Board extends EventTarget {
             node.x = node.y;
             node.y = tempX;
         }
-        this.dispatchEvent(new Event("board is flipped"));
+        this.dispatchEvent(new Event(Board.EVENTS.BOARD_FLIP));
+    }
+
+    spawnAntivirus() {
+        const possibleNodes = this.getAllNodes().filter(node => node.type !== 'server' && this.isNodeEmpty(node));
+    
+        // Slumpa positioner
+        possibleNodes.sort(() => Math.random() - 0.5);
+        const av_n1 = possibleNodes[0];
+        const av_n2 = possibleNodes[1];
+        
+        this.antivirus = new Antivirus([av_n1, av_n2]);
+        console.log(`Antivirus satta på nod ${av_n1.id} och ${av_n2.id}`);
     }
 
     addNode(id, x, y, type) {
@@ -36,5 +72,23 @@ export class Board extends EventTarget {
 
     getAllNodes() {
         return Array.from(this.nodes.values());
+    }
+
+    isNodeEmpty(node) {
+        if (this.virus && this.virus.hasNode(node)) {
+            return false;
+        }
+        if (this.bugs && this.bugs.hasNode(node)) {
+            return false;
+        }
+        if (this.antivirus && this.antivirus.hasNode(node)) {
+            return false;
+        } 
+        // Todo: kolla om antivirusär på noden
+        return true;
+    }
+
+    hasNodeBug(node) {
+        return this.bugs.hasNode(node);
     }
 }
