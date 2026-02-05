@@ -32,6 +32,10 @@ export class Virus extends EventTarget {
         return this.nodes[0];
     }
 
+    getTailNode() {
+        return this.nodes[this.nodes.length-1];
+    }
+
     hasNode(node) {
         return this.nodes.includes(node);
     }
@@ -56,7 +60,7 @@ export class Virus extends EventTarget {
     getCoveredServerCount() {
         let servers = 0;
         for (let node of this.nodes) {
-            if (node.type === "server") {
+            if (node.isServer()) {
                 servers++;
             }
         }
@@ -75,7 +79,7 @@ export class Virus extends EventTarget {
         const moves = [];
         for (let node of this.getHeadNode().neighbors) {
             if (this.board.isNodeEmpty(node)
-                || node == this.nodes[this.nodes.length-1] // The node has our tail on it, we can move here
+                || node == this.getTailNode() // The node has our tail on it, we can move here
                 || this.board.hasNodeBug(node)) {
                 moves.push(node);
             }

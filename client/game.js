@@ -56,7 +56,7 @@ export class Game extends Phaser.Scene {
             this.startGame(isVirus);
             
         });
-        
+        this.startGame(false);        
     }
 
     startGame(isVirus) {
@@ -76,6 +76,7 @@ export class Game extends Phaser.Scene {
     }
 
     virusTurn() {
+        this.ui.player_indicator.setPlaceholder("myplayer","Virus");
         this.inputHandler.removeAllInput();
         const valid = this.gameBoard.virus.getValidMoves()
         if (valid.length == 0) {
@@ -84,6 +85,7 @@ export class Game extends Phaser.Scene {
             this.gameDrawer.virusDrawer.update(); // Force it to update since we return
             return;
         }
+        this.gameDrawer.draw([], valid.map((n) => {return n.id}));
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
                 this.gameBoard.virus.moveTo(clicked);
@@ -93,30 +95,33 @@ export class Game extends Phaser.Scene {
                     this.gameDrawer.virusDrawer.update(); // Force it to update since we return
                     return;
                 }
-                this.virusTurn();
+                this.antivirusTurn();
+                this.gameDrawer.draw();
             })
         }
-        this.gameDrawer.draw([], valid.map((n) => {return n.id}));
     }
     antivirusTurn() {
+        this.ui.player_indicator.setPlaceholder("myplayer","Antivirus");
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 
-        
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
                 if (av.hasNode(clicked)) {
                     av.selectAVNode(clicked);
                 } else {
                     av.moveAVNode(clicked);
+                    this.gameDrawer.draw();
+                    this.virusTurn(); 
+                    return;
                 }
 
                 const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
                 const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
                 
                 this.gameDrawer.draw(selectedId, validMoveIds);
+                this.antivirusTurn();
                 
-                this.antivirusTurn(); 
             });
         })
     }
