@@ -6,8 +6,7 @@ import { Virus } from "./shared/virus.js";
 
 export class GameDrawer {
     /**
-     * 
-     * @param {Phaser.Scene} scene 
+     * * @param {Phaser.Scene} scene 
      * @param {Board} board 
      */
     constructor(scene, board) {
@@ -21,7 +20,7 @@ export class GameDrawer {
         this.isRotated = false; // It's starts not rotated
     }
     
-	draw(highlightIds = [], possibleMoveIds = []) {
+    draw(highlightIds = [], possibleMoveIds = []) {
         this.graphics.clear();
         const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
 
@@ -37,48 +36,79 @@ export class GameDrawer {
         this.bugsDrawer.update();
     }
     
-	drawNodes(highlightIds, possibleMoveIds) {
-		const av = this.board.antivirus;
-	
-		for (const node of this.board.getAllNodes()) {
-			let color = 0xe5e5e5; 
-			if (node.type === 'server') color = 0xb5b5b5;
-	
-			// vald nod
-			if (highlightIds.includes(node.id)) {
-				color = 0x0077ff; 
-			}
-	
-			this.graphics.fillStyle(color, 1);
-			
-			// rita nod
-			if (node.type === 'server') {
-				this.graphics.fillRect(node.x - 20, node.y - 20, 40, 40);
-			} else {
-				this.graphics.fillCircle(node.x, node.y, 18);
-			}
-	
-			// highlighta möjliga drag
-			if (possibleMoveIds.includes(node.id)) {
-				this.graphics.lineStyle(3, 0x00ff00, 0.8); 
-				this.graphics.strokeCircle(node.x, node.y, 22);
-				
-				this.graphics.fillStyle(0x00ff00, 0.15);
-				this.graphics.fillCircle(node.x, node.y, 22);
-			}
-	
-			// rita antivirus nod
-			if (av && av.hasNode(node)) {
-				this.graphics.lineStyle(4, 0x0000ff, 1); 
-				this.graphics.strokeCircle(node.x, node.y, 24); 
-	
-				if (av.selectedNode === node) {
-					this.graphics.fillStyle(0x0077ff, 0.4);
-					this.graphics.fillCircle(node.x, node.y, 24);
-				}
-			}
-		}
-	}
+    drawNodes(highlightIds, possibleMoveIds) {
+        const av = this.board.antivirus;
+    
+        for (const node of this.board.getAllNodes()) {
+            let color = 0xe5e5e5; 
+            
+            // Kolla om det är en server
+            if (node.type === 'server') {
+                color = 0x1a1a1a;
+            }
+    
+            // Vald nod
+            if (highlightIds.includes(node.id)) {
+                color = 0x0077ff; 
+            }
+    
+            this.graphics.fillStyle(color, 1);
+            
+            // Nod grafik
+            if (node.type === 'server') {
+                // Server grafik
+                const width = 38;
+                const height = 50;
+                const cornerRadius = 5; 
+                const x = node.x - width / 2;
+                const y = node.y - height / 2;
+                this.graphics.lineStyle(2, 0xcccccc, 1); 
+                this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, cornerRadius);
+
+                this.graphics.fillRoundedRect(x, y, width, height, cornerRadius);
+
+                this.graphics.lineStyle(1, 0x333333, 0.8);
+                this.graphics.lineBetween(x + 5, y + height * 0.4, x + width - 5, y + height * 0.4);
+                this.graphics.lineBetween(x + 5, y + height * 0.7, x + width - 5, y + height * 0.7);
+
+                // server lampor (Röd/Grön)
+                this.graphics.fillStyle(0x00ff00, 1);
+                this.graphics.fillCircle(x + 8, y + 8, 3);
+                this.graphics.fillStyle(0xff0000, 1);
+                this.graphics.fillCircle(x + 16, y + 8, 3);
+
+                this.graphics.fillStyle(color, 1);
+            } else {
+                // Vanlig nod
+                this.graphics.fillCircle(node.x, node.y, 18);
+            }
+    
+            // markera möjliga drag
+            if (possibleMoveIds.includes(node.id)) {
+                this.graphics.lineStyle(3, 0x00ff00, 0.8); 
+                this.graphics.strokeCircle(node.x, node.y, 22);
+                
+                this.graphics.fillStyle(0x00ff00, 0.15);
+                this.graphics.fillCircle(node.x, node.y, 22);
+            }
+    
+            // Antivirus utseende
+            if (av && av.hasNode(node)) {
+                this.graphics.lineStyle(4, 0x0000ff, 1); 
+                this.graphics.strokeCircle(node.x, node.y, 24); 
+    
+                if (av.selectedNode === node) {
+                    this.graphics.fillStyle(0x0077ff, 0.4);
+                    this.graphics.fillCircle(node.x, node.y, 24);
+                }
+            }
+
+            // Uppdatera klickzonen för när skärmen ändras eller roteras
+            if (node.clickZone) {
+                node.clickZone.setPosition(node.x, node.y);
+            }
+        }
+    }
     
     drawEdges() {
         this.graphics.lineStyle(3, 0xffffff, 0.3); 
@@ -109,8 +139,7 @@ export class GameDrawer {
 
 class BugsDrawer {
     /**
-     * 
-     * @param {Bugs} bugs 
+     * * @param {Bugs} bugs 
      * @param {Game} scene 
      */
     constructor(bugs,scene) {
@@ -132,8 +161,7 @@ class BugsDrawer {
 
 class VirusDrawer {
     /**
-     * 
-     * @param {Virus} virus
+     * * @param {Virus} virus
      * @param {Game} scene
      */
     constructor(virus, scene) {

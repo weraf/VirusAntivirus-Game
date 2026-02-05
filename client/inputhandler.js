@@ -24,16 +24,18 @@ export default class InputHandler {
     }
 
     addInput(node, func) {
-        let clickZone;
         const hitArea = new Phaser.Geom.Circle(0, 0, 25);
         
-        clickZone = this.scene.add.zone(node.x, node.y); 
+        const clickZone = this.scene.add.zone(node.x, node.y); 
         
         clickZone.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
     
         clickZone.on('pointerdown', () => {
             func(node);
         });
+        
+        // Spara referensen på noden så GameDrawer kan flytta på den vid resize/rotation
+        node.clickZone = clickZone;
     
         this.clickZones.add(clickZone);
     }
@@ -42,7 +44,13 @@ export default class InputHandler {
         this.clickZones.forEach(clickZone => {
             clickZone.removeAllListeners();
             clickZone.disableInteractive();
+            clickZone.destroy(); // Viktigt att förstöra objektet helt
         });
         this.clickZones.clear();
+        
+        // Rensa referenserna på alla noder
+        for (const node of this.board.getAllNodes()) {
+            node.clickZone = null;
+        }
     }
 }
