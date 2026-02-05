@@ -43,6 +43,14 @@
   "pickmode": {
     "sv": "Välj din spelare",
     "en": "Pick your player"
+  },
+  "viruswon": {
+    "sv": "Viruset vinner!",
+    "en": "The virus won!"
+  },
+  "antiviruswon": {
+    "sv": "Antiviruset vinner!",
+    "en": "The Antivirus won!"
   }
 
 }
