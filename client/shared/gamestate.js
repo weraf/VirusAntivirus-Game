@@ -1,4 +1,5 @@
 
+
 export class GameState extends EventTarget {
 
 
@@ -24,15 +25,23 @@ export class GameState extends EventTarget {
         // this.board.antivirus.getValidMoves(); // om det returnerar tom, så förlorar antivirus.
         // Detta är win conditions för respektive spelare
 
-        if (true) {
-            
-        }
+        //if (this.board.virus.getServerCount >= 2) {
+        //    this.gameOver = true;
+        //    this.winner = 0;
+        //} else {
+        //    if (this.board.virus.getValidMoves().length == 0) {
+        //        this.gameOver = true;
+        //        this.winner = 1;
+        //    }
+        //}
+
+
 
     }
 
     // bla bla bla emitta skit till GameServer
     gameOver() {
-        this.dispatchEvent(new Event('gameOver'))
+        
 
     }
 
@@ -51,12 +60,8 @@ export class GameState extends EventTarget {
 
         this.dispatchEvent(new Event('turnChanged'))
 
-        // Skicka nån jävla signal till clientsidan här
-        
-
     }
 
-    // Board bla bla
     handleMove() {
         if (this.gameOver == true) {
             return

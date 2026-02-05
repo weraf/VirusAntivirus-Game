@@ -30,7 +30,20 @@ export class GameServer extends EventEmitter {
         // TODO: send message to players that opponent disconnected
         this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
         this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
+
+        // Add other events here
+
+        console.log("Test");
+
+        this.antivirusP.on(ACTIONS.TEST_ACTION, this.testFunction.bind(this, "AntiVirus"))
+        this.virusP.on(ACTIONS.TEST_ACTION, this.testFunction.bind(this, "Virus"))
+
     }
+
+    testFunction(who) {
+        console.log("Move made by", who);
+    }
+
 
     // Sends an event to both players (and spectators)
     emitAll(eventName, ...args) {
@@ -38,6 +51,7 @@ export class GameServer extends EventEmitter {
         this.antivirusP.emit(eventName,...args);
         // TODO: Send to spectators
     }
+
 
     gameFinished() {
         if (this.gameOver) {
