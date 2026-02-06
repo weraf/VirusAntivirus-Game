@@ -1,5 +1,5 @@
-import { HtmlManager } from "../htmlmanager/htmlmanager.js";
-import { Translator } from "../translator.js";
+import { HtmlManager } from "./htmlmanager/htmlmanager.js";
+import { Translator } from "./translator.js";
 import { QUEUE_PREFERENCE, ACTIONS } from "../shared/enums.js";
 
 export class GameUI {
@@ -11,7 +11,9 @@ export class GameUI {
      */
     constructor(parent, socket) {
         this.htmlManager = new HtmlManager(parent);
-        this.setup();
+        Translator.connectToHTMLManager(this.htmlManager);
+        // Fetch the translations and then load the UI
+        Translator.fetchTranslations().then(this.setup.bind(this))
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         // The simplest solution is to include a reference to socket in this class
         // Another option is having the class send events and game reacting on that,
@@ -20,18 +22,17 @@ export class GameUI {
     }
 
     showWinScreen(virusWon) {
-        this.winscreen.setPlaceholder("wintext",virusWon ? Translator.getText("viruswon"):Translator.getText("antiviruswon"));
+        this.winscreen.setPlaceholder("wintext",virusWon ? "viruswon":"antiviruswon");
         this.winscreen.show();
+        this.winscreen.wintext.classList.add(virusWon ? "red" : "blue")
     }
 
     showGameStart(isVirus) {
-        this.player_indicator.setPlaceholder("myplayer", isVirus ? Translator.getText("pvirus"): Translator.getText("pantivirus"));
-        this.player_indicator.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+        this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
         this.queue.switchTo(this.player_indicator);
     }
 
     setup() {
-        
         this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html"]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.queue = this.htmlManager.create("queue");
@@ -39,7 +40,6 @@ export class GameUI {
             this.winscreen = this.htmlManager.create("winscreen");
             
             this.htmlManager.showOnly(this.mainmenu);
-            this.mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             
             this.mainmenu.virus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
@@ -58,7 +58,6 @@ export class GameUI {
             this.mainmenu.start.onclick = () => {
                 this.mainmenu.switchTo(this.queue)
                 this.socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
-                this.queue.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
             }
 
             this.queue.abort.onclick = () => {
@@ -72,7 +71,7 @@ export class GameUI {
                 } else {
                     Translator.setLanguage("en");
                 }
-                this.mainmenu.setLanguagePlaceholders(Translator.getDictionary(), Translator.getLanguage());
+                Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
 
         })

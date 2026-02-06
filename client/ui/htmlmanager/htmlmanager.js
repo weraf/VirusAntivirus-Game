@@ -1,15 +1,21 @@
-export class HtmlManager {
+export class HtmlManager extends EventTarget {
     cache = {}
     cacheShort = {}
     baseURL
     parent
     instances = []
+
+    static EVENTS = {
+        INSTANCE_CREATED: "instance_created"
+    }
+
     /**
      * 
      * @param {*} parent The default DOM element to add things under 
      * @param {*} baseURL The base URL used when loading files
      */
     constructor(parent, baseURL = "") {
+        super();
         if (parent == undefined) {
             throw new Error("Parent is not set");
         }
@@ -60,6 +66,10 @@ export class HtmlManager {
         return short.split(".")[0];
     }
 
+    getVisibleInstances() {
+        return this.instances.filter((instance) => {return instance.visible})
+    }
+
     /**
      * Load a html file into cache to be used later
      * @param {*} path 
@@ -78,11 +88,12 @@ export class HtmlManager {
      */
     create(path,placeholders={},parent=this.parent) {
         const html = this.getCachedContents(path);
-        const newInstance = new HTMLInstance(parent,html);
+        const newInstance = new HtmlInstance(parent,html);
         if (Object.keys(placeholders).length > 0) {
             newInstance.setPlaceholders(placeholders)
         }
         this.instances.push(newInstance);
+        this.dispatchEvent(new CustomEvent(HtmlManager.EVENTS.INSTANCE_CREATED,{"detail":{"instance":newInstance}}))
         return newInstance;
     }
 
@@ -111,6 +122,10 @@ export class HtmlManager {
      * @param {*} element 
      */
     static show(element) {
+        if (element instanceof HtmlInstance) {
+            element.show();
+            return;
+        }
         element.classList.remove("hidden")
     }
     
@@ -119,15 +134,26 @@ export class HtmlManager {
      * @param {*} element 
      */
     static hide(element) {
+        if (element instanceof HtmlInstance) {
+            element.hide();
+            return;
+        }
         element.classList.add("hidden")
     }
 }
 
-class HTMLInstance {
+export class HtmlInstance extends EventTarget {
     root;
     placeholderNodes = {}
+    visible = true;
+
+    static EVENTS = {
+        PLACEHOLDER_SET: "placeholder_set",
+        SHOWN: "shown"
+    }
 
     constructor(parent, html) {
+        super();
         this.parent = parent
         const tempNode = document.createElement("div");
         tempNode.innerHTML = html;
@@ -167,26 +193,21 @@ class HTMLInstance {
         return foundPlaceholders
     }
 
-    setPlaceholders(keys) {
+    setPlaceholders(keys,ignoreMissing=false) {
         for (let [key, value] of Object.entries(keys)) {
-            this.setPlaceholder(key,value)
+            this.setPlaceholder(key,value,ignoreMissing)
         }
     }
 
-    setPlaceholder(key,value) {
+    setPlaceholder(key,value,ignoreMissing = false) {
         if (this.placeholderNodes[key] === undefined) {
-            return
-
-            // lägg till extraparameter ignore om det kommer från translatorklassen 
-
-            // throw new Error("Couldn't find placeholder: "+key)
+            if (ignoreMissing) {
+                return
+            }
+            throw new Error("Couldn't find placeholder: "+key)
         }
-
         this.placeholderNodes[key].nodeValue = value;
-    }
-
-    setLanguagePlaceholders(dict, language) {
-        this.setPlaceholders(Object.fromEntries(Object.entries(dict).map(([k,v]) => [k, v[language]])));
+        this.dispatchEvent(new CustomEvent(HtmlInstance.EVENTS.PLACEHOLDER_SET,{"detail":{"placeholder":key,"value":value}}))
     }
 
     findIds(parent) {
@@ -199,6 +220,7 @@ class HTMLInstance {
     }
 
     hide() {
+        this.visible = false;
         HtmlManager.hide(this.root);
     }
 
@@ -212,6 +234,8 @@ class HTMLInstance {
     }
 
     show() {
+        this.visible = true;
+        this.dispatchEvent(new Event(HtmlInstance.EVENTS.SHOWN));
         HtmlManager.show(this.root);
     }
 }
