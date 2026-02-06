@@ -8,8 +8,7 @@ export class GameServer extends EventEmitter {
     virusP; // Player instance that plays virus
     antivirusP; // Player instance that plays antivirus
     gameOver = false;
-    gameState
-
+    
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
     
