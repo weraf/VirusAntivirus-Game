@@ -1,6 +1,5 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
 import { ACTIONS, EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
-import { Translator } from "./translator.js";
 
 import { Board } from "./shared/board.js";
 import { BoardCreator } from "./boardCreator.js";
@@ -67,7 +66,6 @@ export class Game extends Phaser.Scene {
         
         
         socket.on(EVENTS.VMOVE_SERVER, (nodeid) => {
-            console.log(this.gameBoard.getNode(nodeid))
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             this.gameDrawer.virusDrawer.update();
 
@@ -181,6 +179,4 @@ const config = {
     scene: Game
 };
 
-
-await Translator.init();
 const game = new Phaser.Game(config);

@@ -83,9 +83,19 @@ html, button {
 }
 
 .wintext {
-    font-size: 20vh;
-    color: yellow;
+    font-size: calc( min( 10vw, 10vh) );
     text-align: center;
     line-height: 1em;
-    text-shadow: 1vh 1vh 0px black;
+    text-shadow: 0.5vh 0.5vh 0px black;
+    background-color: rgba(48, 56, 54, 0.8);
+    border-radius: 1vw;
+    padding: 2vw;
+}
+
+.red {
+    color: #ff0040;
+}
+
+.blue {
+    color: #0000ff;
 }
