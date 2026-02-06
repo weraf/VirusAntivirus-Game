@@ -8,7 +8,7 @@ export class GameServer extends EventEmitter {
     virusP; // Player instance that plays virus
     antivirusP; // Player instance that plays antivirus
     gameOver = false;
-
+    
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
     
@@ -33,6 +33,7 @@ export class GameServer extends EventEmitter {
 
         // Add other events here
 
+
         this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (nodeid, selectedid) => {
             this.emitAll(EVENTS.AVMOVE_SERVER, nodeid, selectedid)
         })
@@ -40,6 +41,8 @@ export class GameServer extends EventEmitter {
         this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
             this.emitAll(EVENTS.VMOVE_SERVER, nodeid);
         });
+
+        
 
     }
 
