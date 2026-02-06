@@ -1,5 +1,6 @@
 import { Player } from "./player.js";
 import { ACTIONS, EVENTS } from "../client/shared/enums.js";
+import { GameState } from "../client/shared/gamestate.js"
 import EventEmitter from "node:events";
 
 // Class for handling the flow and events of a match
@@ -29,7 +30,23 @@ export class GameServer extends EventEmitter {
         // TODO: send message to players that opponent disconnected
         this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
         this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
+
+        // Add other events here
+
+        this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (nodeid, selectedid) => {
+            this.emitAll(EVENTS.AVMOVE_SERVER, nodeid, selectedid)
+        })
+
+        this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
+            this.emitAll(EVENTS.VMOVE_SERVER, nodeid);
+        });
+
     }
+
+    //testFunction(who) {
+    //    console.log("Move made by", who);
+    //}
+
 
     // Sends an event to both players (and spectators)
     emitAll(eventName, ...args) {
@@ -37,6 +54,7 @@ export class GameServer extends EventEmitter {
         this.antivirusP.emit(eventName,...args);
         // TODO: Send to spectators
     }
+
 
     gameFinished() {
         if (this.gameOver) {

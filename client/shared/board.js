@@ -26,8 +26,10 @@ export class Board extends EventTarget {
 
     spawnStartBugs() {
         // Create two bugs at random positions
-        this.bugs.createBugAtRandom();
-        this.bugs.createBugAtRandom();
+        /*this.bugs.createBugAtRandom();
+        this.bugs.createBugAtRandom();*/
+        this.bugs.createBugAtNode(this.getNode("n16"));
+        this.bugs.createBugAtNode(this.getNode("n5"));
     }
 
     flipCoordinates() {
@@ -43,9 +45,9 @@ export class Board extends EventTarget {
         const possibleNodes = this.getAllNodes().filter(node => node.type !== 'server' && this.isNodeEmpty(node));
     
         // Slumpa positioner
-        possibleNodes.sort(() => Math.random() - 0.5);
-        const av_n1 = possibleNodes[0];
-        const av_n2 = possibleNodes[1];
+        //possibleNodes.sort(() => Math.random() - 0.5);
+        const av_n1 = this.getNode("n25") // possibleNodes[10];
+        const av_n2 = this.getNode("n20") // possibleNodes[12];
         
         this.antivirus = new Antivirus([av_n1, av_n2]);
         console.log(`Antivirus satta på nod ${av_n1.id} och ${av_n2.id}`);

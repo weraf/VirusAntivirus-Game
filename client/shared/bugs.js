@@ -27,7 +27,19 @@ export class Bugs extends EventTarget {
 
     respawnBugAtNode(node) {
         this.removeBugAtNode(node);
-        this.createBugAtRandom();
+
+        // Not so random random
+        let currentNode = node;
+        for (let n = 0; n < 20; n++) {
+            for (let neighbor of currentNode.neighbors) {
+                if (this.board.isNodeEmpty(neighbor)) {
+                    currentNode = neighbor;
+                    break;
+                }
+            }
+        }
+        this.createBugAtNode(currentNode);
+        //this.createBugAtRandom();
         this.dispatchEvent(new Event(Bugs.EVENTS.BUG_MOVED));
     }
 

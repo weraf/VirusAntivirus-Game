@@ -1,11 +1,13 @@
 // Test av att importera ett skript med en funktion från en annan fil (som exempel)
-import { EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
+import { ACTIONS, EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 import { Translator } from "./translator.js";
 
 import { Board } from "./shared/board.js";
 import { BoardCreator } from "./boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
+
+import { GameState } from "./shared/gamestate.js"
 
 import InputHandler from "./inputhandler.js"
 import { GameUI } from "./ui/game_ui.js";
@@ -30,6 +32,8 @@ export class Game extends Phaser.Scene {
         
         // Skapa Brädet
         this.gameBoard = new Board();
+
+        //this.GameState = new GameState(this.gameBoard);
         
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
@@ -43,6 +47,9 @@ export class Game extends Phaser.Scene {
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
+
+        this.gameState = new GameState(this.gameBoard, 2000);
+
         this.queuePreference = QUEUE_PREFERENCE.ANY;
 
         // STORY 3
@@ -56,7 +63,47 @@ export class Game extends Phaser.Scene {
             this.startGame(isVirus);
             
         });
+
         
+        
+        socket.on(EVENTS.VMOVE_SERVER, (nodeid) => {
+            console.log(this.gameBoard.getNode(nodeid))
+            this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
+            this.gameDrawer.virusDrawer.update();
+
+            if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
+                    // Virus has won
+                    this.ui.showWinScreen(true);
+                    this.gameDrawer.virusDrawer.update(); // Force it to update since we return
+                    return;
+                }
+            if (!this.isVirus) {
+                this.antivirusTurn();
+            }
+
+        })
+
+        socket.on(EVENTS.AVMOVE_SERVER, (nodeid, selectedid) => {
+            this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
+            this.gameBoard.antivirus.moveAVNode(this.gameBoard.getNode(nodeid))
+            this.gameDrawer.draw();
+
+            const valid = this.gameBoard.virus.getValidMoves()
+
+            if (valid.length == 0) {
+                // Virus has lost
+                this.ui.showWinScreen(false);
+                this.gameDrawer.virusDrawer.update(); // Force it to update since we return
+                return;
+            }
+
+            if (this.isVirus) {
+                this.virusTurn();
+            }
+            
+            
+        })
+
     }
 
     startGame(isVirus) {
@@ -70,30 +117,23 @@ export class Game extends Phaser.Scene {
         });
         if (isVirus) {
             this.virusTurn();
-        } else {
-            this.antivirusTurn();
         }
     }
+
+    // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
 
     virusTurn() {
         this.inputHandler.removeAllInput();
         const valid = this.gameBoard.virus.getValidMoves()
-        if (valid.length == 0) {
-            // Virus has lost
-            this.ui.showWinScreen(false);
-            this.gameDrawer.virusDrawer.update(); // Force it to update since we return
-            return;
-        }
+
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
-                this.gameBoard.virus.moveTo(clicked);
-                if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
-                    // Virus has won
-                    this.ui.showWinScreen(true);
-                    this.gameDrawer.virusDrawer.update(); // Force it to update since we return
-                    return;
-                }
-                this.virusTurn();
+
+                socket.emit(ACTIONS.VIRUS_MOVE, clicked.id)
+                this.inputHandler.removeAllInput();
+                this.gameDrawer.draw();
+
+                //this.gameBoard.virus.moveTo(clicked);
             })
         }
         this.gameDrawer.draw([], valid.map((n) => {return n.id}));
@@ -108,14 +148,17 @@ export class Game extends Phaser.Scene {
                 if (av.hasNode(clicked)) {
                     av.selectAVNode(clicked);
                 } else {
-                    av.moveAVNode(clicked);
+                    //av.moveAVNode(clicked);
+                    socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id) // test emit
+                    this.inputHandler.removeAllInput();
+                    return
                 }
 
                 const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
                 const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
                 
                 this.gameDrawer.draw(selectedId, validMoveIds);
-                
+
                 this.antivirusTurn(); 
             });
         })
