@@ -106,14 +106,6 @@ export class Game extends Phaser.Scene {
 
     }
 
-    //this.gameState.addEventListener('moveMade', () =>  {
-    //    console.log("t.")
-    //})
-    //this.gameState.addEventListener('turnChanged', () => {
-    //    console.log("yeap, it has been changed 💕💕💕💕💕💕❤️❤️❤️😂😂😎😎😎")
-    //})
-    //this.gameState.handleMove();
-
     startGame(isVirus) {
         
         //Rita brädet
