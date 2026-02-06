@@ -22,6 +22,7 @@ export const EVENTS = {
     START_TIMER: "start_timer", // 
     VMOVE_SERVER: "VMOVE_SERVER", // a move has been made /& test
     AVMOVE_SERVER: "AVMOVE_SERVER", //
+    TIMER_CHANGE: "TIMER_SERVER"
 }
 
 export const QUEUE_PREFERENCE = {
