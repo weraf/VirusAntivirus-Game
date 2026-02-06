@@ -1,6 +1,11 @@
 
 export class GameState extends EventTarget {
 
+    static EVENTS = {
+        TIMED_OUT: "timed_out",
+        GAME_OVER: "game_over"
+    }
+
     constructor(board, timerLength) {
         super()
         this.board = board;
@@ -52,7 +57,7 @@ export class GameState extends EventTarget {
 
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
-        this.dispatchEvent(new Event('timedOut'))
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
     }
 
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur
@@ -60,7 +65,7 @@ export class GameState extends EventTarget {
         this.checkWin();
 
         if (this.gameOver === true) {
-            this.dispatchEvent(new CustomEvent('gameOver', {
+            this.dispatchEvent(new CustomEvent(GameState.EVENTS.GAME_OVER, {
                 detail: this.winner
             }));
             this.timer = clearTimeout();
