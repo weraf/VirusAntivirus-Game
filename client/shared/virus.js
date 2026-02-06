@@ -47,7 +47,7 @@ export class Virus extends EventTarget {
         } else { // If we didn't eat an apple, remove the last element (the tail) to make the whole snake move forward
             this.nodes.pop();
         }
-        this.dispatchEvent(new Event(Virus.EVENTS.MOVED)); // used to make virusDrawer update
+        this.dispatchEvent(new CustomEvent(Virus.EVENTS.MOVED, {"detail": {"node": node}})); // used to make virusDrawer update
     }
 
     /**

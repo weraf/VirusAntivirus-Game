@@ -50,6 +50,14 @@ export class Board extends EventTarget {
         const av_n2 = this.getNode("n20") // possibleNodes[12];
         
         this.antivirus = new Antivirus([av_n1, av_n2]);
+        // Make bugs that antivirus steps on move
+        this.antivirus.addEventListener(Antivirus.EVENTS.MOVED,(event) => {
+            const movedTo = event.detail.node;
+            if (this.bugs.hasNode(movedTo)) {
+                this.bugs.respawnBugAtNode(movedTo);
+            }
+        })
+
         console.log(`Antivirus satta på nod ${av_n1.id} och ${av_n2.id}`);
     }
 
