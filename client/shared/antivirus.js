@@ -11,6 +11,10 @@ export class Antivirus extends EventTarget {
         this.nodes = startNodes; 
         this.selectedNode = null; 
     }
+
+    static EVENTS = {
+        MOVED: "moved",
+    }
     
     // välj nod att flytta
     select(node) {
@@ -57,6 +61,7 @@ export class Antivirus extends EventTarget {
         if (index !== -1) {
             this.nodes[index] = newNode;
             this.selectedNode = null; 
+            this.dispatchEvent(new CustomEvent(Antivirus.EVENTS.MOVED,{"detail":{"node":newNode}}));
             return true;
         }
         return false;
