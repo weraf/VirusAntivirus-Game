@@ -17,6 +17,9 @@ export class GameDrawer {
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         this.bugsDrawer = new BugsDrawer(board.bugs,scene);
+
+		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
+
         this.isRotated = false; // It's starts not rotated
     }
     
@@ -34,6 +37,7 @@ export class GameDrawer {
         this.drawNodes(highlightIds, possibleMoveIds);
         this.virusDrawer.update();
         this.bugsDrawer.update();
+		this.antivirusDrawer.update();
     }
     
     drawNodes(highlightIds, possibleMoveIds) {
@@ -92,8 +96,9 @@ export class GameDrawer {
                 this.graphics.fillCircle(node.x, node.y, 22);
             }
     
-            // Antivirus utseende
-            if (av && av.hasNode(node)) {
+            /* //Antivirus utseende
+            
+			if (av && av.hasNode(node)) {
                 this.graphics.lineStyle(4, 0x0000ff, 1); 
                 this.graphics.strokeCircle(node.x, node.y, 24); 
     
@@ -102,6 +107,7 @@ export class GameDrawer {
                     this.graphics.fillCircle(node.x, node.y, 24);
                 }
             }
+				*/
 
             // Uppdatera klickzonen för när skärmen ändras eller roteras
             if (node.clickZone) {
@@ -256,3 +262,109 @@ class VirusDrawer {
         
     }
 }
+
+class AntivirusDrawer {
+	constructor(antivirus, scene) {
+        this.scene = scene;
+        this.antivirus = antivirus;
+        this.graphics = this.scene.add.graphics();
+        
+        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        
+        this.animationProgress = 1.0;
+        this.tween = null;
+    }
+
+    update() {
+        if (this.tween) return; 
+
+        let needsAnimation = false;
+        for (let i = 0; i < this.antivirus.nodes.length; i++) {
+            const target = this.antivirus.nodes[i];
+            const current = this.displayNodes[i];
+            if (current.x !== target.x || current.y !== target.y) {
+                needsAnimation = true;
+                break;
+            }
+        }
+
+        if (needsAnimation) {
+            const startPositions = this.displayNodes.map(p => ({ x: p.x, y: p.y }));
+            const endPositions = this.antivirus.nodes.map(n => ({ x: n.x, y: n.y }));
+
+            this.animationProgress = 0;
+            this.tween = this.scene.tweens.add({
+                targets: this,
+                animationProgress: 1,
+                duration: 800, 
+                ease: 'Elastic.easeOut',
+                easeParams: [1, 0.5],
+                onUpdate: () => {
+                    for (let i = 0; i < this.displayNodes.length; i++) {
+                        this.displayNodes[i].x = Phaser.Math.Linear(startPositions[i].x, endPositions[i].x, this.animationProgress);
+                        this.displayNodes[i].y = Phaser.Math.Linear(startPositions[i].y, endPositions[i].y, this.animationProgress);
+                    }
+                    this.draw();
+                },
+                onComplete: () => {
+                    this.tween = null;
+                    this.draw();
+                }
+            });
+        } else {
+            this.draw();
+        }
+    }
+
+    draw() {
+        this.graphics.clear();
+        this.displayNodes.forEach((pos, index) => {
+            const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
+            
+            // Yttre ring
+            this.graphics.lineStyle(2, 0x00ffff, 0.5);
+            this.graphics.strokeCircle(pos.x, pos.y, 28);
+
+            //Huvudcirkeln
+            const mainColor = isSelected ? 0x0077ff : 0x0000ff;
+            this.graphics.lineStyle(4, mainColor, 1);
+            this.graphics.strokeCircle(pos.x, pos.y, 22);
+
+			this.graphics.lineStyle(2, mainColor, 0.8);
+        
+			this.graphics.lineStyle(3, 0x000099, 1); // Vit för max synlighet
+        
+			// Vertikal streck
+			this.graphics.lineBetween(pos.x, pos.y - 12, pos.x, pos.y + 12);
+			// Horisontell streck
+			this.graphics.lineBetween(pos.x - 12, pos.y, pos.x + 12, pos.y);
+			
+			// liten kvadrat i mitten
+			this.graphics.fillStyle(0x000099, 1);
+			this.graphics.fillRect(pos.x - 4, pos.y - 4, 8, 8);
+	
+			// hörn vinklar
+			this.graphics.lineStyle(2, mainColor, 1);
+			const d = 14;
+			const s = 5;
+			// vinklar uppe
+			this.graphics.lineBetween(pos.x - d, pos.y - d, pos.x - d + s, pos.y - d);
+			this.graphics.lineBetween(pos.x - d, pos.y - d, pos.x - d, pos.y - d + s);
+			this.graphics.lineBetween(pos.x - d, pos.y + d, pos.x - d + s, pos.y + d);
+			this.graphics.lineBetween(pos.x - d, pos.y + d, pos.x - d, pos.y + d - s);
+			// vinklar nere 
+			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d - s, pos.y - d);
+			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d, pos.y - d + s);
+            this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d - s, pos.y + d);
+            this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d, pos.y + d - s);
+	
+			if (isSelected) {
+				this.graphics.fillStyle(0x00ffff, 0.3);
+				this.graphics.fillCircle(pos.x, pos.y, 22);
+				this.graphics.lineStyle(2, 0xffffff, 0.8);
+				this.graphics.strokeCircle(pos.x, pos.y, 24);
+			}
+        });
+    }
+}
+
