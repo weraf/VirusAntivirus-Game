@@ -81,12 +81,14 @@ export class Virus extends EventTarget {
         return moves;
     }
 
+    
     /**
      * 
      * @param {Node} oldNode 
      * @param {Node} newNode 
      * @returns {boolean} true om flytt lyckades, false annars
      */
+    /* 
     moveTo(oldNode, newNode) {
         if (!this.hasNode(oldNode)) {
             return false;
@@ -106,5 +108,6 @@ export class Virus extends EventTarget {
         this.dispatchEvent(new CustomEvent(Virus.EVENTS.MOVED,{"detail":{"node":newNode}}));
 
         return true;
-    }
+    } 
+    */
 }

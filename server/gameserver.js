@@ -65,7 +65,7 @@ export class GameServer extends EventEmitter {
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 0) return;
 
-            const success = this.gameState.board.virus.moveTo(nodeId, selectedid);
+            const success = this.gameState.board.virus.moveTo(this.gameState.board.getNode(nodeid));
             if (!success) {
                 this.virusP.emit(EVENTS.INVALID_MOVE);
                 return;

@@ -2,7 +2,7 @@
 import { ACTIONS, EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 
 import { Board } from "./shared/board.js";
-import { BoardCreator } from "./boardCreator.js";
+import { BoardCreator } from "./shared/boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 
