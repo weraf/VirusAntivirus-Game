@@ -80,4 +80,31 @@ export class Virus extends EventTarget {
         }
         return moves;
     }
+
+    /**
+     * 
+     * @param {Node} oldNode 
+     * @param {Node} newNode 
+     * @returns {boolean} true om flytt lyckades, false annars
+     */
+    moveTo(oldNode, newNode) {
+        if (!this.hasNode(oldNode)) {
+            return false;
+        }
+
+        this.selectedNode = oldNode;
+
+        const validMoves = this.getValidMoves(this.board);
+        if (!validMoves.includes(newNode)) {
+            this.selectedNode = null;
+            return false;
+        }
+
+        const index = this.nodes.indexOf(oldNode);
+        this.nodes[index] = newNode;
+        this.selectedNode = null;
+        this.dispatchEvent(new CustomEvent(Virus.EVENTS.MOVED,{"detail":{"node":newNode}}));
+
+        return true;
+    }
 }

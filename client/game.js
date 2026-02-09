@@ -83,7 +83,7 @@ export class Game extends Phaser.Scene {
 
         socket.on(EVENTS.AVMOVE_SERVER, (nodeid, selectedid) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
-            this.gameBoard.antivirus.moveAVNode(this.gameBoard.getNode(nodeid))
+            this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
             this.gameDrawer.draw();
 
             const valid = this.gameBoard.virus.getValidMoves()
@@ -146,7 +146,6 @@ export class Game extends Phaser.Scene {
                 if (av.hasNode(clicked)) {
                     av.selectAVNode(clicked);
                 } else {
-                    //av.moveAVNode(clicked);
                     socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id) // test emit
                     this.inputHandler.removeAllInput();
                     return

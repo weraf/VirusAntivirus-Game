@@ -39,21 +39,19 @@ export class GameServer extends EventEmitter {
             this.emitAll(EVENTS.GAME_OVER, e.detail);
             this.gameFinished();
         });
-        
 
         // If either player disconnect, the game is over and can be removed from the server
         // TODO: send message to players that opponent disconnected
         this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
         this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
 
-        // Add other events here
+        // Add other events here'
 
         this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (nodeid, selectedid) => {
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 1) return;
 
             const success = this.gameState.board.antivirus.moveTo(nodeId, selectedid);
-
             if (!success) {
                 this.antivirusP.emit(EVENTS.INVALID_MOVE);
                 return;
@@ -64,7 +62,17 @@ export class GameServer extends EventEmitter {
         })
 
         this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
-            this.emitAll(EVENTS.VMOVE_SERVER, nodeid);
+            if (this.gameState.gameOver) return;
+            if (this.gameState.currentPlayer !== 0) return;
+
+            const success = this.gameState.board.virus.moveTo(nodeId, selectedid);
+            if (!success) {
+                this.virusP.emit(EVENTS.INVALID_MOVE);
+                return;
+            }
+
+            this.emitAll(EVENTS.VIRUS_MOVE, nodeid)
+            this.gameState.handleMove();
         });
 
         
