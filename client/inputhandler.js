@@ -53,4 +53,14 @@ export default class InputHandler {
             node.clickZone = null;
         }
     }
+
+    get activeNodes() {
+        const nodes = [];
+        for (const node of this.board.getAllNodes()) {
+            if (node.clickZone && this.clickZones.has(node.clickZone)) {
+                nodes.push(node);
+            }
+        }
+        return nodes;
+    }
 }

@@ -10,10 +10,13 @@ export class GameDrawer {
      * * @param {Phaser.Scene} scene 
      * @param {Board} board 
      */
-    constructor(scene, board) {
+    constructor(scene, board, inputHandler) {
         this.scene = scene;
         this.board = board;
-        this.graphics = scene.add.graphics();
+		
+		this.inputHandler = inputHandler;
+        
+		this.graphics = scene.add.graphics();
 
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(board.virus, scene);
@@ -21,24 +24,27 @@ export class GameDrawer {
 
 		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
 
+		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
+
         this.isRotated = false; // It's starts not rotated
     }
     
     draw(highlightIds = [], possibleMoveIds = []) {
         this.graphics.clear();
         const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
-
-        if (this.isRotated !== shouldBeRotated) {
+        
+		if (this.isRotated !== shouldBeRotated) {
             this.isRotated = shouldBeRotated;
             this.board.flipCoordinates(); 
         }
 
         this.centerCamera();
         this.drawEdges();
-        this.drawNodes(highlightIds, possibleMoveIds);
+        this.drawNodes(highlightIds, possibleMoveIds); 
         this.virusDrawer.update();
         this.bugsDrawer.update();
-		this.antivirusDrawer.update();
+        this.antivirusDrawer.update();
+        this.inputDrawer.update();
     }
     
     drawNodes(highlightIds, possibleMoveIds) {
@@ -332,52 +338,46 @@ class AntivirusDrawer {
         this.scene = scene;
         this.antivirus = antivirus;
         this.graphics = this.scene.add.graphics();
-        
         this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
         
         this.animationProgress = 1.0;
         this.tween = null;
+        this.antivirus.addEventListener("moved", () => {
+            this.startMoveAnimation();
+        });
     }
 
     update() {
-        if (this.tween) return; 
+        if (this.tween && this.tween.isPlaying()) return;
+        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        this.draw();
+    }
 
-        let needsAnimation = false;
-        for (let i = 0; i < this.antivirus.nodes.length; i++) {
-            const target = this.antivirus.nodes[i];
-            const current = this.displayNodes[i];
-            if (current.x !== target.x || current.y !== target.y) {
-                needsAnimation = true;
-                break;
-            }
-        }
+    startMoveAnimation() {
+        if (this.tween) this.tween.stop();
 
-        if (needsAnimation) {
-            const startPositions = this.displayNodes.map(p => ({ x: p.x, y: p.y }));
-            const endPositions = this.antivirus.nodes.map(n => ({ x: n.x, y: n.y }));
+        const startPositions = this.displayNodes.map(p => ({ x: p.x, y: p.y }));
+        const endPositions = this.antivirus.nodes.map(n => ({ x: n.x, y: n.y }));
 
-            this.animationProgress = 0;
-            this.tween = this.scene.tweens.add({
-                targets: this,
-                animationProgress: 1,
-                duration: 800, 
-                ease: 'Elastic.easeOut',
-                easeParams: [1, 0.5],
-                onUpdate: () => {
-                    for (let i = 0; i < this.displayNodes.length; i++) {
-                        this.displayNodes[i].x = Phaser.Math.Linear(startPositions[i].x, endPositions[i].x, this.animationProgress);
-                        this.displayNodes[i].y = Phaser.Math.Linear(startPositions[i].y, endPositions[i].y, this.animationProgress);
-                    }
-                    this.draw();
-                },
-                onComplete: () => {
-                    this.tween = null;
-                    this.draw();
+        this.animationProgress = 0;
+        this.tween = this.scene.tweens.add({
+            targets: this,
+            animationProgress: 1,
+            duration: 800, 
+            ease: 'Elastic.easeOut',
+            easeParams: [1, 0.5],
+            onUpdate: () => {
+                for (let i = 0; i < this.displayNodes.length; i++) {
+                    this.displayNodes[i].x = Phaser.Math.Linear(startPositions[i].x, endPositions[i].x, this.animationProgress);
+                    this.displayNodes[i].y = Phaser.Math.Linear(startPositions[i].y, endPositions[i].y, this.animationProgress);
                 }
-            });
-        } else {
-            this.draw();
-        }
+                this.draw();
+            },
+            onComplete: () => {
+                this.tween = null;
+                this.draw();
+            }
+        });
     }
 
     draw() {
@@ -430,5 +430,30 @@ class AntivirusDrawer {
 			}
         });
     }
+
 }
 
+class InputDrawer {
+    constructor(scene, inputHandler) {
+        this.scene = scene;
+        this.inputHandler = inputHandler;
+        this.graphics = this.scene.add.graphics();
+    }
+
+    update() {
+		this.graphics.clear();
+        const activeNodes = this.inputHandler.activeNodes;
+        const av = this.inputHandler.board.antivirus;
+
+        for (const node of activeNodes) {
+
+            if (av && av.hasNode(node)) {
+                continue; 
+            }
+
+            this.graphics.lineStyle(3, 0x00ff00, 0.8); 
+            this.graphics.strokeCircle(node.x, node.y, 22);
+            this.graphics.fillStyle(0x00ff00, 0.15);
+		}
+	}
+}
