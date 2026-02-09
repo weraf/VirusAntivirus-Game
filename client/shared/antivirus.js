@@ -1,13 +1,15 @@
-
-/** 
- * 
- * Klass för Antivirus!
- * 
- * */ 
+import { Board } from "./board.js";
+import { Node } from "./node.js";
 
 export class Antivirus extends EventTarget {
+    /**
+     * 
+     * @param {Board} board 
+     * @param {Node[]} startNodes 
+     */
     constructor(startNodes) {
         super();
+        this.board = board;
         this.nodes = startNodes; 
         this.selectedNode = null; 
     }
@@ -65,5 +67,13 @@ export class Antivirus extends EventTarget {
             return true;
         }
         return false;
+    }
+    /**
+     * 
+     * @param {Node} oldNode 
+     * @param {Node} newNode 
+     */
+    moveTo(oldNode, newNode) {
+
     }
 }

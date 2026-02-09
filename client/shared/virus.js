@@ -6,8 +6,6 @@ export class Virus extends EventTarget {
     /**All the nodes the virus has. Index 0 is the head
      * @type {Node[]}
      */
-    nodes = [];
-    board;
     static EVENTS = {
         MOVED: "moved",
         BUG_EATEN: "bug_eaten"
