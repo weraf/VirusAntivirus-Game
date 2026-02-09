@@ -26,21 +26,26 @@ export class Bugs extends EventTarget {
     }
 
     respawnBugAtNode(node) {
-        this.removeBugAtNode(node);
+        let bugIndex = this.nodes.findIndex((n) => {return n == node;});
+        if (bugIndex == -1) {
+            return false // There wasn't a bug at this node
+        }
 
-        // Not so random random
+        // Not so random random. Should be replaced by random pick later.
         let currentNode = node;
         for (let n = 0; n < 20; n++) {
             for (let neighbor of currentNode.neighbors) {
-                if (this.board.isNodeEmpty(neighbor)) {
+                // Move to a random neighbor
+                if ((this.board.isNodeEmpty(neighbor) && !neighbor.isServer()) || n < 10) {
                     currentNode = neighbor;
                     break;
                 }
             }
         }
-        this.createBugAtNode(currentNode);
+        this.nodes[bugIndex] = currentNode; // Replace the last bug
         //this.createBugAtRandom();
         this.dispatchEvent(new Event(Bugs.EVENTS.BUG_MOVED));
+        return true;
     }
 
     /**

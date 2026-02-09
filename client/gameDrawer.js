@@ -1,6 +1,7 @@
 import { Board } from "./shared/board.js";
 import { Bugs } from "./shared/bugs.js";
 import { Virus } from "./shared/virus.js";
+import { Game } from "./game.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
 
@@ -152,16 +153,80 @@ class BugsDrawer {
         this.scene = scene;
         this.bugs = bugs;
         this.graphics = this.scene.add.graphics();
+        this.prevNodes = [...this.bugs.nodes];
+        this.nextNodes = [...this.bugs.nodes];
+        this.animationProgress = 0.0;
         // Rita om buggarna om de har flyttat på sig
         this.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED,this.update.bind(this));
     }
 
-    update() {
-        this.graphics.clear();
-        this.graphics.fillStyle(0xee20ee);
-        for (const node of this.bugs.nodes) {
-            this.graphics.fillCircle(node.x,node.y,10);
+    hasChanged() {
+        if (this.prevNodes.length !== this.bugs.nodes.length) {
+            return true;
         }
+        let changed = false;
+        this.bugs.nodes.forEach((node,index) => {
+            if (node !== this.prevNodes[index]) {
+                changed = true;
+                return true;
+            }
+        })
+        return changed;
+    }
+
+    update() {
+        console.log(this.hasChanged())
+        if (!this.hasChanged()) {
+            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,1.0);
+            return;
+        }
+        this.nextNodes = [...this.bugs.nodes]; // shallow copy
+        // animation time
+        this.tween = this.scene.tweens.add({
+            targets: this,
+            animationProgress: {from: 0.0, to:1.0}, 
+            duration: 800,
+            ease: 'Quad.easeInOut',
+            onUpdate: (tween, target, key, current, previous, param) => {
+                this.drawBetweenNodes(this.prevNodes,this.nextNodes,current)
+            },
+            onComplete: (tween, targets) => {
+                this.prevNodes = this.nextNodes;
+                this.tween = null;
+            }
+        }) 
+        
+    }
+
+    drawBetweenNodes(fromNodes,toNodes,progress) {
+        this.graphics.clear();
+        fromNodes.forEach((fromNode,index) => {
+            const toNode = toNodes[index];
+            const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
+            const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
+            const rot = progress*Math.PI*2;
+            this.graphics.fillStyle(0xcc10dd);
+            this.drawRotatedSquare(x,y,11,rot);
+            this.graphics.fillStyle(0xee20ee);
+            this.drawRotatedSquare(x,y,12,Math.PI/4+rot);
+
+        });
+    }
+
+    drawRotatedSquare(centerX,centerY,size,rotation) {
+        const g = this.graphics;
+        g.beginPath()
+        for (let i = 0; i < 4; i++) {
+            let angle = (Math.PI/2) * i;
+            let posX = centerX+size*Math.cos(rotation+angle+Math.PI/4); 
+            let posY = centerY+size*Math.sin(rotation+angle+Math.PI/4); 
+            if (i == 0) {
+                g.moveTo(posX,posY);
+            } else {
+                g.lineTo(posX,posY);
+            }
+        }
+        g.fillPath();
     }
 }
 
