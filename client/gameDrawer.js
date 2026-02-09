@@ -175,7 +175,6 @@ class BugsDrawer {
     }
 
     update() {
-        console.log(this.hasChanged())
         if (!this.hasChanged()) {
             this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,1.0);
             return;
