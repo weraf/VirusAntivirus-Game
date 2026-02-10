@@ -116,7 +116,14 @@ export class GameDrawer {
 
     centerCamera() {
         let minX = 9999, minY = 9999, maxX = -9999, maxY = -9999;
-        for (const node of this.board.getAllNodes()) {
+        const nodes = this.board.getAllNodes()
+        if (nodes.length == 0) {
+            // Board has not loaded nodes yet, just center on (0,0) instead.
+            this.scene.cameras.main.setZoom(1.0);
+            this.scene.cameras.main.centerOn(0,0);
+            return;
+        }
+        for (const node of nodes) {
             minX = Math.min(node.x, minX); minY = Math.min(node.y, minY);
             maxX = Math.max(node.x, maxX); maxY = Math.max(node.y, maxY);
         }
