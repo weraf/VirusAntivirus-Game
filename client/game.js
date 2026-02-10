@@ -65,7 +65,7 @@ export class Game extends Phaser.Scene {
 
         
         
-        socket.on(EVENTS.VMOVE_SERVER, (nodeid) => {
+        socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             this.gameDrawer.virusDrawer.update();
 
@@ -81,7 +81,7 @@ export class Game extends Phaser.Scene {
 
         })
 
-        socket.on(EVENTS.AVMOVE_SERVER, (nodeid, selectedid) => {
+        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
             this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
             this.gameDrawer.draw();
