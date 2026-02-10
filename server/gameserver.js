@@ -66,7 +66,7 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.ANTIVIRUS_MOVE, nodeid, selectedid)
+            this.emitAll(EVENTS.ANTIVIRUS_MOVED, nodeid, selectedid)
             this.gameState.handleMove();
         })
 
@@ -80,7 +80,7 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.VIRUS_MOVE, nodeid)
+            this.emitAll(EVENTS.VIRUS_MOVED, nodeid)
             this.gameState.handleMove();
         });
 
