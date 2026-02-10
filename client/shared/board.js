@@ -49,7 +49,7 @@ export class Board extends EventTarget {
         const av_n1 = this.getNode("n25") // possibleNodes[10];
         const av_n2 = this.getNode("n20") // possibleNodes[12];
         
-        this.antivirus = new Antivirus([av_n1, av_n2]);
+        this.antivirus = new Antivirus(this, [av_n1, av_n2]);
         // Make bugs that antivirus steps on move
         this.antivirus.addEventListener(Antivirus.EVENTS.MOVED,(event) => {
             const movedTo = event.detail.node;

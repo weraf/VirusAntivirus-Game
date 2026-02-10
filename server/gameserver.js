@@ -3,6 +3,9 @@ import { ACTIONS, EVENTS } from "../client/shared/enums.js";
 import { GameState } from "../client/shared/gamestate.js"
 import { Board } from "../client/shared/board.js";
 import EventEmitter from "node:events";
+import { BoardCreator } from "../client/shared/boardCreator.js";
+
+import mapData from "../client/assets/map1.json" with { type: 'json' };
 
 // Class for handling the flow and events of a match
 export class GameServer extends EventEmitter {
@@ -29,6 +32,12 @@ export class GameServer extends EventEmitter {
         this.antivirusP.emit(EVENTS.GAME_FOUND,false);
 
         const board = new Board();
+
+        BoardCreator.createFromJSON(board, mapData);
+
+        board.spawnVirus([board.getNode("n4"),board.getNode("n0"),board.getNode("n2")]);
+        board.spawnAntivirus();
+
         this.gameState = new GameState(board, 20000);
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
@@ -51,7 +60,7 @@ export class GameServer extends EventEmitter {
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 1) return;
 
-            const success = this.gameState.board.antivirus.moveTo(nodeId, selectedid);
+            const success = this.gameState.board.antivirus.moveTo(this.gameState.board.getNode(nodeid), this.gameState.board.getNode(selectedid));
             if (!success) {
                 this.antivirusP.emit(EVENTS.INVALID_MOVE);
                 return;
@@ -100,6 +109,4 @@ export class GameServer extends EventEmitter {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
     }
-
-
 }

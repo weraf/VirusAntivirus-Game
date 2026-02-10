@@ -6,7 +6,7 @@ import { Virus } from "./shared/virus.js";
 
 export class GameDrawer {
     /**
-     * * @param {Phaser.Scene} scene 
+     * @param {Phaser.Scene} scene 
      * @param {Board} board 
      */
     constructor(scene, board) {

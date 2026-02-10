@@ -7,7 +7,7 @@ export class Antivirus extends EventTarget {
      * @param {Board} board 
      * @param {Node[]} startNodes 
      */
-    constructor(startNodes) {
+    constructor(board, startNodes) {
         super();
         this.board = board;
         this.nodes = startNodes; 
