@@ -2,6 +2,7 @@ import { Board } from "./shared/board.js";
 import { Bugs } from "./shared/bugs.js";
 import { Virus } from "./shared/virus.js";
 import { Game } from "./game.js";
+import InputHandler from "./inputhandler.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
 
@@ -27,27 +28,38 @@ export class GameDrawer {
 		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
 
         this.isRotated = false; // It's starts not rotated
+        
+        this.scene.scale.on("resize",this.onResize.bind(this));
+        this.onResize();
     }
-    
-    draw(highlightIds = [], possibleMoveIds = []) {
-        this.graphics.clear();
+
+    onResize() {
         const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
         
 		if (this.isRotated !== shouldBeRotated) {
             this.isRotated = shouldBeRotated;
             this.board.flipCoordinates(); 
+            // Board is flipped, we need to redraw
+            this.draw();
         }
-
+        // Recenter camera
         this.centerCamera();
+    }
+    
+    draw() {
+        if (!this.scene.started) {
+            return; // Game hasn't started yet
+        }
+        this.graphics.clear();
         this.drawEdges();
-        this.drawNodes(highlightIds, possibleMoveIds); 
+        this.drawNodes(); 
         this.virusDrawer.update();
         this.bugsDrawer.update();
         this.antivirusDrawer.update();
         this.inputDrawer.update();
     }
     
-    drawNodes(highlightIds, possibleMoveIds) {
+    drawNodes() {
         const av = this.board.antivirus;
     
         for (const node of this.board.getAllNodes()) {
@@ -58,15 +70,10 @@ export class GameDrawer {
                 color = 0x1a1a1a;
             }
     
-            // Vald nod
-            if (highlightIds.includes(node.id)) {
-                color = 0x0077ff; 
-            }
-    
             this.graphics.fillStyle(color, 1);
             
             // Nod grafik
-            if (node.type === 'server') {
+            if (node.isServer()) {
                 // Server grafik
                 const width = 38;
                 const height = 50;
@@ -92,33 +99,6 @@ export class GameDrawer {
             } else {
                 // Vanlig nod
                 this.graphics.fillCircle(node.x, node.y, 18);
-            }
-    
-            // markera möjliga drag
-            if (possibleMoveIds.includes(node.id)) {
-                this.graphics.lineStyle(3, 0x00ff00, 0.8); 
-                this.graphics.strokeCircle(node.x, node.y, 22);
-                
-                this.graphics.fillStyle(0x00ff00, 0.15);
-                this.graphics.fillCircle(node.x, node.y, 22);
-            }
-    
-            /* //Antivirus utseende
-            
-			if (av && av.hasNode(node)) {
-                this.graphics.lineStyle(4, 0x0000ff, 1); 
-                this.graphics.strokeCircle(node.x, node.y, 24); 
-    
-                if (av.selectedNode === node) {
-                    this.graphics.fillStyle(0x0077ff, 0.4);
-                    this.graphics.fillCircle(node.x, node.y, 24);
-                }
-            }
-				*/
-
-            // Uppdatera klickzonen för när skärmen ändras eller roteras
-            if (node.clickZone) {
-                node.clickZone.setPosition(node.x, node.y);
             }
         }
     }
@@ -251,8 +231,7 @@ class VirusDrawer {
         this.lastRotation = false;
         
         // Automatically redraw snake when it has moved
-        // For now not used since whole board is redrawn on move anyway
-        // this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
+        this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
     renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
@@ -342,9 +321,7 @@ class AntivirusDrawer {
         
         this.animationProgress = 1.0;
         this.tween = null;
-        this.antivirus.addEventListener("moved", () => {
-            this.startMoveAnimation();
-        });
+        this.antivirus.addEventListener(Virus.EVENTS.MOVED, this.startMoveAnimation.bind(this));
     }
 
     update() {
@@ -434,18 +411,26 @@ class AntivirusDrawer {
 }
 
 class InputDrawer {
+    /**
+     * 
+     * @param {Game} scene 
+     * @param {InputHandler} inputHandler 
+     */
     constructor(scene, inputHandler) {
         this.scene = scene;
         this.inputHandler = inputHandler;
         this.graphics = this.scene.add.graphics();
+
+        // Rita om input-hints (gröna cirklar) när input har ändrats
+        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.update.bind(this))
     }
 
     update() {
 		this.graphics.clear();
-        const activeNodes = this.inputHandler.activeNodes;
+        const inputNodes = this.inputHandler.activeNodes;
         const av = this.inputHandler.board.antivirus;
 
-        for (const node of activeNodes) {
+        for (const node of inputNodes) {
 
             if (av && av.hasNode(node)) {
                 continue; 
