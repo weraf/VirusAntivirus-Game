@@ -36,7 +36,7 @@ export class Virus extends EventTarget {
 
     moveTo(node) {
         if (!this.canMoveToNode(node)) {
-            return; 
+            return false; 
         }
         // Insert the new node at the beginning of the array (the head)
         this.nodes.unshift(node)
@@ -46,6 +46,8 @@ export class Virus extends EventTarget {
             this.nodes.pop();
         }
         this.dispatchEvent(new CustomEvent(Virus.EVENTS.MOVED, {"detail": {"node": node}})); // used to make virusDrawer update
+
+        return true;
     }
 
     /**
