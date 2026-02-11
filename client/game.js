@@ -45,27 +45,16 @@ export class Game extends Phaser.Scene {
         // lägg ut antivirus
         this.gameBoard.spawnAntivirus();
 
-        // -=< STORY 2 || TASK 4 >=-
-		// Create GameDrawer and print board
-        let test = this.add.image(0, 0, 'bg');
-
-        test.setOrigin(0);
-        test.setScrollFactor(0);
-        //let test = this.add.sprite(0, 0, 'bg');
-        //test.fixedToCamera = true;
-        //test.scrollFactor = 0;
-        
-
-		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-
-        this.gameState = new GameState(this.gameBoard, 2000);
-
-        this.queuePreference = QUEUE_PREFERENCE.ANY;
-
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
+        // -=< STORY 2 || TASK 4 >=-
+		// Create GameDrawer and print board
+		this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
+        
+        this.gameState = new GameState(this.gameBoard, 2000);
+        this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"),socket);
 
         socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
@@ -151,26 +140,20 @@ export class Game extends Phaser.Scene {
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 
-        
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
                 if (av.hasNode(clicked)) {
                     av.selectAVNode(clicked);
+                    this.antivirusTurn(); 
                 } else {
-                    //av.moveAVNode(clicked);
-                    socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id) // test emit
+                    socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id);
                     this.inputHandler.removeAllInput();
-                    return
+                    return;
                 }
-
-                const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
-                const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
-                
-                this.gameDrawer.draw(selectedId, validMoveIds);
-
-                this.antivirusTurn(); 
+                this.gameDrawer.draw(); 
             });
-        })
+        });
+        this.gameDrawer.draw(); 
     }
     
     
