@@ -41,7 +41,6 @@ export class Antivirus extends EventTarget {
     getValidMoves(board) {
         if (!this.selectedNode) return [];
 
-        
         return this.selectedNode.neighbors.filter((neighbor) => {
             return !neighbor.isServer() && 
             (board.isNodeEmpty(neighbor) || board.hasNodeBug(neighbor))
@@ -51,6 +50,17 @@ export class Antivirus extends EventTarget {
 
     hasNode(node) {
         return this.nodes.includes(node);
+    }
+
+    hasAnyValidMove() {
+        for (const node of this.nodes) {
+            for (const neighbor of node.neighbors) {
+                if (!neighbor.isServer() && (this.board.isNodeEmpty(neighbor) || this.board.hasNodeBug(neighbor))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     // välj en nod att flytta

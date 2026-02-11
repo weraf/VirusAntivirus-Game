@@ -34,6 +34,10 @@ export class Virus extends EventTarget {
         return this.nodes.includes(node);
     }
 
+    hasAnyValidMove() {
+        return (this.getValidMoves().length > 0);
+    }
+
     moveTo(node) {
         if (!this.canMoveToNode(node)) {
             return false; 

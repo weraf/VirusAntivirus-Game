@@ -11,7 +11,6 @@ import mapData from "../client/assets/map1.json" with { type: 'json' };
 export class GameServer extends EventEmitter {
     virusP; // Player instance that plays virus
     antivirusP; // Player instance that plays antivirus
-    gameOver = false;
     gameState;
     
     // Emitted when the game should be removed from the active games list
@@ -56,7 +55,8 @@ export class GameServer extends EventEmitter {
 
         // Add other events here'
 
-        this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (nodeid, selectedid) => {
+        this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (selectedid, nodeid) => {
+            console.log("ANTIVIRUS_MOVE args:", selectedid, nodeid);
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 1) return;
 
@@ -66,7 +66,7 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.ANTIVIRUS_MOVED, nodeid, selectedid)
+            this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid)
             this.gameState.handleMove();
         })
 
@@ -102,10 +102,6 @@ export class GameServer extends EventEmitter {
 
 
     gameFinished() {
-        if (this.gameOver) {
-            return;
-        }
-        this.gameOver = true;
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
     }
