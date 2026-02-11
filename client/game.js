@@ -32,7 +32,6 @@ export class Game extends Phaser.Scene {
         const bg = this.add.image(-200, -100, 'bg').setOrigin(0, 0)
 
         const data = this.cache.json.get('minKarta');
-        // test 
 
         // Skapa Brädet
         this.gameBoard = new Board();
