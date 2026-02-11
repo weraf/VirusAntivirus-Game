@@ -57,7 +57,6 @@ export class GameServer extends EventEmitter {
         // Add other events here'
 
         this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (selectedid, nodeid) => {
-            console.log("ANTIVIRUS_MOVE args:", selectedid, nodeid);
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 1) return;
 
