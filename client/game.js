@@ -18,6 +18,7 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
+        this.load.image('bg', 'https://cdn.discordapp.com/attachments/735885095096811534/1442975068421619817/IMG_4929.gif')
         
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
@@ -28,7 +29,8 @@ export class Game extends Phaser.Scene {
 
         // Hämta datan från JSON-filen
         const data = this.cache.json.get('minKarta');
-        
+        // test 
+
         // Skapa Brädet
         this.gameBoard = new Board();
 
@@ -45,6 +47,15 @@ export class Game extends Phaser.Scene {
 
         // -=< STORY 2 || TASK 4 >=-
 		// Create GameDrawer and print board
+        let test = this.add.image(0, 0, 'bg');
+
+        test.setOrigin(0);
+        test.setScrollFactor(0);
+        //let test = this.add.sprite(0, 0, 'bg');
+        //test.fixedToCamera = true;
+        //test.scrollFactor = 0;
+        
+
 		this.gameDrawer = new GameDrawer(this, this.gameBoard);
 
         this.gameState = new GameState(this.gameBoard, 2000);
@@ -68,6 +79,7 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.VMOVE_SERVER, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             this.gameDrawer.virusDrawer.update();
+
 
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
@@ -105,7 +117,6 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(isVirus) {
-        
         //Rita brädet
         this.gameDrawer.draw(); 
         this.ui.showGameStart(isVirus);
