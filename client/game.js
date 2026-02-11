@@ -2,7 +2,7 @@
 import { ACTIONS, EVENTS, QUEUE_PREFERENCE }  from "./shared/enums.js";
 
 import { Board } from "./shared/board.js";
-import { BoardCreator } from "./boardCreator.js";
+import { BoardCreator } from "./shared/boardCreator.js";
 
 import { GameDrawer } from "./gameDrawer.js";
 
@@ -67,7 +67,7 @@ export class Game extends Phaser.Scene {
 
         
         
-        socket.on(EVENTS.VMOVE_SERVER, (nodeid) => {
+        socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
@@ -81,9 +81,9 @@ export class Game extends Phaser.Scene {
 
         })
 
-        socket.on(EVENTS.AVMOVE_SERVER, (nodeid, selectedid) => {
+        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
-            this.gameBoard.antivirus.moveAVNode(this.gameBoard.getNode(nodeid))
+            this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
 
             const valid = this.gameBoard.virus.getValidMoves()
 
@@ -137,7 +137,7 @@ export class Game extends Phaser.Scene {
                     this.gameDrawer.antivirusDrawer.update() // Update so we can see that it's selected
                     this.antivirusTurn(); 
                 } else {
-                    socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id);
+                    socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id) // test emit
                     this.inputHandler.removeAllInput();
                     return;
                 }

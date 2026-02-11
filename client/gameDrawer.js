@@ -8,7 +8,7 @@ import InputHandler from "./inputhandler.js";
 
 export class GameDrawer {
     /**
-     * * @param {Phaser.Scene} scene 
+     * @param {Phaser.Scene} scene 
      * @param {Board} board 
      */
     constructor(scene, board, inputHandler) {

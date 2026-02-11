@@ -18,10 +18,13 @@ export const ACTIONS = {
  */
 export const EVENTS = {
     GAME_FOUND: "game_found", // A match has been found. Arg 1: isVirus: bool (true if you are the virus player)
+    GAME_OVER: "game_over", // The game is over. Arg 1: didVirusWin: bool (true if the virus won)
+    INVALID_MOVE: "invalid_move", // The player made an invalid move, try again
     UPDATE_BOARD: "update_board", // The board has been changed // may need to be split into virus moved, antivirus moved
     START_TIMER: "start_timer", // 
-    VMOVE_SERVER: "VMOVE_SERVER", // a move has been made /& test
-    AVMOVE_SERVER: "AVMOVE_SERVER", //
+    TURN_TIMED_OUT: "turn_timed_out", // The current player took too long to make a move, their turn is over. Arg 1: player: int (0 for virus, 1 for antivirus)
+    VIRUS_MOVED: "virus_moved", // a move has been made /& test
+    ANTIVIRUS_MOVED: "antivirus_moved", //
 }
 
 export const QUEUE_PREFERENCE = {

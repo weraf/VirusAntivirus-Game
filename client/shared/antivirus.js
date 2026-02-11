@@ -1,13 +1,15 @@
-
-/** 
- * 
- * Klass för Antivirus!
- * 
- * */ 
+import { Board } from "./board.js";
+import { Node } from "./node.js";
 
 export class Antivirus extends EventTarget {
-    constructor(startNodes) {
+    /**
+     * 
+     * @param {Board} board 
+     * @param {Node[]} startNodes 
+     */
+    constructor(board, startNodes) {
         super();
+        this.board = board;
         this.nodes = startNodes; 
         this.selectedNode = null; 
     }
@@ -39,7 +41,6 @@ export class Antivirus extends EventTarget {
     getValidMoves(board) {
         if (!this.selectedNode) return [];
 
-        
         return this.selectedNode.neighbors.filter((neighbor) => {
             return !neighbor.isServer() && 
             (board.isNodeEmpty(neighbor) || board.hasNodeBug(neighbor))
@@ -50,20 +51,47 @@ export class Antivirus extends EventTarget {
     hasNode(node) {
         return this.nodes.includes(node);
     }
+
+    hasAnyValidMove() {
+        for (const node of this.nodes) {
+            for (const neighbor of node.neighbors) {
+                if (!neighbor.isServer() && (this.board.isNodeEmpty(neighbor) || this.board.hasNodeBug(neighbor))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     
     // välj en nod att flytta
     selectAVNode(node) {
         this.selectedNode = (this.selectedNode === node) ? null : node;
     }
 
-    moveAVNode(newNode) {
-        const index = this.nodes.indexOf(this.selectedNode);
-        if (index !== -1) {
-            this.nodes[index] = newNode;
-            this.selectedNode = null; 
-            this.dispatchEvent(new CustomEvent(Antivirus.EVENTS.MOVED,{"detail":{"node":newNode}}));
-            return true;
+    /**
+     * 
+     * @param {Node} oldNode 
+     * @param {Node} newNode 
+     * @returns {boolean} true om flytt lyckades, false annars
+     */
+    moveTo(oldNode, newNode) {
+        if (!this.hasNode(oldNode)) {
+            return false;
         }
-        return false;
+
+        this.selectedNode = oldNode;
+
+        const validMoves = this.getValidMoves(this.board);
+        if (!validMoves.includes(newNode)) {
+            this.selectedNode = null;
+            return false;
+        }
+
+        const index = this.nodes.indexOf(oldNode);
+        this.nodes[index] = newNode;
+        this.selectedNode = null;
+        this.dispatchEvent(new CustomEvent(Antivirus.EVENTS.MOVED,{"detail":{"node":newNode}}));
+
+        return true;
     }
 }
