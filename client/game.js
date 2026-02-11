@@ -18,7 +18,7 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
-        this.load.image('bg', 'https://cdn.discordapp.com/attachments/735885095096811534/1442975068421619817/IMG_4929.gif')
+        this.load.image('bg', './assets/bdr.png')
         
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
@@ -29,6 +29,8 @@ export class Game extends Phaser.Scene {
         this.started = false; // Spelet har inte startat ännu, sätt is startGame()
 
         // Hämta datan från JSON-filen
+        const bg = this.add.image(-200, -100, 'bg').setOrigin(0, 0)
+
         const data = this.cache.json.get('minKarta');
         // test 
 
