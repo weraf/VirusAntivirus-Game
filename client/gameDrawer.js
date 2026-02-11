@@ -1,6 +1,8 @@
 import { Board } from "./shared/board.js";
 import { Bugs } from "./shared/bugs.js";
 import { Virus } from "./shared/virus.js";
+import { Game } from "./game.js";
+import InputHandler from "./inputhandler.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
 
@@ -9,34 +11,55 @@ export class GameDrawer {
      * @param {Phaser.Scene} scene 
      * @param {Board} board 
      */
-    constructor(scene, board) {
+    constructor(scene, board, inputHandler) {
         this.scene = scene;
         this.board = board;
-        this.graphics = scene.add.graphics();
+		
+		this.inputHandler = inputHandler;
+        
+		this.graphics = scene.add.graphics();
 
         // Later the virus will be part of the board
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         this.bugsDrawer = new BugsDrawer(board.bugs,scene);
-        this.isRotated = false; // It's starts not rotated
-    }
-    
-    draw(highlightIds = [], possibleMoveIds = []) {
-        this.graphics.clear();
-        const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
 
-        if (this.isRotated !== shouldBeRotated) {
+		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
+
+		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
+
+        this.isRotated = false; // It's starts not rotated
+        
+        this.scene.scale.on("resize",this.onResize.bind(this));
+        this.onResize();
+    }
+
+    onResize() {
+        const shouldBeRotated = this.scene.scale.width > this.scene.scale.height;
+        
+		if (this.isRotated !== shouldBeRotated) {
             this.isRotated = shouldBeRotated;
             this.board.flipCoordinates(); 
+            // Board is flipped, we need to redraw
+            this.draw();
         }
-
+        // Recenter camera
         this.centerCamera();
-        this.drawEdges();
-        this.drawNodes(highlightIds, possibleMoveIds);
-        this.virusDrawer.update();
-        this.bugsDrawer.update();
     }
     
-    drawNodes(highlightIds, possibleMoveIds) {
+    draw() {
+        if (!this.scene.started) {
+            return; // Game hasn't started yet
+        }
+        this.graphics.clear();
+        this.drawEdges();
+        this.drawNodes(); 
+        this.virusDrawer.update();
+        this.bugsDrawer.update();
+        this.antivirusDrawer.update();
+        this.inputDrawer.update();
+    }
+    
+    drawNodes() {
         const av = this.board.antivirus;
     
         for (const node of this.board.getAllNodes()) {
@@ -47,15 +70,10 @@ export class GameDrawer {
                 color = 0x1a1a1a;
             }
     
-            // Vald nod
-            if (highlightIds.includes(node.id)) {
-                color = 0x0077ff; 
-            }
-    
             this.graphics.fillStyle(color, 1);
             
             // Nod grafik
-            if (node.type === 'server') {
+            if (node.isServer()) {
                 // Server grafik
                 const width = 38;
                 const height = 50;
@@ -82,31 +100,6 @@ export class GameDrawer {
                 // Vanlig nod
                 this.graphics.fillCircle(node.x, node.y, 18);
             }
-    
-            // markera möjliga drag
-            if (possibleMoveIds.includes(node.id)) {
-                this.graphics.lineStyle(3, 0x00ff00, 0.8); 
-                this.graphics.strokeCircle(node.x, node.y, 22);
-                
-                this.graphics.fillStyle(0x00ff00, 0.15);
-                this.graphics.fillCircle(node.x, node.y, 22);
-            }
-    
-            // Antivirus utseende
-            if (av && av.hasNode(node)) {
-                this.graphics.lineStyle(4, 0x0000ff, 1); 
-                this.graphics.strokeCircle(node.x, node.y, 24); 
-    
-                if (av.selectedNode === node) {
-                    this.graphics.fillStyle(0x0077ff, 0.4);
-                    this.graphics.fillCircle(node.x, node.y, 24);
-                }
-            }
-
-            // Uppdatera klickzonen för när skärmen ändras eller roteras
-            if (node.clickZone) {
-                node.clickZone.setPosition(node.x, node.y);
-            }
         }
     }
     
@@ -123,7 +116,14 @@ export class GameDrawer {
 
     centerCamera() {
         let minX = 9999, minY = 9999, maxX = -9999, maxY = -9999;
-        for (const node of this.board.getAllNodes()) {
+        const nodes = this.board.getAllNodes()
+        if (nodes.length == 0) {
+            // Board has not loaded nodes yet, just center on (0,0) instead.
+            this.scene.cameras.main.setZoom(1.0);
+            this.scene.cameras.main.centerOn(0,0);
+            return;
+        }
+        for (const node of nodes) {
             minX = Math.min(node.x, minX); minY = Math.min(node.y, minY);
             maxX = Math.max(node.x, maxX); maxY = Math.max(node.y, maxY);
         }
@@ -146,16 +146,79 @@ class BugsDrawer {
         this.scene = scene;
         this.bugs = bugs;
         this.graphics = this.scene.add.graphics();
+        this.prevNodes = [...this.bugs.nodes];
+        this.nextNodes = [...this.bugs.nodes];
+        this.animationProgress = 0.0;
         // Rita om buggarna om de har flyttat på sig
         this.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED,this.update.bind(this));
     }
 
-    update() {
-        this.graphics.clear();
-        this.graphics.fillStyle(0xee20ee);
-        for (const node of this.bugs.nodes) {
-            this.graphics.fillCircle(node.x,node.y,10);
+    hasChanged() {
+        if (this.prevNodes.length !== this.bugs.nodes.length) {
+            return true;
         }
+        let changed = false;
+        this.bugs.nodes.forEach((node,index) => {
+            if (node !== this.prevNodes[index]) {
+                changed = true;
+                return true;
+            }
+        })
+        return changed;
+    }
+
+    update() {
+        if (!this.hasChanged()) {
+            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,1.0);
+            return;
+        }
+        this.nextNodes = [...this.bugs.nodes]; // shallow copy
+        // animation time
+        this.tween = this.scene.tweens.add({
+            targets: this,
+            animationProgress: {from: 0.0, to:1.0}, 
+            duration: 800,
+            ease: 'Quad.easeInOut',
+            onUpdate: (tween, target, key, current, previous, param) => {
+                this.drawBetweenNodes(this.prevNodes,this.nextNodes,current)
+            },
+            onComplete: (tween, targets) => {
+                this.prevNodes = this.nextNodes;
+                this.tween = null;
+            }
+        }) 
+        
+    }
+
+    drawBetweenNodes(fromNodes,toNodes,progress) {
+        this.graphics.clear();
+        fromNodes.forEach((fromNode,index) => {
+            const toNode = toNodes[index];
+            const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
+            const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
+            const rot = progress*Math.PI*2;
+            this.graphics.fillStyle(0xcc10dd);
+            this.drawRotatedSquare(x,y,11,rot);
+            this.graphics.fillStyle(0xee20ee);
+            this.drawRotatedSquare(x,y,12,Math.PI/4+rot);
+
+        });
+    }
+
+    drawRotatedSquare(centerX,centerY,size,rotation) {
+        const g = this.graphics;
+        g.beginPath()
+        for (let i = 0; i < 4; i++) {
+            let angle = (Math.PI/2) * i;
+            let posX = centerX+size*Math.cos(rotation+angle+Math.PI/4); 
+            let posY = centerY+size*Math.sin(rotation+angle+Math.PI/4); 
+            if (i == 0) {
+                g.moveTo(posX,posY);
+            } else {
+                g.lineTo(posX,posY);
+            }
+        }
+        g.fillPath();
     }
 }
 
@@ -175,8 +238,7 @@ class VirusDrawer {
         this.lastRotation = false;
         
         // Automatically redraw snake when it has moved
-        // For now not used since whole board is redrawn on move anyway
-        // this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
+        this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
     renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
@@ -255,4 +317,135 @@ class VirusDrawer {
         })        
         
     }
+}
+
+class AntivirusDrawer {
+	constructor(antivirus, scene) {
+        this.scene = scene;
+        this.antivirus = antivirus;
+        this.graphics = this.scene.add.graphics();
+        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        
+        this.animationProgress = 1.0;
+        this.tween = null;
+        this.antivirus.addEventListener(Virus.EVENTS.MOVED, this.startMoveAnimation.bind(this));
+    }
+
+    update() {
+        if (this.tween && this.tween.isPlaying()) return;
+        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        this.draw();
+    }
+
+    startMoveAnimation() {
+        if (this.tween) this.tween.stop();
+
+        const startPositions = this.displayNodes.map(p => ({ x: p.x, y: p.y }));
+        const endPositions = this.antivirus.nodes.map(n => ({ x: n.x, y: n.y }));
+
+        this.animationProgress = 0;
+        this.tween = this.scene.tweens.add({
+            targets: this,
+            animationProgress: 1,
+            duration: 800, 
+            ease: 'Elastic.easeOut',
+            easeParams: [1, 0.5],
+            onUpdate: () => {
+                for (let i = 0; i < this.displayNodes.length; i++) {
+                    this.displayNodes[i].x = Phaser.Math.Linear(startPositions[i].x, endPositions[i].x, this.animationProgress);
+                    this.displayNodes[i].y = Phaser.Math.Linear(startPositions[i].y, endPositions[i].y, this.animationProgress);
+                }
+                this.draw();
+            },
+            onComplete: () => {
+                this.tween = null;
+                this.draw();
+            }
+        });
+    }
+
+    draw() {
+        this.graphics.clear();
+        this.displayNodes.forEach((pos, index) => {
+            const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
+            
+            // Yttre ring
+            this.graphics.lineStyle(2, 0x00ffff, 0.5);
+            this.graphics.strokeCircle(pos.x, pos.y, 28);
+
+            //Huvudcirkeln
+            const mainColor = isSelected ? 0x0077ff : 0x0000ff;
+            this.graphics.lineStyle(4, mainColor, 1);
+            this.graphics.strokeCircle(pos.x, pos.y, 22);
+
+			this.graphics.lineStyle(2, mainColor, 0.8);
+        
+			this.graphics.lineStyle(3, 0x000099, 1); // Vit för max synlighet
+        
+			// Vertikal streck
+			this.graphics.lineBetween(pos.x, pos.y - 12, pos.x, pos.y + 12);
+			// Horisontell streck
+			this.graphics.lineBetween(pos.x - 12, pos.y, pos.x + 12, pos.y);
+			
+			// liten kvadrat i mitten
+			this.graphics.fillStyle(0x000099, 1);
+			this.graphics.fillRect(pos.x - 4, pos.y - 4, 8, 8);
+	
+			// hörn vinklar
+			this.graphics.lineStyle(2, mainColor, 1);
+			const d = 14;
+			const s = 5;
+			// vinklar uppe
+			this.graphics.lineBetween(pos.x - d, pos.y - d, pos.x - d + s, pos.y - d);
+			this.graphics.lineBetween(pos.x - d, pos.y - d, pos.x - d, pos.y - d + s);
+			this.graphics.lineBetween(pos.x - d, pos.y + d, pos.x - d + s, pos.y + d);
+			this.graphics.lineBetween(pos.x - d, pos.y + d, pos.x - d, pos.y + d - s);
+			// vinklar nere 
+			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d - s, pos.y - d);
+			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d, pos.y - d + s);
+            this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d - s, pos.y + d);
+            this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d, pos.y + d - s);
+	
+			if (isSelected) {
+				this.graphics.fillStyle(0x00ffff, 0.3);
+				this.graphics.fillCircle(pos.x, pos.y, 22);
+				this.graphics.lineStyle(2, 0xffffff, 0.8);
+				this.graphics.strokeCircle(pos.x, pos.y, 24);
+			}
+        });
+    }
+
+}
+
+class InputDrawer {
+    /**
+     * 
+     * @param {Game} scene 
+     * @param {InputHandler} inputHandler 
+     */
+    constructor(scene, inputHandler) {
+        this.scene = scene;
+        this.inputHandler = inputHandler;
+        this.graphics = this.scene.add.graphics();
+
+        // Rita om input-hints (gröna cirklar) när input har ändrats
+        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.update.bind(this))
+    }
+
+    update() {
+		this.graphics.clear();
+        const inputNodes = this.inputHandler.activeNodes;
+        const av = this.inputHandler.board.antivirus;
+
+        for (const node of inputNodes) {
+
+            if (av && av.hasNode(node)) {
+                continue; 
+            }
+
+            this.graphics.lineStyle(3, 0x00ff00, 0.8); 
+            this.graphics.strokeCircle(node.x, node.y, 22);
+            this.graphics.fillStyle(0x00ff00, 0.15);
+		}
+	}
 }

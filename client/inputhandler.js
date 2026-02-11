@@ -1,13 +1,19 @@
 import { Game } from "./game.js";
 import { Board } from "./shared/board.js";
 
-export default class InputHandler {
+export default class InputHandler extends EventTarget {
+    
+    static EVENTS = {
+        CHANGED: "changed" // emitted when input was added/removed
+    } 
+    
     /**
      * 
      * @param {Game} scene 
      * @param {Board} board 
      */
     constructor(scene, board) {
+        super();
         this.scene = scene;
         this.board = board;
         this.clickZones = new Set();
@@ -33,11 +39,12 @@ export default class InputHandler {
         clickZone.on('pointerdown', () => {
             func(node);
         });
-        
-        // Spara referensen på noden så GameDrawer kan flytta på den vid resize/rotation
-        node.clickZone = clickZone;
+
+        clickZone.node = node; // Keep reference to node it is on
     
         this.clickZones.add(clickZone);
+        // Signal that inputs have changed
+        this.dispatchEvent(new Event(InputHandler.EVENTS.CHANGED));
     }
 
     removeAllInput() {
@@ -47,10 +54,16 @@ export default class InputHandler {
             clickZone.destroy(); // Viktigt att förstöra objektet helt
         });
         this.clickZones.clear();
-        
-        // Rensa referenserna på alla noder
-        for (const node of this.board.getAllNodes()) {
-            node.clickZone = null;
+        // Signal that inputs have changed
+        this.dispatchEvent(new Event(InputHandler.EVENTS.CHANGED));
+    }
+
+    get activeNodes() {
+        // Return all nodes that has a clickzone
+        const nodes = [];
+        for (const clickZones of this.clickZones.values()) {
+            nodes.push(clickZones.node);
         }
+        return nodes;
     }
 }

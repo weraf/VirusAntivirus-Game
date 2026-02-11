@@ -51,13 +51,13 @@ export class GameState extends EventTarget {
     // Byter internt this.currentPlayer, clearar timer, startar ny timer
     changeTurn() {
         this.currentPlayer = this.currentPlayer === 0 ? 1 : 0;
-        this.timer = clearTimeout();
+        clearTimeout(this.timer);
         this.startTimer()
     }
 
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
-        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
+        this.dispatchEvent(new Event(GameState.EVENTS.TIMED_OUT))
     }
 
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur
@@ -70,7 +70,7 @@ export class GameState extends EventTarget {
             this.dispatchEvent(new CustomEvent(GameState.EVENTS.GAME_OVER, {
                 detail: this.winner
             }));
-            this.timer = clearTimeout();
+            clearTimeout(this.timer);
             return;
         }
     }

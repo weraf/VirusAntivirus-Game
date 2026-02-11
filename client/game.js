@@ -18,6 +18,7 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
+        this.load.image('bg', './assets/bdr.png')
         
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
@@ -25,10 +26,13 @@ export class Game extends Phaser.Scene {
     }
     
     create() {
+        this.started = false; // Spelet har inte startat ännu, sätt is startGame()
 
         // Hämta datan från JSON-filen
+        const bg = this.add.image(-200, -100, 'bg').setOrigin(0, 0)
+
         const data = this.cache.json.get('minKarta');
-        
+
         // Skapa Brädet
         this.gameBoard = new Board();
 
@@ -43,18 +47,16 @@ export class Game extends Phaser.Scene {
         // lägg ut antivirus
         this.gameBoard.spawnAntivirus();
 
-        // -=< STORY 2 || TASK 4 >=-
-		// Create GameDrawer and print board
-		this.gameDrawer = new GameDrawer(this, this.gameBoard);
-
-        this.gameState = new GameState(this.gameBoard, 2000);
-
-        this.queuePreference = QUEUE_PREFERENCE.ANY;
-
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
+        // -=< STORY 2 || TASK 4 >=-
+		// Create GameDrawer and print board
+		this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
+        
+        this.gameState = new GameState(this.gameBoard, 2000);
+        this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"),socket);
 
         socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
@@ -67,12 +69,10 @@ export class Game extends Phaser.Scene {
         
         socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
-            this.gameDrawer.virusDrawer.update();
-
+            
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
                     this.ui.showWinScreen(true);
-                    this.gameDrawer.virusDrawer.update(); // Force it to update since we return
                     return;
                 }
             if (!this.isVirus) {
@@ -84,14 +84,12 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
             this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
-            this.gameDrawer.draw();
 
             const valid = this.gameBoard.virus.getValidMoves()
 
             if (valid.length == 0) {
                 // Virus has lost
                 this.ui.showWinScreen(false);
-                this.gameDrawer.virusDrawer.update(); // Force it to update since we return
                 return;
             }
 
@@ -105,14 +103,11 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(isVirus) {
-        
         //Rita brädet
-        this.gameDrawer.draw(); 
         this.ui.showGameStart(isVirus);
-        //Hantera resize
-        this.scale.on("resize", () => {
-            this.gameDrawer.draw();
-        });
+        this.started = true;
+        this.gameDrawer.draw(); 
+
         if (isVirus) {
             this.virusTurn();
         }
@@ -126,39 +121,28 @@ export class Game extends Phaser.Scene {
 
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
-
                 socket.emit(ACTIONS.VIRUS_MOVE, clicked.id)
                 this.inputHandler.removeAllInput();
-                this.gameDrawer.draw();
-
-                //this.gameBoard.virus.moveTo(clicked);
             })
         }
-        this.gameDrawer.draw([], valid.map((n) => {return n.id}));
     }
     antivirusTurn() {
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 
-        
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
                 if (av.hasNode(clicked)) {
                     av.selectAVNode(clicked);
+                    this.gameDrawer.antivirusDrawer.update() // Update so we can see that it's selected
+                    this.antivirusTurn(); 
                 } else {
                     socket.emit(ACTIONS.ANTIVIRUS_MOVE, clicked.id, av.selectedNode.id) // test emit
                     this.inputHandler.removeAllInput();
-                    return
+                    return;
                 }
-
-                const validMoveIds = av.getValidMoves(this.gameBoard).map(n => n.id);
-                const selectedId = av.selectedNodeId ? [av.selectedNodeId] : [];
-                
-                this.gameDrawer.draw(selectedId, validMoveIds);
-
-                this.antivirusTurn(); 
             });
-        })
+        });
     }
     
     
