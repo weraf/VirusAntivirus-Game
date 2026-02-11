@@ -62,6 +62,8 @@ export class GameState extends EventTarget {
 
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur
     handleMove() {
+        // TODO: kanske borde kolla vinst innan vi skickar update_board eventet, så att clienten inte uppdaterar brädet i onödan efter ett vinnande drag?
+        this.changeTurn();
         this.checkWin();
 
         if (this.gameOver) {
@@ -71,7 +73,5 @@ export class GameState extends EventTarget {
             this.timer = clearTimeout();
             return;
         }
-
-        this.changeTurn();
     }
 }

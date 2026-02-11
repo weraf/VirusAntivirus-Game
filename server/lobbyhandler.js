@@ -39,8 +39,8 @@ export class LobbyHandler extends EventEmitter {
         const p2 = new Player(antiVirusUser);
         const newGame = new GameServer(p1,p2);
         this.games.push(newGame);
-        // Remove the game from the active games array when the game is finished
-        newGame.on(GameServer.SIGNAL_GAME_FINISHED,this.gameFinished.bind(this,newGame))
+        // Remove the game from the active games array when the game is finished. Listens only to once.
+        newGame.once(GameServer.SIGNAL_GAME_FINISHED,this.gameFinished.bind(this,newGame))
     }
 
     gameFinished(game) {

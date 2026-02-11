@@ -36,6 +36,7 @@ export class GameServer extends EventEmitter {
 
         board.spawnVirus([board.getNode("n4"),board.getNode("n0"),board.getNode("n2")]);
         board.spawnAntivirus();
+        board.spawnStartBugs();
 
         this.gameState = new GameState(board, 20000);
 
@@ -50,8 +51,8 @@ export class GameServer extends EventEmitter {
 
         // If either player disconnect, the game is over and can be removed from the server
         // TODO: send message to players that opponent disconnected
-        this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
-        this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this))
+        this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
+        this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
 
         // Add other events here'
 
@@ -66,9 +67,9 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid)
+            this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid);
             this.gameState.handleMove();
-        })
+        });
 
         this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
             if (this.gameState.gameOver) return;
@@ -80,12 +81,9 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.VIRUS_MOVED, nodeid)
+            this.emitAll(EVENTS.VIRUS_MOVED, nodeid);
             this.gameState.handleMove();
         });
-
-        
-
     }
 
     //testFunction(who) {
@@ -99,7 +97,6 @@ export class GameServer extends EventEmitter {
         this.antivirusP.emit(eventName,...args);
         // TODO: Send to spectators
     }
-
 
     gameFinished() {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
