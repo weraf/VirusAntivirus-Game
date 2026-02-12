@@ -25,35 +25,41 @@ export class Game extends Phaser.Scene {
         // Kan ändras när man lägger in fler kartor!
     }
     
+    onResize() {
+        if (this.gameDrawer) {
+            this.gameDrawer.onResize();
+        } else {
+            // If we got no gameDrawer, normalize zoom and center camera on 0,0
+            // This keeps the background image scale fixed
+            let zoom = Math.max(this.scale.height / 500, this.scale.width / 2000);
+            this.cameras.main.setZoom(zoom);
+            this.cameras.main.centerOn(0,0);
+            // Move the background to the center of the camera    
+            
+        }
+    }
+
     create() {
-        this.started = false; // Spelet har inte startat ännu, sätt is startGame()
+        this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
+        this.bg = this.add.image(0, 0, 'bg');
+        
+        this.scale.on("resize",this.onResize.bind(this));
+        this.onResize();
         // Hämta datan från JSON-filen
-        const bg = this.add.image(-200, -100, 'bg').setOrigin(0, 0)
-
         const data = this.cache.json.get('minKarta');
 
         // Skapa Brädet
         this.gameBoard = new Board();
 
-        //this.GameState = new GameState(this.gameBoard);
-        
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
         
-        // Lägg till en ormen
-        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
-        this.gameBoard.spawnStartBugs();
-        // lägg ut antivirus
-        this.gameBoard.spawnAntivirus();
+        // Virus, buggar och antivirus skapas vid startGame(); 
 
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-
-        // -=< STORY 2 || TASK 4 >=-
-		// Create GameDrawer and print board
-		this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
         
         this.gameState = new GameState(this.gameBoard, 2000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
@@ -103,9 +109,18 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(isVirus) {
-        //Rita brädet
+        // Lägg till en ormen
+        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.gameBoard.spawnStartBugs([this.gameBoard.getNode("n28"),this.gameBoard.getNode("n20")]);
+        // lägg ut antivirus
+        this.gameBoard.spawnAntivirus([this.gameBoard.getNode("n21"),this.gameBoard.getNode("n30")]);
+
+        // Game has started, now we can add gamedrawer
+        this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
+
         this.ui.showGameStart(isVirus);
         this.started = true;
+        
         this.gameDrawer.draw(); 
 
         if (isVirus) {

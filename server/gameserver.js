@@ -34,9 +34,10 @@ export class GameServer extends EventEmitter {
 
         BoardCreator.createFromJSON(board, mapData);
 
+        // Hardcoded positions for now
         board.spawnVirus([board.getNode("n4"),board.getNode("n0"),board.getNode("n2")]);
-        board.spawnAntivirus();
-        board.spawnStartBugs();
+        board.spawnAntivirus([board.getNode("n21"),board.getNode("n30")]);
+        board.spawnStartBugs([board.getNode("n28"),board.getNode("n20")]);
 
         this.gameState = new GameState(board, 20000);
 
