@@ -43,10 +43,6 @@ export class GameUI {
 
             this.mainmenu.setPlaceholder("description", "");
 
-            
-
-    
-            
             this.mainmenu.virus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
                 // Visa virustexten

@@ -51,6 +51,13 @@ html, button {
     min-width: 110px;
 }
 
+#description {
+    text-align: center;
+    min-height: 100px;
+}
+
+
+
 .undertext {
     color:aqua;
     text-align: center;
