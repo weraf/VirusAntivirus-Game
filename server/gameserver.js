@@ -34,11 +34,15 @@ export class GameServer extends EventEmitter {
 
         BoardCreator.createFromJSON(board, mapData);
 
-        board.spawnVirus([board.getNode("n4"),board.getNode("n0"),board.getNode("n2")]);
+        // Hardcoded positions for now
+        board.spawnVirus();
         board.spawnAntivirus();
         board.spawnStartBugs();
 
         this.gameState = new GameState(board, 20000);
+
+        // Skicka initial state till båda spelarna
+        this.sendGameStart();
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
             this.emitAll(EVENTS.TURN_TIMED_OUT, this.gameState.currentPlayer);
@@ -101,4 +105,18 @@ export class GameServer extends EventEmitter {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
     }
+
+    sendGameStart() {
+        const data = {
+            virusNodes: this.gameState.board.virus.nodes.map(n => n.id),
+            antivirusNodes: this.gameState.board.antivirus.nodes.map(n => n.id),
+            bugNodes: this.gameState.board.bugs.map(n => n.id),
+            serverNodes: this.gameState.board.servers.map(n => n.id),
+            currentPlayer: this.gameState.currentPlayer
+        };
+    
+        this.virusPlayer.emit("game_start", data);
+        this.antivirusPlayer.emit("game_start", data);
+    }
+    
 }
