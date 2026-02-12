@@ -29,7 +29,6 @@ export class GameDrawer {
 
         this.isRotated = false; // It's starts not rotated
         
-        this.scene.scale.on("resize",this.onResize.bind(this));
         this.onResize();
     }
 
@@ -47,9 +46,6 @@ export class GameDrawer {
     }
     
     draw() {
-        if (!this.scene.started) {
-            return; // Game hasn't started yet
-        }
         this.graphics.clear();
         this.drawEdges();
         this.drawNodes(); 

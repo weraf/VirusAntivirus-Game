@@ -16,7 +16,13 @@ export class Board extends EventTarget {
         this.bugs = new Bugs(this);
     }
 
-    spawnVirus(startNodes) {
+    spawnVirus(startNodes = []) {
+
+        if (startNodes.length === 0) {
+            // no start nodes, find some
+            startNodes = Virus.getRandomStartNodes(this,3);
+        }
+
         this.virus = new Virus(this,startNodes);
         // Make bugs respawn a bug that got eaten
         this.virus.addEventListener(Virus.EVENTS.BUG_EATEN,(event) => {
@@ -24,12 +30,14 @@ export class Board extends EventTarget {
         })
     }
 
-    spawnStartBugs() {
-        // Create two bugs at random positions
-        /*this.bugs.createBugAtRandom();
-        this.bugs.createBugAtRandom();*/
-        this.bugs.createBugAtNode(this.getNode("n16"));
-        this.bugs.createBugAtNode(this.getNode("n5"));
+    spawnStartBugs(startNodes = []) {
+        if (startNodes.length == 0) {
+            // Empty starts, randomize two positions
+            startNodes = Bugs.getRandomStartNodes(this,2);
+        }
+        for (const node of startNodes) {
+            this.bugs.createBugAtNode(node);
+        }
     }
 
     flipCoordinates() {
@@ -41,15 +49,15 @@ export class Board extends EventTarget {
         this.dispatchEvent(new Event(Board.EVENTS.BOARD_FLIP));
     }
 
-    spawnAntivirus() {
-        const possibleNodes = this.getAllNodes().filter(node => node.type !== 'server' && this.isNodeEmpty(node));
+    spawnAntivirus(startNodes = []) {
+
+        if (startNodes.length === 0) {
+            // Sent no start nodes, randomize two instead
+            startNodes = Antivirus.getRandomStartNodes(this,2);
+
+        }
     
-        // Slumpa positioner
-        //possibleNodes.sort(() => Math.random() - 0.5);
-        const av_n1 = this.getNode("n25") // possibleNodes[10];
-        const av_n2 = this.getNode("n20") // possibleNodes[12];
-        
-        this.antivirus = new Antivirus(this, [av_n1, av_n2]);
+        this.antivirus = new Antivirus(this, startNodes);
         // Make bugs that antivirus steps on move
         this.antivirus.addEventListener(Antivirus.EVENTS.MOVED,(event) => {
             const movedTo = event.detail.node;
@@ -58,7 +66,6 @@ export class Board extends EventTarget {
             }
         })
 
-        console.log(`Antivirus satta på nod ${av_n1.id} och ${av_n2.id}`);
     }
 
     addNode(id, x, y, type) {

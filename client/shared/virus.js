@@ -39,7 +39,7 @@ export class Virus extends EventTarget {
     }
 
     moveTo(node) {
-        if (!this.canMoveToNode(node)) {
+        if (!this.canMoveOnNode(node) || !this.isNodeNeighborOfHead(node)) {
             return false; 
         }
         // Insert the new node at the beginning of the array (the head)
@@ -67,9 +67,15 @@ export class Virus extends EventTarget {
         return servers;
     }
 
-    canMoveToNode(node) {
-        // Can't move to a non adjacent or non-empty node (unless theres an bug on the node)
+    isNodeNeighborOfHead(node) {
         return this.getHeadNode().hasNeighbor(node);
+    }
+
+    canMoveOnNode(node) {
+        // Can't move to a non-empty node (unless theres an bug on the node)
+        return (this.board.isNodeEmpty(node)
+                || node == this.nodes[this.nodes.length-1] // The node has our tail on it, we can move here
+                || this.board.hasNodeBug(node))
     }
 
     /**
@@ -78,12 +84,41 @@ export class Virus extends EventTarget {
     getValidMoves() {
         const moves = [];
         for (let node of this.getHeadNode().neighbors) {
-            if (this.board.isNodeEmpty(node)
-                || node == this.nodes[this.nodes.length-1] // The node has our tail on it, we can move here
-                || this.board.hasNodeBug(node)) {
+            if (this.canMoveOnNode(node)) {
                 moves.push(node);
             }
         }
         return moves;
+    }
+
+    /**
+     * 
+     * @param {Board} board 
+     * @param {number} amount 
+     */
+    static getRandomStartNodes(board, amount) {
+        let body = [];
+
+        // A node is only valid in start body if it's empty, not a server and not already in the body
+        const isStartNodeValid = (node) => {return board.isNodeEmpty(node) && !node.isServer() && !body.includes(node)};
+        
+        const validNodes = board.getAllNodes().filter(isStartNodeValid);
+        while (body.length < amount) {
+            let possibleNodes = []
+            if (body.length == 0) {
+                // Find random start node
+                possibleNodes = validNodes;
+            } else {
+                const currentNode = body[0] // First node is head
+                possibleNodes = currentNode.neighbors.filter(isStartNodeValid)
+            }
+            if (possibleNodes.length == 0) {
+                // No options left. Restart
+                body = [];
+                continue;
+            }
+            body.unshift(possibleNodes[Math.floor(Math.random()*possibleNodes.length)])
+        }
+        return body;
     }
 }

@@ -25,24 +25,39 @@ export class Bugs extends EventTarget {
         this.nodes = this.nodes.filter((n) => {return n != node});
     }
 
-    respawnBugAtNode(node) {
+    static getRandomStartNodes(board,amount) {
+        const startNodes = [];
+        const possibleNodes = board.getAllNodes().filter((node) => {return board.isNodeEmpty(node) && !node.isServer()});
+        for (let n = 0; n < amount; n++) {
+            const randomIndex = Math.floor(Math.random()*possibleNodes.length); 
+            const node = possibleNodes[randomIndex];
+            possibleNodes.splice(randomIndex,1); // remove it from the array
+            startNodes.push(node); // Add it as a start node
+        }
+        return startNodes;
+    }
+
+    respawnBugAtNode(node, newNode = null) {
         let bugIndex = this.nodes.findIndex((n) => {return n == node;});
         if (bugIndex == -1) {
             return false // There wasn't a bug at this node
         }
-
-        // Not so random random. Should be replaced by random pick later.
-        let currentNode = node;
-        for (let n = 0; n < 20; n++) {
-            for (let neighbor of currentNode.neighbors) {
-                // Move to a random neighbor
-                if ((this.board.isNodeEmpty(neighbor) && !neighbor.isServer()) || n < 10) {
-                    currentNode = neighbor;
-                    break;
+        if (newNode === null) {
+            // New node wasn't set, pick a random one
+            // Not so random random. Should be replaced by random pick later.
+            let randomNode = node;
+            for (let n = 0; n < 20; n++) {
+                for (let neighbor of randomNode.neighbors) {
+                    // Move to a random neighbor
+                    if ((this.board.isNodeEmpty(neighbor) && !neighbor.isServer()) || n < 10) {
+                        randomNode = neighbor;
+                        break;
+                    }
                 }
             }
+            newNode = randomNode;
         }
-        this.nodes[bugIndex] = currentNode; // Replace the last bug
+        this.nodes[bugIndex] = newNode; // Replace the last bug
         //this.createBugAtRandom();
         this.dispatchEvent(new Event(Bugs.EVENTS.BUG_MOVED));
         return true;
