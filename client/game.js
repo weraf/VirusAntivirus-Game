@@ -72,6 +72,8 @@ export class Game extends Phaser.Scene {
         });
 
         
+
+        
         
         socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));

@@ -40,9 +40,17 @@ export class GameUI {
             this.winscreen = this.htmlManager.create("winscreen");
             
             this.htmlManager.showOnly(this.mainmenu);
+
+            this.mainmenu.setPlaceholder("description", "");
+
+            
+
+    
             
             this.mainmenu.virus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                // Visa virustexten
+                this.mainmenu.setPlaceholder("description", "virusdescription")
                 // Visa en linje på den markerade knappen
                 this.mainmenu.virus.classList.add("selected");
                 this.mainmenu.antivirus.classList.remove("selected");
@@ -50,6 +58,8 @@ export class GameUI {
             
             this.mainmenu.antivirus.onclick = () => {
                 this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+                // Visa antivirustexten
+                this.mainmenu.setPlaceholder("description", "antivirusdescription")
                 // Visa en linje på den markerade knappen
                 this.mainmenu.antivirus.classList.add("selected");
                 this.mainmenu.virus.classList.remove("selected");
