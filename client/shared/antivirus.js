@@ -94,4 +94,25 @@ export class Antivirus extends EventTarget {
 
         return true;
     }
+
+    static getRandomStartNodes(board, amount) {
+        const startNodes = []
+        const servers = board.getAllNodes().filter((node) => {return node.isServer()});
+        if (amount > servers.length) {
+            throw new Error("Can't spawn my antiviruses than servers");
+        }
+        // Spawn antiviruses on adjacent to different servers
+        for (let n = 0; n < amount; n++) {
+            const serverIndex = Math.floor(Math.random()*servers.length);
+            const possibleNodes = servers[serverIndex].neighbors.filter((node) => {return board.isNodeEmpty(node) && !node.isServer()});
+            const randomIndex = Math.floor(Math.random()*possibleNodes.length); 
+            const node = possibleNodes[randomIndex];
+            servers.splice(serverIndex,1); // one antivirus per server
+            possibleNodes.splice(randomIndex,1); // remove it from the array
+            startNodes.push(node); // Add it as a start node
+        }
+        
+        return startNodes;
+    }
+
 }
