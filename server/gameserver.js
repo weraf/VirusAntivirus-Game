@@ -27,8 +27,6 @@ export class GameServer extends EventEmitter {
         this.virusP = virusPlayer;
         this.virusP.setVirus();
         this.antivirusP = antiVirusPlayer;
-        this.virusP.emit(EVENTS.GAME_FOUND,true);
-        this.antivirusP.emit(EVENTS.GAME_FOUND,false);
 
         const board = new Board();
 
@@ -107,16 +105,21 @@ export class GameServer extends EventEmitter {
     }
 
     sendGameStart() {
-        const data = {
+        const virusData = {
             virusNodes: this.gameState.board.virus.nodes.map(n => n.id),
             antivirusNodes: this.gameState.board.antivirus.nodes.map(n => n.id),
-            bugNodes: this.gameState.board.bugs.map(n => n.id),
-            serverNodes: this.gameState.board.servers.map(n => n.id),
-            currentPlayer: this.gameState.currentPlayer
+            bugNodes: this.gameState.board.bugs.nodes.map(n => n.id),
+            currentPlayer: this.gameState.currentPlayer,
+            isVirus: true
+        };
+
+        const antivirusData = {
+            ...virusData,
+            isVirus: false
         };
     
-        this.virusPlayer.emit("game_start", data);
-        this.antivirusPlayer.emit("game_start", data);
+        this.virusP.emit(EVENTS.GAME_FOUND, virusData);
+        this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
     }
     
 }

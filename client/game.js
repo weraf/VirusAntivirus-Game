@@ -65,9 +65,9 @@ export class Game extends Phaser.Scene {
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"),socket);
 
-        socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
-            this.isVirus = isVirus;
-            this.startGame(isVirus);
+        socket.on(EVENTS.GAME_FOUND, (data) => {  
+            this.isVirus = data.isVirus;
+            this.startGame(data);
             
         });
 
@@ -108,24 +108,28 @@ export class Game extends Phaser.Scene {
 
     }
 
-    startGame(isVirus) {
-        // Lägg till en ormen
-        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
-        this.gameBoard.spawnStartBugs([this.gameBoard.getNode("n28"),this.gameBoard.getNode("n20")]);
-        // lägg ut antivirus
-        this.gameBoard.spawnAntivirus([this.gameBoard.getNode("n21"),this.gameBoard.getNode("n30")]);
+    startGame(data) {
+        this.gameBoard.spawnVirus(
+        data.virusNodes.map(id => this.gameBoard.getNode(id))
+        );
 
-        // Game has started, now we can add gamedrawer
+        this.gameBoard.spawnAntivirus(
+            data.antivirusNodes.map(id => this.gameBoard.getNode(id))
+        );
+
+        this.gameBoard.spawnStartBugs(
+            data.bugNodes.map(id => this.gameBoard.getNode(id))
+        );
+
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
+        this.gameDrawer.draw();
 
-        this.ui.showGameStart(isVirus);
+        this.ui.showGameStart(this.isVirus);
         this.started = true;
-        
-        this.gameDrawer.draw(); 
 
-        if (isVirus) {
+        if (this.isVirus) {
             this.virusTurn();
-        }
+        } 
     }
 
     // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
