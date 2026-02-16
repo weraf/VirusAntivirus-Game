@@ -74,4 +74,15 @@ export class GameState extends EventTarget {
             return;
         }
     }
+
+    // Used by gameserver to send the complete data of the current state
+    getSerializedState() {
+        const data = {
+            virusNodes: this.getVirus().nodes.map(n => n.id),
+            antivirusNodes: this.getAntiVirus().nodes.map(n => n.id),
+            bugNodes: this.board.bugs.nodes.map(n => n.id),
+            currentPlayer: this.currentPlayer,
+        };
+        return data;
+    }
 }

@@ -67,8 +67,8 @@ export class Game extends Phaser.Scene {
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
+            this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
             this.startGame(data);
-            
         });
 
         
@@ -124,7 +124,7 @@ export class Game extends Phaser.Scene {
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
         this.gameDrawer.draw();
 
-        this.ui.showGameStart(this.isVirus);
+        this.ui.showGameStart(this.isVirus,this.isSpectator);
         this.started = true;
 
         if (this.isVirus) {
@@ -135,6 +135,9 @@ export class Game extends Phaser.Scene {
     // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
 
     virusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         this.inputHandler.removeAllInput();
         const valid = this.gameBoard.virus.getValidMoves()
 
@@ -146,6 +149,9 @@ export class Game extends Phaser.Scene {
         }
     }
     antivirusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 

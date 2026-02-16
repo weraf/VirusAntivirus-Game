@@ -4,10 +4,14 @@ import { ACTIONS, EVENTS } from "../client/shared/enums.js";
 import { GameServer } from "./gameserver.js";
 import { Player } from "./player.js";
 
-
 export class LobbyHandler extends EventEmitter {
     queue = new GameQueue();
+    spectateQueue = new SpectateQueue(); // Special queue for waiting spectators
     games = []
+
+    static EVENTS = {
+        GAME_STARTED: "game_started",
+    }
 
     /**
      * 
@@ -34,6 +38,16 @@ export class LobbyHandler extends EventEmitter {
         
     }
 
+    userStartSpectate(user) {
+        if (this.games.length == 0) {
+            // No active games, wait until a game is created
+            this.spectateQueue.addUser(user);
+            return
+        }
+        // Take the last game in the array (= the newest one) and send the user there
+        this.games[this.games.length-1].addSpectator(user);
+    }
+
     createGame(virusUser,antiVirusUser) {
         const p1 = new Player(virusUser);
         const p2 = new Player(antiVirusUser);
@@ -41,18 +55,52 @@ export class LobbyHandler extends EventEmitter {
         this.games.push(newGame);
         // Remove the game from the active games array when the game is finished. Listens only to once.
         newGame.once(GameServer.SIGNAL_GAME_FINISHED,this.gameFinished.bind(this,newGame))
+        // All users waiting on a game to spectate games, send them to this game
+        for (const user of this.spectateQueue.popAll()) {
+            newGame.addSpectator(user);
+        }
     }
 
     gameFinished(game) {
         this.games = this.games.filter((g) => {return g != game});
-        console.log("Game finished")
+        console.log("Game finished");
     }
 
     removeUserFromQueue(user) {
-        user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user))
-        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user))
+        user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user));
+        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user));
         this.queue = this.queue.filter((u) => {return u != user});
-        return user // Returns the user that got removed
+        return user; // Returns the user that got removed
+    }
+}
+
+class SpectateQueue {
+    queue = []
+    addUser(user) {
+        this.queue.push(user);
+        user.on(ACTIONS.DISCONNECT,this.removeUser.bind(this,user));
+        user.on(ACTIONS.STOP_FINDING_GAME,this.removeUser.bind(this,user));
+    }
+    removeUser(user) {
+        user.removeListener(ACTIONS.DISCONNECT,this.removeUser.bind(this,user));
+        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUser.bind(this,user));
+        this.queue = this.queue.filter((u) => {return u != user});
+    }
+    popFirst() {
+        if (this.queue.length == 0) {
+            return;
+        }
+        const first = this.queue[0];
+        this.removeUser(first);
+        return first; 
+    }
+    // Empty queue and return it
+    popAll() {
+        const users = []
+        while (this.queue.length > 0) {
+            users.push(this.popFirst());
+        }
+        return users;
     }
 }
 

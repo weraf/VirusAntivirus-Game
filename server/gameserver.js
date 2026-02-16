@@ -12,6 +12,7 @@ export class GameServer extends EventEmitter {
     virusP; // Player instance that plays virus
     antivirusP; // Player instance that plays antivirus
     gameState;
+    spectators = []; // Array of user instances that are spectating
     
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -53,10 +54,11 @@ export class GameServer extends EventEmitter {
 
        
 
-        // If either player disconnect, the game is over and can be removed from the server
-        // TODO: send message to players that opponent disconnected
-        this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
-        this.antivirusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
+        // If either player disconnect/leaves, the game is over and can be removed from the server
+        this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
+        this.virusP.on(ACTIONS.LEAVE_GAME,this.playerLeft.bind(this,this.virusP));
+        this.antivirusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.antivirusP));
+        this.antivirusP.on(ACTIONS.LEAVE_GAME,this.playerLeft.bind(this,this.antivirusP));
 
         // Add other events here'
 
@@ -89,16 +91,36 @@ export class GameServer extends EventEmitter {
         });
     }
 
-    //testFunction(who) {
-    //    console.log("Move made by", who);
-    //}
+    playerLeft(player) {
+        // TODO: message players
+        this.gameFinished()
+    }
 
+    addSpectator(spectator) {
+        this.spectators.push(spectator);
+        const specData = {
+            ...this.gameState.getSerializedState(),
+            isSpectator: true,
+            isVirus: false,
+        }
+        spectator.on(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
+        spectator.on(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
+        spectator.emit(EVENTS.GAME_FOUND,specData)
+    }
+    
+    removeSpectator(spectator) {
+        this.spectators = this.spectators.filter((s) => {return s != spectator});
+        spectator.removeListener(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
+        spectator.removeListener(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
+    }
 
     // Sends an event to both players (and spectators)
     emitAll(eventName, ...args) {
         this.virusP.emit(eventName,...args);
         this.antivirusP.emit(eventName,...args);
-        // TODO: Send to spectators
+        for (const spec of this.spectators) {
+            spec.emit(eventName,...args);
+        }
     }
 
     gameFinished() {
@@ -107,16 +129,15 @@ export class GameServer extends EventEmitter {
     }
 
     sendGameStart() {
+        const data = this.gameState.getSerializedState();
+
         const virusData = {
-            virusNodes: this.gameState.board.virus.nodes.map(n => n.id),
-            antivirusNodes: this.gameState.board.antivirus.nodes.map(n => n.id),
-            bugNodes: this.gameState.board.bugs.nodes.map(n => n.id),
-            currentPlayer: this.gameState.currentPlayer,
+            ...data,
             isVirus: true
         };
 
         const antivirusData = {
-            ...virusData,
+            ...data,
             isVirus: false
         };
     
