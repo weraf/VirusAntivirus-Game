@@ -51,6 +51,8 @@ export class GameServer extends EventEmitter {
             this.gameFinished();
         });
 
+       
+
         // If either player disconnect, the game is over and can be removed from the server
         // TODO: send message to players that opponent disconnected
         this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
