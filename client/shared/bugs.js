@@ -52,24 +52,17 @@ export class Bugs extends EventTarget {
         
         this.dispatchEvent(new CustomEvent(Bugs.EVENTS.BUG_MOVED, {
             detail: {
-                from: oldNode.id,
-                to: newNode.id
+                from: oldNode,
+                to: newNode
             }
         }));
-
-        return { from: oldNode.id, to: newNode.id };
     }
 
     /**
      * Pick a random empty node to create a bug on.
      */
     createBugAtRandom() {
-        const nodes = this.board.getAllNodes();
-        let randomNode = null;
-        while (randomNode === null || !this.board.isNodeEmpty(randomNode) || randomNode.isServer()) {
-            randomNode = nodes[Math.floor(Math.random()*nodes.length)];
-        }
-        this.createBugAtNode(randomNode);
+        this.createBugAtNode(this.pickRandomNode());
     }
 
     createBugAtNode(node) {
@@ -79,16 +72,12 @@ export class Bugs extends EventTarget {
         this.nodes.push(node);
     }
 
-    pickRandomNode(startNode) {
-        let randomNode = startNode;
-        for (let i = 0; i < 20; i++) {
-            for (let neighbor of randomNode.neighbors) {
-                // Move to a random neighbor
-                if (this.board.isNodeEmpty(neighbor) && !neighbor.isServer() || i < 10) {
-                    return neighbor;
-                }
-            }
+    pickRandomNode() {
+        const nodes = this.board.getAllNodes();
+        let randomNode = null;
+        while (randomNode === null || !this.board.isNodeEmpty(randomNode) || randomNode.isServer()) {
+            randomNode = nodes[Math.floor(Math.random()*nodes.length)];
         }
-        return startNode;
+        return randomNode;
     }
 }
