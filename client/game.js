@@ -78,9 +78,9 @@ export class Game extends Phaser.Scene {
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
 
-        socket.on(EVENTS.GAME_FOUND, (data) => {  
-            this.isVirus = data.isVirus;
-            this.startGame(data);
+        socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
+            this.isVirus = isVirus;
+            this.startGame(isVirus);
             
         });
 
@@ -92,7 +92,7 @@ export class Game extends Phaser.Scene {
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
                     this.ui.showWinScreen(true);
-                    //Ljud
+                    //Ljud för vinst/förlust
                     this.soundManager.playWinLose(true, this.isVirus); 
                     return;
                 }
@@ -111,7 +111,7 @@ export class Game extends Phaser.Scene {
             if (valid.length == 0) {
                 // Virus has lost
                 this.ui.showWinScreen(false);
-                //Ljud
+                //Ljud för vinst/förlust
                 this.soundManager.playWinLose(false, this.isVirus);
                 return;
             }
@@ -136,34 +136,29 @@ export class Game extends Phaser.Scene {
 
     }
 
-    startGame(data) {
-        this.gameBoard.spawnVirus(
-        data.virusNodes.map(id => this.gameBoard.getNode(id))
-        );
-
-        this.gameBoard.spawnAntivirus(
-            data.antivirusNodes.map(id => this.gameBoard.getNode(id))
-        );
-
-        this.gameBoard.spawnStartBugs(
-            data.bugNodes.map(id => this.gameBoard.getNode(id))
-        );
+    startGame(isVirus) {
+        // Lägg till en ormen
+        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
+        this.gameBoard.spawnStartBugs([this.gameBoard.getNode("n28"),this.gameBoard.getNode("n20")]);
+        // lägg ut antivirus
+        this.gameBoard.spawnAntivirus([this.gameBoard.getNode("n21"),this.gameBoard.getNode("n30")]);
         // Starta Ljud
         this.soundManager.initGameListeners();
 
-        // Game has started, now we can add gamedrawer
+        // Game has started
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
-        this.gameDrawer.draw();
 
-        this.ui.showGameStart(this.isVirus);
+        this.ui.showGameStart(isVirus);
         this.started = true;
+        
+        this.gameDrawer.draw(); 
 
-        if (this.isVirus) {
+        if (isVirus) {
             this.virusTurn();
-        } 
+        } else {
+            this.antivirusTurn();
+        }
     }
-
-    // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
 
     virusTurn() {
         this.inputHandler.removeAllInput();
