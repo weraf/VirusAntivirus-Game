@@ -100,7 +100,7 @@ export class Game extends Phaser.Scene {
                 this.antivirusTurn();
             }
 
-        })
+        });
 
         socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
@@ -121,7 +121,18 @@ export class Game extends Phaser.Scene {
             }
             
             
-        })
+        });
+
+        socket.on(EVENTS.BUG_MOVED, (fromId, toId) => {
+            const bugs = this.gameBoard.bugs;
+            const fromNode = this.gameBoard.getNode(fromId);
+            const toNode = this.gameBoard.getNode(toId);
+
+            bugs.removeBugAtNode(fromNode);
+            bugs.createBugAtNode(toNode);
+
+            this.gameDrawer.bugDrawer.update();
+        });
 
     }
 
