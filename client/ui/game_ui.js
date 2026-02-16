@@ -67,6 +67,7 @@ export class GameUI {
             }
 
             this.mainmenu.spectate.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue);
                 this.socket.emit(ACTIONS.SPECTATE_GAME);
             }
