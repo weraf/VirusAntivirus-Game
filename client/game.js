@@ -92,7 +92,7 @@ export class Game extends Phaser.Scene {
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
                     this.ui.showWinScreen(true);
-                    //Ljud
+                    //Ljud för vinst/förlust
                     this.soundManager.playWinLose(true, this.isVirus); 
                     return;
                 }
@@ -111,7 +111,7 @@ export class Game extends Phaser.Scene {
             if (valid.length == 0) {
                 // Virus has lost
                 this.ui.showWinScreen(false);
-                //Ljud
+                //Ljud för vinst/förlust
                 this.soundManager.playWinLose(false, this.isVirus);
                 return;
             }
@@ -135,7 +135,7 @@ export class Game extends Phaser.Scene {
         // Starta Ljud
         this.soundManager.initGameListeners();
 
-        // Game has started, now we can add gamedrawer
+        // Game has started
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
         this.ui.showGameStart(isVirus);
@@ -145,10 +145,10 @@ export class Game extends Phaser.Scene {
 
         if (isVirus) {
             this.virusTurn();
+        } else {
+            this.antivirusTurn();
         }
     }
-
-    // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
 
     virusTurn() {
         this.inputHandler.removeAllInput();
