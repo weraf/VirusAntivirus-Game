@@ -42,11 +42,11 @@ export class GameUI {
             this.htmlManager.showOnly(this.mainmenu);
 
 
-            const virussound = new Audio();
-            virussound.src="../assets/virus.mp3"
+            //const virussound = new Audio();
+            //virussound.src="../assets/virus.mp3"
             
-            const antivirussound = new Audio();
-            antivirussound.src="../assets/antivirus.mp3"
+            //const antivirussound = new Audio();
+            //antivirussound.src="../assets/antivirus.mp3"
             // Blank description text från början
             this.mainmenu.setPlaceholder("description", "");
 
@@ -58,6 +58,8 @@ export class GameUI {
                 this.mainmenu.virus.classList.add("selected");
                 this.mainmenu.antivirus.classList.remove("selected");
 
+                const virussound = new Audio();
+                virussound.src="../assets/virus.mp3"
                 virussound.play();
             }
             
@@ -69,12 +71,21 @@ export class GameUI {
                 this.mainmenu.antivirus.classList.add("selected");
                 this.mainmenu.virus.classList.remove("selected");
 
+
+                const antivirussound = new Audio();
+                antivirussound.src="../assets/antivirus.mp3"
                 antivirussound.play();
             }
 
             this.mainmenu.start.onclick = () => {
                 this.mainmenu.switchTo(this.queue)
                 this.socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
+            }
+
+            this.mainmenu.spectate.onclick = () => {
+                const spectatorsound = new Audio();
+                spectatorsound.src="../assets/spectate.mp3"
+                spectatorsound.play();
             }
 
             this.queue.abort.onclick = () => {
