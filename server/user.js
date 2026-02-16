@@ -39,6 +39,9 @@ export class User extends EventEmitter {
     // Overrides the default event emitter emit function with the socket behavior instead.
     // This function sends an event to the client
     emit(eventName, ...args) {
+        if (eventName === undefined || eventName === null) {
+            throw Error("Eventname was undefined");
+        }
         // Don't send a event emitter event, send to the client instead
         this.socket.emit(eventName, ...args)
     }

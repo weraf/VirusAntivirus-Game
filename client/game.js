@@ -127,11 +127,7 @@ export class Game extends Phaser.Scene {
             const bugs = this.gameBoard.bugs;
             const fromNode = this.gameBoard.getNode(fromId);
             const toNode = this.gameBoard.getNode(toId);
-
-            bugs.removeBugAtNode(fromNode);
-            bugs.createBugAtNode(toNode);
-
-            this.gameDrawer.bugDrawer.update();
+            bugs.respawnBugAtNode(fromNode,toNode);
         });
 
     }

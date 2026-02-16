@@ -6,6 +6,7 @@ import EventEmitter from "node:events";
 import { BoardCreator } from "../client/shared/boardCreator.js";
 
 import mapData from "../client/assets/map1.json" with { type: 'json' };
+import { Bugs } from "../client/shared/bugs.js";
 
 // Class for handling the flow and events of a match
 export class GameServer extends EventEmitter {
@@ -13,6 +14,7 @@ export class GameServer extends EventEmitter {
     antivirusP; // Player instance that plays antivirus
     gameState;
     spectators = []; // Array of user instances that are spectating
+    pendingBugMovements = [];
     
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -51,6 +53,14 @@ export class GameServer extends EventEmitter {
             this.emitAll(EVENTS.GAME_OVER, e.detail);
             this.gameFinished();
         });
+        
+        // Make the bugs move when stepped on, then listen to this movement
+        this.gameState.board.connectBugListeners();
+        this.gameState.board.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED, (e) => {
+            // We can't emit to client directly since that would place it before the move event,
+            // resulting in the client snake not noticing that it should grow (since the bug is already moved)
+            this.pendingBugMovements.push({from:e.detail.from.id, to:e.detail.to.id});
+        });
 
        
 
@@ -72,9 +82,8 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.handleBugIfPresent(this.gameState.board.getNode(nodeid));
-
             this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid);
+            this.sendBugUpdates();
             this.gameState.handleMove();
         });
 
@@ -87,12 +96,18 @@ export class GameServer extends EventEmitter {
                 this.virusP.emit(EVENTS.INVALID_MOVE);
                 return;
             }
-            
-            this.handleBugIfPresent(this.gameState.board.getNode(nodeid));
 
             this.emitAll(EVENTS.VIRUS_MOVED, nodeid);
+            this.sendBugUpdates(); // This needs to be after virus moved
             this.gameState.handleMove();
         });
+    }
+
+    sendBugUpdates() {
+        for (const bugMove of this.pendingBugMovements) {
+            this.emitAll(EVENTS.BUG_MOVED, bugMove.from, bugMove.to);
+        }
+        this.pendingBugMovements = []; // clear the array
     }
 
     playerLeft(player) {
@@ -147,18 +162,6 @@ export class GameServer extends EventEmitter {
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
-    }
-
-    handleBugIfPresent(node) {
-        const bugs = this.gameState.board.bugs;
-
-        if (bugs.hasNode(node)) {
-            const result = bugs.respawnBugAtNode(node);
-
-            if (result) {
-                this.emitAll(EVENTS.BUG_MOVED, result.from, result.to);
-            }
-        }
     }
     
 }

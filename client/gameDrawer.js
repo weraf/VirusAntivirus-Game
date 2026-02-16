@@ -192,7 +192,10 @@ class BugsDrawer {
             const toNode = toNodes[index];
             const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
             const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
-            const rot = progress*Math.PI*2;
+            let rot = progress*Math.PI*2;
+            if (fromNode === toNode) {
+                rot = 0; // No movement, don't rotate
+            }
             this.graphics.fillStyle(0xcc10dd);
             this.drawRotatedSquare(x,y,11,rot);
             this.graphics.fillStyle(0xee20ee);

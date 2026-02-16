@@ -27,6 +27,7 @@ export const EVENTS = {
     TURN_TIMED_OUT: "turn_timed_out", // The current player took too long to make a move, their turn is over. Arg 1: player: int (0 for virus, 1 for antivirus)
     VIRUS_MOVED: "virus_moved", // a move has been made /& test
     ANTIVIRUS_MOVED: "antivirus_moved", //
+    BUG_MOVED: "bug_moved",
 }
 
 export const QUEUE_PREFERENCE = {
