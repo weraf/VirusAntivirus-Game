@@ -8,8 +8,10 @@ export class GameUI {
      * 
      * @param {HTMLElement} parent 
      * @param {Socket} socket 
+     * @param {SoundManager}
      */
-    constructor(parent, socket) {
+    constructor(parent, socket, soundManager) {
+        this.soundManager = soundManager;
         this.htmlManager = new HtmlManager(parent);
         Translator.connectToHTMLManager(this.htmlManager);
         // Fetch the translations and then load the UI
@@ -42,6 +44,7 @@ export class GameUI {
             this.htmlManager.showOnly(this.mainmenu);
             
             this.mainmenu.virus.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
                 // Visa en linje på den markerade knappen
                 this.mainmenu.virus.classList.add("selected");
@@ -49,6 +52,7 @@ export class GameUI {
             }
             
             this.mainmenu.antivirus.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
                 // Visa en linje på den markerade knappen
                 this.mainmenu.antivirus.classList.add("selected");
@@ -56,16 +60,19 @@ export class GameUI {
             }
 
             this.mainmenu.start.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue)
                 this.socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
             }
 
             this.queue.abort.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 this.queue.switchTo(this.mainmenu)
                 this.socket.emit(ACTIONS.STOP_FINDING_GAME)
             }
 
             this.mainmenu.language_button.onclick = () => {
+                this.soundManager.play('click'); // ljud
                 if (Translator.language === "en") {
                     Translator.setLanguage("sv");
                 } else {
