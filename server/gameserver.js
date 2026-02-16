@@ -72,6 +72,8 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
+            this.handleBugIfPresent(this.gameState.board.getNode(nodeid));
+
             this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid);
             this.gameState.handleMove();
         });
@@ -85,6 +87,8 @@ export class GameServer extends EventEmitter {
                 this.virusP.emit(EVENTS.INVALID_MOVE);
                 return;
             }
+            
+            this.handleBugIfPresent(this.gameState.board.getNode(nodeid));
 
             this.emitAll(EVENTS.VIRUS_MOVED, nodeid);
             this.gameState.handleMove();
@@ -143,6 +147,18 @@ export class GameServer extends EventEmitter {
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
+    }
+
+    handleBugIfPresent(node) {
+        const bugs = this.gameState.board.bugs;
+
+        if (bugs.hasNode(node)) {
+            const result = bugs.respawnBugAtNode(node);
+
+            if (result) {
+                this.emitAll(EVENTS.BUG_MOVED, result.from, result.to);
+            }
+        }
     }
     
 }
