@@ -28,6 +28,7 @@ function newConnection(socket) {
     users.push(newUser)
     newUser.on(ACTIONS.DISCONNECT,userDisconnected.bind(this, newUser))
     newUser.on(ACTIONS.FIND_GAME,(queueType) => {lobbyHandler.addUserToQueue(newUser,queueType)})
+    newUser.on(ACTIONS.SPECTATE_GAME,() => {lobbyHandler.userStartSpectate(newUser)})
     // STOP_FINDING_GAME / removeUserFromQueue is handled in lobbyhandler.js
 }
 

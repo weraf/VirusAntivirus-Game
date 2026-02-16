@@ -87,9 +87,19 @@ html, button {
     text-align: center;
     line-height: 1em;
     text-shadow: 0.5vh 0.5vh 0px black;
+    margin-bottom: 1rem;
+}
+
+.winpanel {
     background-color: rgba(48, 56, 54, 0.8);
     border-radius: 1vw;
     padding: 2vw;
+    display: flex;
+    flex-direction: column;
+}
+
+.winpanel > button {
+    font-size: larger;
 }
 
 .red {

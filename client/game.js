@@ -78,10 +78,10 @@ export class Game extends Phaser.Scene {
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
 
-        socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
-            this.isVirus = isVirus;
-            this.startGame(isVirus);
-            
+        socket.on(EVENTS.GAME_FOUND, (data) => {  
+            this.isVirus = data.isVirus;
+            this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+            this.startGame(data);
         });
 
         
@@ -136,31 +136,38 @@ export class Game extends Phaser.Scene {
 
     }
 
-    startGame(isVirus) {
-        // Lägg till en ormen
-        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
-        this.gameBoard.spawnStartBugs([this.gameBoard.getNode("n28"),this.gameBoard.getNode("n20")]);
-        // lägg ut antivirus
-        this.gameBoard.spawnAntivirus([this.gameBoard.getNode("n21"),this.gameBoard.getNode("n30")]);
+    startGame(data) {
+        this.gameBoard.spawnVirus(
+            data.virusNodes.map(id => this.gameBoard.getNode(id))
+        );
+
+        this.gameBoard.spawnAntivirus(
+            data.antivirusNodes.map(id => this.gameBoard.getNode(id))
+        );
+
+        this.gameBoard.spawnStartBugs(
+            data.bugNodes.map(id => this.gameBoard.getNode(id))
+        );
         // Starta Ljud
         this.soundManager.initGameListeners();
 
-        // Game has started
+        // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
-        this.ui.showGameStart(isVirus);
+        this.ui.showGameStart(this.isVirus,this.isSpectator);
         this.started = true;
         
         this.gameDrawer.draw(); 
 
-        if (isVirus) {
+        if (this.isVirus) {
             this.virusTurn();
-        } else {
-            this.antivirusTurn();
         }
     }
 
     virusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         this.inputHandler.removeAllInput();
         const valid = this.gameBoard.virus.getValidMoves()
 
@@ -174,6 +181,9 @@ export class Game extends Phaser.Scene {
         }
     }
     antivirusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 

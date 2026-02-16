@@ -51,6 +51,9 @@
   "antiviruswon": {
     "sv": "Antiviruset vinner!",
     "en": "The Antivirus won!"
+  },
+  "leave": {
+    "sv": "Lämna",
+    "en": "Leave"
   }
-
 }

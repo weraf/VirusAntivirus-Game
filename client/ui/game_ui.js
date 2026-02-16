@@ -1,6 +1,6 @@
 import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 import { Translator } from "./translator.js";
-import { QUEUE_PREFERENCE, ACTIONS } from "../shared/enums.js";
+import { QUEUE_PREFERENCE, ACTIONS, EVENTS } from "../shared/enums.js";
 
 export class GameUI {
 
@@ -23,14 +23,29 @@ export class GameUI {
         this.socket = socket;
     }
 
+    leaveGame() {
+        this.socket.emit(ACTIONS.LEAVE_GAME);
+        location.reload(); // TODO: implement going back to menu without reloading the page
+    }
+
     showWinScreen(virusWon) {
         this.winscreen.setPlaceholder("wintext",virusWon ? "viruswon":"antiviruswon");
         this.winscreen.show();
-        this.winscreen.wintext.classList.add(virusWon ? "red" : "blue")
+        this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
+        this.winscreen.leavebutton.onclick = this.leaveGame.bind(this);
+        this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
     }
 
-    showGameStart(isVirus) {
-        this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
+    showGameStart(isVirus, isSpectator) {
+        this.player_indicator.midleavebutton.hidden = true; // Hide leave button as default
+
+        if (isSpectator) {
+            this.player_indicator.playingas.hidden = true;
+            this.player_indicator.midleavebutton.hidden = false;
+            this.player_indicator.midleavebutton.onclick = this.leaveGame.bind(this);
+        } else {
+            this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
+        }
         this.queue.switchTo(this.player_indicator);
     }
 
@@ -49,6 +64,12 @@ export class GameUI {
                 // Visa en linje på den markerade knappen
                 this.mainmenu.virus.classList.add("selected");
                 this.mainmenu.antivirus.classList.remove("selected");
+            }
+
+            this.mainmenu.spectate.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.mainmenu.switchTo(this.queue);
+                this.socket.emit(ACTIONS.SPECTATE_GAME);
             }
             
             this.mainmenu.antivirus.onclick = () => {
