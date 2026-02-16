@@ -1,6 +1,13 @@
 /*Fixa så att skärmen inte har vita kanter runt sig*/
 body, html {
     margin: 0;
+    cursor: progress;
+}
+
+button:hover {
+    background-color:rgb(255, 0, 157);
+    box-shadow: 4px 4px 8px;
+    cursor: pointer;
 }
 
 /*Stil för testui*/
@@ -14,6 +21,7 @@ body, html {
     border-color:rgb(75, 92, 168);
     border-radius: 30px;
     border-width: 15px;
+    min-width: 400px;
 }
 
 #ui {
@@ -28,7 +36,7 @@ html, button {
 
 .text {
     
-    color:rgb(255, 0, 0);
+    color:rgb(0, 0, 0);
     font-size: 20px;
     text-align: center;
 }
@@ -55,8 +63,6 @@ html, button {
     text-align: center;
     min-height: 100px;
 }
-
-
 
 .undertext {
     color:aqua;
@@ -86,7 +92,7 @@ html, button {
 }
 
 .language {
-    margin-top: 100px;
+    margin-top: 50px;
 }
 
 .wintext {

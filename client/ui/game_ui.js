@@ -41,6 +41,13 @@ export class GameUI {
             
             this.htmlManager.showOnly(this.mainmenu);
 
+
+            const virussound = new Audio();
+            virussound.src="../assets/virus.mp3"
+            
+            const antivirussound = new Audio();
+            antivirussound.src="../assets/antivirus.mp3"
+            // Blank description text från början
             this.mainmenu.setPlaceholder("description", "");
 
             this.mainmenu.virus.onclick = () => {
@@ -50,6 +57,8 @@ export class GameUI {
                 // Visa en linje på den markerade knappen
                 this.mainmenu.virus.classList.add("selected");
                 this.mainmenu.antivirus.classList.remove("selected");
+
+                virussound.play();
             }
             
             this.mainmenu.antivirus.onclick = () => {
@@ -59,6 +68,8 @@ export class GameUI {
                 // Visa en linje på den markerade knappen
                 this.mainmenu.antivirus.classList.add("selected");
                 this.mainmenu.virus.classList.remove("selected");
+
+                antivirussound.play();
             }
 
             this.mainmenu.start.onclick = () => {
