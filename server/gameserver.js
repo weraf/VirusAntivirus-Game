@@ -27,8 +27,29 @@ export class GameServer extends EventEmitter {
         this.virusP = virusPlayer;
         this.virusP.setVirus();
         this.antivirusP = antiVirusPlayer;
-        this.virusP.emit(EVENTS.GAME_FOUND,true);
-        this.antivirusP.emit(EVENTS.GAME_FOUND,false);
+
+        const board = new Board();
+
+        BoardCreator.createFromJSON(board, mapData);
+
+        // Hardcoded positions for now
+        board.spawnVirus();
+        board.spawnAntivirus();
+        board.spawnStartBugs();
+
+        this.gameState = new GameState(board, 20000);
+
+        // Skicka initial state till båda spelarna
+        this.sendGameStart();
+
+        this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
+            this.emitAll(EVENTS.TURN_TIMED_OUT, this.gameState.currentPlayer);
+        });
+        
+        this.gameState.addEventListener(GameState.EVENTS.GAME_OVER, (e) => {
+            this.emitAll(EVENTS.GAME_OVER, e.detail);
+            this.gameFinished();
+        });
 
         const board = new Board();
 
@@ -102,4 +123,23 @@ export class GameServer extends EventEmitter {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
     }
+
+    sendGameStart() {
+        const virusData = {
+            virusNodes: this.gameState.board.virus.nodes.map(n => n.id),
+            antivirusNodes: this.gameState.board.antivirus.nodes.map(n => n.id),
+            bugNodes: this.gameState.board.bugs.nodes.map(n => n.id),
+            currentPlayer: this.gameState.currentPlayer,
+            isVirus: true
+        };
+
+        const antivirusData = {
+            ...virusData,
+            isVirus: false
+        };
+    
+        this.virusP.emit(EVENTS.GAME_FOUND, virusData);
+        this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
+    }
+    
 }
