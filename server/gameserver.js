@@ -51,6 +51,26 @@ export class GameServer extends EventEmitter {
             this.gameFinished();
         });
 
+        const board = new Board();
+
+        BoardCreator.createFromJSON(board, mapData);
+
+        // Hardcoded positions for now
+        board.spawnVirus([board.getNode("n4"),board.getNode("n0"),board.getNode("n2")]);
+        board.spawnAntivirus([board.getNode("n21"),board.getNode("n30")]);
+        board.spawnStartBugs([board.getNode("n28"),board.getNode("n20")]);
+
+        this.gameState = new GameState(board, 20000);
+
+        this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
+            this.emitAll(EVENTS.TURN_TIMED_OUT, this.gameState.currentPlayer);
+        });
+        
+        this.gameState.addEventListener(GameState.EVENTS.GAME_OVER, (e) => {
+            this.emitAll(EVENTS.GAME_OVER, e.detail);
+            this.gameFinished();
+        });
+
         // If either player disconnect, the game is over and can be removed from the server
         // TODO: send message to players that opponent disconnected
         this.virusP.on(ACTIONS.DISCONNECT,this.gameFinished.bind(this));
