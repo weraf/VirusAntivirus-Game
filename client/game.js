@@ -11,6 +11,8 @@ import { GameState } from "./shared/gamestate.js"
 import InputHandler from "./inputhandler.js"
 import { GameUI } from "./ui/game_ui.js";
 
+import { SoundManager } from "./soundManager.js";
+
 const socket = io();
 
 // Game klassen. Exporteras för att kunna använda som type-hint
@@ -23,6 +25,14 @@ export class Game extends Phaser.Scene {
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
         // Kan ändras när man lägger in fler kartor!
+
+        //ladda in ljud
+        this.load.audio('click', './assets/Click.wav');
+        this.load.audio('AVmove', './assets/AVmove.wav');
+        this.load.audio('Vmove', './assets/Vmove.wav');
+        this.load.audio('bugMove', './assets/bugMove.wav');
+        this.load.audio('lose', './assets/lose.wav');
+        this.load.audio('win', './assets/win.wav');
     }
     
     onResize() {
@@ -57,13 +67,16 @@ export class Game extends Phaser.Scene {
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
+        // ljud
+        this.soundManager = new SoundManager(this, this.gameBoard);
+
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-        
+
         this.gameState = new GameState(this.gameBoard, 2000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
-        this.ui = new GameUI(document.getElementById("ui"),socket);
+        this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
@@ -79,6 +92,8 @@ export class Game extends Phaser.Scene {
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
                     this.ui.showWinScreen(true);
+                    //Ljud
+                    this.soundManager.playWinLose(true, this.isVirus); 
                     return;
                 }
             if (!this.isVirus) {
@@ -96,6 +111,8 @@ export class Game extends Phaser.Scene {
             if (valid.length == 0) {
                 // Virus has lost
                 this.ui.showWinScreen(false);
+                //Ljud
+                this.soundManager.playWinLose(false, this.isVirus);
                 return;
             }
 
@@ -120,7 +137,10 @@ export class Game extends Phaser.Scene {
         this.gameBoard.spawnStartBugs(
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
+        // Starta Ljud
+        this.soundManager.initGameListeners();
 
+        // Game has started, now we can add gamedrawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
         this.gameDrawer.draw();
 
@@ -140,6 +160,8 @@ export class Game extends Phaser.Scene {
 
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
+
+
                 socket.emit(ACTIONS.VIRUS_MOVE, clicked.id)
                 this.inputHandler.removeAllInput();
             })
@@ -151,7 +173,12 @@ export class Game extends Phaser.Scene {
 
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
+
                 if (av.hasNode(clicked)) {
+                    
+                    //klick-ljud
+                    this.soundManager.play('click');
+                    
                     av.selectAVNode(clicked);
                     this.gameDrawer.antivirusDrawer.update() // Update so we can see that it's selected
                     this.antivirusTurn(); 
