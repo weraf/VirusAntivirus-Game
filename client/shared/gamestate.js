@@ -57,7 +57,8 @@ export class GameState extends EventTarget {
 
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
-        this.dispatchEvent(new Event(GameState.EVENTS.TIMED_OUT))
+        this.changeTurn();
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
     }
 
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur

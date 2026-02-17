@@ -100,6 +100,9 @@ export class Game extends Phaser.Scene {
                 this.antivirusTurn();
             }
 
+            this.gameState.changeTurn();
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+
         });
 
         socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
@@ -116,6 +119,10 @@ export class Game extends Phaser.Scene {
                 return;
             }
 
+            this.gameState.changeTurn();
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            
+
             if (this.isVirus) {
                 this.virusTurn();
             }
@@ -129,6 +136,22 @@ export class Game extends Phaser.Scene {
             const toNode = this.gameBoard.getNode(toId);
             bugs.respawnBugAtNode(fromNode,toNode);
         });
+
+        socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
+
+            console.log("timed out reached");
+            
+            this.gameState.changeTurn();
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            
+
+            if (this.isVirus) {
+                this.virusTurn();
+            } else {
+                this.antivirusTurn();
+            }
+            
+        })
 
     }
 
@@ -151,7 +174,10 @@ export class Game extends Phaser.Scene {
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
         this.ui.showGameStart(this.isVirus,this.isSpectator);
-        this.started = true;
+        
+        this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+
+        this.started = true; 
         
         this.gameDrawer.draw(); 
 
@@ -173,6 +199,7 @@ export class Game extends Phaser.Scene {
 
                 socket.emit(ACTIONS.VIRUS_MOVE, clicked.id)
                 this.inputHandler.removeAllInput();
+                
             })
         }
     }

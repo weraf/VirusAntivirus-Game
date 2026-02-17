@@ -36,6 +36,11 @@ export class GameUI {
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
     }
 
+    showCurrentPlayer(current) {
+
+        this.player_indicator.setPlaceholder("currentplayer", current ? "pantivirus": "pvirus") // Current = 0, pviru
+    }
+
     showGameStart(isVirus, isSpectator) {
         this.player_indicator.midleavebutton.hidden = true; // Hide leave button as default
 
@@ -101,6 +106,9 @@ export class GameUI {
                 }
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
+
+            
+
 
         })
     }
