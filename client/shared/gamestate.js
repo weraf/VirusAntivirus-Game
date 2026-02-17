@@ -3,7 +3,8 @@ export class GameState extends EventTarget {
 
     static EVENTS = {
         TIMED_OUT: "timed_out",
-        GAME_OVER: "game_over"
+        GAME_OVER: "game_over",
+        UPDATE_TIMER: "update_timer"
     }
 
     constructor(board, timerLength) {
@@ -14,6 +15,8 @@ export class GameState extends EventTarget {
         this.timerLength = timerLength; // ms
         this.timer = null;
         this.winner = null;
+        this.time = timerLength/1000; // hela sekunder
+        this.displayInterval = null;
 
     }
 
@@ -45,13 +48,38 @@ export class GameState extends EventTarget {
 
     // Startar en timer this.timerLength ms lång
     startTimer() {
-        this.timer = setTimeout(() => this.timedOut(), this.timerLength);    
+        this.timer = setTimeout(() => this.timedOut(), this.timerLength);
+        this.startTime = Date.now();
+
+        if (this.displayInterval) {
+            clearInterval(this.displayInterval);
+        }
+
+        this.displayInterval = setInterval(() => {
+            this.updateTimerDisplay();  
+        }, 1000);
+        this.updateTimerDisplay();
+    }
+
+    updateTimerDisplay() {
+        const elapsed = Date.now() - this.startTime;
+        const timeLeft = Math.max(0, this.timerLength - elapsed);
+        const seconds = Math.ceil(timeLeft / 1000);
+    
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.UPDATE_TIMER, {
+            detail: seconds
+        }));
+    
+        if (timeLeft === 0) {
+            clearInterval(this.displayInterval); // stop updating when timer ends
+        }
     }
 
     // Byter internt this.currentPlayer, clearar timer, startar ny timer
     changeTurn() {
         this.currentPlayer = this.currentPlayer === 0 ? 1 : 0;
         clearTimeout(this.timer);
+        clearInterval(this.displayInterval);
         this.startTimer()
     }
 

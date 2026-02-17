@@ -45,7 +45,8 @@ export class GameServer extends EventEmitter {
         // Skicka initial state till båda spelarna
         this.sendGameStart();
 
-        this.gameState.startTimer();
+        this.gameState.startTimer(); //
+        
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
             console.log("We timed out")
@@ -165,6 +166,8 @@ export class GameServer extends EventEmitter {
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
+        this.virusP.emit(EVENTS.GAME_START)
+        this.antivirusP.emit(EVENTS.GAME_START)
     }
     
 }

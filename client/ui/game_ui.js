@@ -21,6 +21,7 @@ export class GameUI {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
+        
     }
 
     leaveGame() {
@@ -37,8 +38,11 @@ export class GameUI {
     }
 
     showCurrentPlayer(current) {
-
         this.player_indicator.setPlaceholder("currentplayer", current ? "pantivirus": "pvirus") // Current = 0, pviru
+    }
+
+    updateTimer(time) {
+        this.player_indicator.setPlaceholder("timer", time)
     }
 
     showGameStart(isVirus, isSpectator) {

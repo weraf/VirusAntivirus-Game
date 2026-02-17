@@ -74,9 +74,19 @@ export class Game extends Phaser.Scene {
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
-        this.gameState = new GameState(this.gameBoard, 2000);
+        this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+
+        socket.on(EVENTS.GAME_START, () => {
+            this.gameState.updateTimerDisplay();
+            this.gameState.startTimer();
+        })
+
+        this.gameState.addEventListener(GameState.EVENTS.UPDATE_TIMER, (event) => {
+            this.ui.updateTimer(event.detail);
+        })
+
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
@@ -84,8 +94,6 @@ export class Game extends Phaser.Scene {
             this.startGame(data);
         });
 
-        
-        
         socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             
@@ -101,7 +109,7 @@ export class Game extends Phaser.Scene {
             }
 
             this.gameState.changeTurn();
-            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
 
         });
 
@@ -120,7 +128,7 @@ export class Game extends Phaser.Scene {
             }
 
             this.gameState.changeTurn();
-            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
             if (this.isVirus) {
@@ -142,7 +150,7 @@ export class Game extends Phaser.Scene {
             console.log("timed out reached");
             
             this.gameState.changeTurn();
-            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
             if (this.isVirus) {
@@ -175,7 +183,7 @@ export class Game extends Phaser.Scene {
 
         this.ui.showGameStart(this.isVirus,this.isSpectator);
         
-        this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+        //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
 
         this.started = true; 
         
