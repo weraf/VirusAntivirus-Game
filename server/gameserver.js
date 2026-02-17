@@ -40,11 +40,11 @@ export class GameServer extends EventEmitter {
         board.spawnAntivirus();
         board.spawnStartBugs();
 
-        this.gameState = new GameState(board, 5000);
+        this.gameState = new GameState(board, 20000);
 
         // Skicka initial state till båda spelarna
         this.sendGameStart();
-        
+
         this.gameState.startTimer();
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
