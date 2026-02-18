@@ -24,7 +24,6 @@ export class Board extends EventTarget {
         }
 
         this.virus = new Virus(this,startNodes);
-        console.log("Viruset startade på:", startNodes.map(n => n.id));
         
     }
 
@@ -83,9 +82,10 @@ export class Board extends EventTarget {
     addEdge(fromId, toId) {
         const fromNode = this.nodes.get(fromId);
         const toNode = this.nodes.get(toId);
+
         if (fromNode && toNode) {
-            if (!fromNode.neighbors.includes(toNode)) fromNode.addNeighbor(toNode);
-            if (!toNode.neighbors.includes(fromNode)) toNode.addNeighbor(fromNode);
+            fromNode.addNeighbor(toNode);
+            toNode.addNeighbor(fromNode);
         }
     }
 
