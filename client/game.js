@@ -74,12 +74,11 @@ export class Game extends Phaser.Scene {
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
-        this.gameState = new GameState(this.gameBoard, 20000);
+        this.gameState = new GameState(this.gameBoard, 5000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
 
         socket.on(EVENTS.GAME_START, () => {
-            this.gameState.updateTimerDisplay();
             this.gameState.startTimer();
         })
 
@@ -104,14 +103,17 @@ export class Game extends Phaser.Scene {
                     this.soundManager.playWinLose(true, this.isVirus); 
                     return;
                 }
+
+            this.gameState.changeTurn();
+//            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+
             if (!this.isVirus) {
                 this.antivirusTurn();
             }
 
             // en rest från display av vems tur det är
 
-            //this.gameState.changeTurn();
-            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+
 
         });
 
@@ -131,8 +133,8 @@ export class Game extends Phaser.Scene {
 
             // En rest från display av vems tur det är
 
-            //this.gameState.changeTurn();
-            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            this.gameState.changeTurn();
+//            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
             if (this.isVirus) {
@@ -151,24 +153,21 @@ export class Game extends Phaser.Scene {
 
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
 
-            console.log("timed out");
-
             this.inputHandler.removeAllInput();
             
             // en rest från när vems tur det var (inkorrekt) displayades
+            // this.ui.showCurrentPlayer(cp);
+            this.gameState.changeTurn(); // ändrar lokalt för att resetta timer och sånt
 
-            //this.gameState.changeTurn();
-            //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
-            
+                    
 
-            if (this.isVirus) {
+            if (cp === 0) {
                 this.virusTurn();
             } else {
                 this.antivirusTurn();
             }
             
         })
-
     }
 
     startGame(data) {

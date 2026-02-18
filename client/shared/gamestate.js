@@ -17,6 +17,7 @@ export class GameState extends EventTarget {
         this.winner = null;
         this.time = timerLength/1000; // hela sekunder
         this.displayInterval = null;
+        this.timeLeft = this.timerLength / 1000; // i sekunder
 
     }
 
@@ -48,40 +49,39 @@ export class GameState extends EventTarget {
 
     // Startar en timer this.timerLength ms lång
     startTimer() {
+        clearTimeout(this.timer);
+        clearInterval(this.displayInterval);
+    
+        this.startTime = Date.now(); // viktigt att detta uppdateras
+        this.timeLeft = this.timerLength / 1000; // reset kvarvarande tid
+    
         this.timer = setTimeout(() => this.timedOut(), this.timerLength);
-        this.startTime = Date.now();
-
-        if (this.displayInterval) {
-            clearInterval(this.displayInterval);
-        }
-
-        this.displayInterval = setInterval(() => {
-            this.updateTimerDisplay();  
-        }, 1000);
-        this.updateTimerDisplay();
+    
+        this.displayInterval = setInterval(() => this.updateTimerDisplay(), 1000);
+        this.updateTimerDisplay(); // första visningen direkt
     }
 
+
     updateTimerDisplay() {
-        const elapsed = Date.now() - this.startTime;
-        const timeLeft = Math.max(0, this.timerLength - elapsed);
-        const seconds = Math.ceil(timeLeft / 1000);
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        const seconds = Math.max(0, Math.ceil(this.timeLeft - elapsed));
     
         this.dispatchEvent(new CustomEvent(GameState.EVENTS.UPDATE_TIMER, {
             detail: seconds
         }));
     
-        if (timeLeft === 0) {
-            clearInterval(this.displayInterval); // stop updating when timer ends
+        if (seconds <= 0) {
+            clearInterval(this.displayInterval);
         }
     }
 
     // Byter internt this.currentPlayer, clearar timer, startar ny timer
     changeTurn() {
         this.currentPlayer = this.currentPlayer === 0 ? 1 : 0;
-        clearTimeout(this.timer);
-        clearInterval(this.displayInterval);
-        this.startTimer()
+        this.timeLeft = this.timerLength / 1000; // reset timer
+        this.startTimer();
     }
+    
 
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
@@ -100,6 +100,7 @@ export class GameState extends EventTarget {
                 detail: this.winner
             }));
             clearTimeout(this.timer);
+            clearInterval(this.displayInterval)
             return;
         }
     }
