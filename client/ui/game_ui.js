@@ -1,6 +1,7 @@
 import { HtmlManager } from "./htmlmanager/htmlmanager.js";
 import { Translator } from "./translator.js";
 import { QUEUE_PREFERENCE, ACTIONS, EVENTS } from "../shared/enums.js";
+import { GameState } from "../shared/gamestate.js";
 
 export class GameUI {
 
@@ -22,6 +23,22 @@ export class GameUI {
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
         
+    }
+
+    /**
+     * 
+     * @param {GameState} gameState 
+     */
+    connectToGameState(gameState) {
+        gameState.addEventListener(GameState.EVENTS.GAME_OVER,(e) => {
+            this.showWinScreen(e.detail);
+        })
+        gameState.addEventListener(GameState.EVENTS.UPDATE_TIMER, (e) => {
+            this.updateTimer(e.detail);
+        })
+        gameState.addEventListener(GameState.EVENTS.TURN_CHANGED, (e) => {
+            this.showCurrentPlayer(e.detail)
+        })
     }
 
     leaveGame() {
@@ -55,6 +72,7 @@ export class GameUI {
         } else {
             this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
         }
+        this.showCurrentPlayer(0);
         this.queue.switchTo(this.player_indicator);
     }
 

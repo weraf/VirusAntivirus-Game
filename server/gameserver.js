@@ -56,7 +56,7 @@ export class GameServer extends EventEmitter {
         });
         
         this.gameState.addEventListener(GameState.EVENTS.GAME_OVER, (e) => {
-            this.emitAll(EVENTS.GAME_OVER, e.detail);
+            this.emitAll(EVENTS.GAME_OVER, e.detail, false); // Arg 1: winner (0 or 1), arg 2: disconnect (false) 
             this.gameFinished();
         });
         
@@ -117,8 +117,8 @@ export class GameServer extends EventEmitter {
     }
 
     playerLeft(player) {
-        // TODO: message players
-        this.gameFinished()
+        this.emitAll(EVENTS.GAME_OVER, !player.isVirus, true); // Send to players that game is over. The other person won
+        this.gameFinished();
     }
 
     addSpectator(spectator) {
@@ -151,6 +151,16 @@ export class GameServer extends EventEmitter {
     gameFinished() {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
+        
+        // Remove connected events
+        for (const spec of this.spectators) {
+            this.removeSpectator(spec);
+        } 
+        for (const player of [this.virusP,this.antivirusP]) {
+            // This player instance is only used on this gameserver.
+            // Disconnect so we can't get messages after the game is over
+            player.removeAllListeners(); 
+        }
     }
 
     sendGameStart() {
@@ -168,8 +178,6 @@ export class GameServer extends EventEmitter {
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
-        this.virusP.emit(EVENTS.GAME_START)
-        this.antivirusP.emit(EVENTS.GAME_START)
     }
     
 }

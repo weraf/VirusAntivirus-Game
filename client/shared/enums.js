@@ -20,7 +20,7 @@ export const ACTIONS = {
  */
 export const EVENTS = {
     GAME_FOUND: "game_found", // A match has been found. Arg 1: isVirus: bool (true if you are the virus player)
-    GAME_OVER: "game_over", // The game is over. Arg 1: didVirusWin: bool (true if the virus won)
+    GAME_OVER: "game_over", // the game has finished. Arg 1: virusWon: true/false, Arg 2: disconnect: bool (true if the win was caused by a disconnect)   
     INVALID_MOVE: "invalid_move", // The player made an invalid move, try again
     UPDATE_BOARD: "update_board", // The board has been changed // may need to be split into virus moved, antivirus moved
     START_TIMER: "start_timer", // 
@@ -28,7 +28,6 @@ export const EVENTS = {
     VIRUS_MOVED: "virus_moved", // a move has been made /& test
     ANTIVIRUS_MOVED: "antivirus_moved", //
     BUG_MOVED: "bug_moved",
-    GAME_START: "game_start", // event for starting timer on client side
 }
 
 export const QUEUE_PREFERENCE = {

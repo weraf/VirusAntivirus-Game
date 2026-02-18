@@ -77,37 +77,33 @@ export class Game extends Phaser.Scene {
         this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+        this.ui.connectToGameState(this.gameState);
 
-        socket.on(EVENTS.GAME_START, () => {
-            this.gameState.startTimer();
+        socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
+            // Play the sound effect
+
+            this.soundManager.playWinLose(virusWon, this.isVirus); 
+
+            if (!disconnect) {
+                // If this is not a disconnect, we will automatically notice game over from our local gamestate
+                return;
+            }
+            // If our opponent disconnected we need to show that manually
+            this.ui.showWinScreen(virusWon);
+            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            this.gameState.stopGame();
         })
-
-        this.gameState.addEventListener(GameState.EVENTS.UPDATE_TIMER, (event) => {
-            this.ui.updateTimer(event.detail);
-        })
-
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
             this.startGame(data);
-            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
         });
 
         socket.on(EVENTS.VIRUS_MOVED, (nodeid, cp) => {
-            this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
+            this.gameState.getVirus().moveTo(this.gameBoard.getNode(nodeid));
             
-            if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
-                    // Virus has won
-                    this.ui.showWinScreen(true);
-                    //Ljud för vinst/förlust
-                    this.soundManager.playWinLose(true, this.isVirus); 
-                    return;
-                }
-
-            this.gameState.startTimer();
-            this.gameState.currentPlayer = cp;
-            this.ui.showCurrentPlayer(cp);
+            this.gameState.handleMove();
 
             if (!this.isVirus) {
                 this.antivirusTurn();
@@ -115,25 +111,10 @@ export class Game extends Phaser.Scene {
         });
 
         socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid, cp) => {
-            this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
-            this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
+            this.gameState.getAntiVirus().selectedNode = this.gameBoard.getNode(selectedid)
+            this.gameState.getAntiVirus().moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
 
-            const valid = this.gameBoard.virus.getValidMoves()
-
-            if (valid.length == 0) {
-                // Virus has lost
-                this.ui.showWinScreen(false);
-                //Ljud för vinst/förlust
-                this.soundManager.playWinLose(false, this.isVirus);
-                return;
-            }
-
-            // En rest från display av vems tur det är
-
-            this.gameState.startTimer();
-            this.gameState.currentPlayer = cp;
-            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
-            
+            this.gameState.handleMove();
 
             if (this.isVirus) {
                 this.virusTurn();
@@ -153,9 +134,9 @@ export class Game extends Phaser.Scene {
 
             this.inputHandler.removeAllInput();
 
-            this.gameState.startTimer();
-            this.gameState.currentPlayer = cp;
-            this.ui.showCurrentPlayer(cp);
+            if (cp !== this.gameState.currentPlayer) {
+                this.gameState.changeTurn()
+            }
 
             if (cp === 0 && this.isVirus) {
                 this.virusTurn();
@@ -186,12 +167,13 @@ export class Game extends Phaser.Scene {
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
         this.ui.showGameStart(this.isVirus,this.isSpectator);
-        
-        //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
 
         this.started = true; 
         
         this.gameDrawer.draw(); 
+
+        // Start timer
+        this.gameState.startTimer();
 
         if (this.isVirus) {
             this.virusTurn();
@@ -203,7 +185,7 @@ export class Game extends Phaser.Scene {
             return;
         }
         this.inputHandler.removeAllInput();
-        const valid = this.gameBoard.virus.getValidMoves()
+        const valid = this.gameState.getVirus().getValidMoves()
 
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
@@ -219,7 +201,7 @@ export class Game extends Phaser.Scene {
         if (this.isSpectator) {
             return;
         }
-        const av = this.gameBoard.antivirus;
+        const av = this.gameState.getAntiVirus();
         this.inputHandler.removeAllInput();
 
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
