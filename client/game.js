@@ -148,6 +148,8 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
 
             console.log("timed out reached");
+
+            this.inputHandler.removeAllInput();
             
             this.gameState.changeTurn();
             //this.ui.showCurrentPlayer(this.gameState.currentPlayer);

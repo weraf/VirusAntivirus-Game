@@ -49,7 +49,6 @@ export class GameServer extends EventEmitter {
         
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
-            console.log("We timed out")
             this.emitAll(EVENTS.TURN_TIMED_OUT, this.gameState.currentPlayer);
         });
         
