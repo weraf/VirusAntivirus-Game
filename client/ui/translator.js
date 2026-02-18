@@ -36,7 +36,10 @@ export class Translator {
             const placeholder = event.detail.placeholder;
             const value = event.detail.value;
             if (Translator.currentDictionary[value] !== undefined) {
-                event.target.setPlaceholder(placeholder,this.getText(value));
+                event.target.setPlaceholder(placeholder, Translator.getText(value));
+                // Save the "alias" so we can correctly update the string on language change
+                Translator.currentDictionary[placeholder] = Translator.getText(value);
+                Translator.dictionary[placeholder] = Translator.dictionary[value];
             }
         })
         instance.addEventListener(HtmlInstance.EVENTS.SHOWN,(event) => {
