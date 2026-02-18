@@ -82,15 +82,9 @@ export class GameUI {
                     this.queuePreference = QUEUE_PREFERENCE.VIRUS;
                 }
 
-                //const virussound = new Audio();
-                //virussound.src="../assets/virus.mp3"
-                //virussound.play();
             }
             
             this.mainmenu.antivirus.onclick = () => {     
-                // this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
-                // Visa antivirustexten
-                // this.mainmenu.setPlaceholder("description", "antivirusdescription")
                 if(this.mainmenu.antivirus.classList.contains("selected")) {
                     this.mainmenu.antivirus.classList.remove("selected");
                     this.mainmenu.setPlaceholder("description", "")
@@ -109,21 +103,13 @@ export class GameUI {
                 // this.mainmenu.virus.classList.remove("selected");
 
 
-            //    const antivirussound = new Audio();
-            //    antivirussound.src="../assets/antivirus.mp3"
-            //    antivirussound.play();
+
             }
 
             this.mainmenu.start.onclick = () => {
                 this.mainmenu.switchTo(this.queue)
                 this.socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
             }
-
-            //this.mainmenu.spectate.onclick = () => {
-            //    const spectatorsound = new Audio();
-            //    spectatorsound.src="../assets/spectate.mp3"
-            //    spectatorsound.play();
-            //}
 
             this.queue.abort.onclick = () => {
                 this.queue.switchTo(this.mainmenu)
