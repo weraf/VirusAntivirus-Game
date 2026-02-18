@@ -74,7 +74,7 @@ export class Game extends Phaser.Scene {
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
-        this.gameState = new GameState(this.gameBoard, 5000);
+        this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
 
