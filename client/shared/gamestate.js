@@ -3,7 +3,8 @@ export class GameState extends EventTarget {
 
     static EVENTS = {
         TIMED_OUT: "timed_out",
-        GAME_OVER: "game_over"
+        GAME_OVER: "game_over",
+        UPDATE_TIMER: "update_timer"
     }
 
     constructor(board, timerLength) {
@@ -14,6 +15,9 @@ export class GameState extends EventTarget {
         this.timerLength = timerLength; // ms
         this.timer = null;
         this.winner = null;
+        this.time = timerLength/1000; // hela sekunder
+        this.displayInterval = null;
+        this.timeLeft = this.timerLength / 1000; // i sekunder
 
     }
 
@@ -45,19 +49,44 @@ export class GameState extends EventTarget {
 
     // Startar en timer this.timerLength ms lång
     startTimer() {
-        this.timer = setTimeout(() => this.timedOut(), this.timerLength);    
+        clearTimeout(this.timer);
+        clearInterval(this.displayInterval);
+    
+        this.startTime = Date.now(); // viktigt att detta uppdateras
+        this.timeLeft = this.timerLength / 1000; // reset kvarvarande tid
+    
+        this.timer = setTimeout(() => this.timedOut(), this.timerLength);
+    
+        this.displayInterval = setInterval(() => this.updateTimerDisplay(), 1000);
+        this.updateTimerDisplay(); // första visningen direkt
+    }
+
+
+    updateTimerDisplay() {
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        const seconds = Math.max(0, Math.ceil(this.timeLeft - elapsed));
+    
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.UPDATE_TIMER, {
+            detail: seconds
+        }));
+    
+        if (seconds <= 0) {
+            clearInterval(this.displayInterval);
+        }
     }
 
     // Byter internt this.currentPlayer, clearar timer, startar ny timer
     changeTurn() {
         this.currentPlayer = this.currentPlayer === 0 ? 1 : 0;
-        clearTimeout(this.timer);
-        this.startTimer()
+        this.timeLeft = this.timerLength / 1000; // reset timer
+        this.startTimer();
     }
+    
 
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
-        this.dispatchEvent(new Event(GameState.EVENTS.TIMED_OUT))
+        this.changeTurn();
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
     }
 
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur
@@ -71,6 +100,7 @@ export class GameState extends EventTarget {
                 detail: this.winner
             }));
             clearTimeout(this.timer);
+            clearInterval(this.displayInterval)
             return;
         }
     }

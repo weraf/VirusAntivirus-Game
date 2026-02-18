@@ -28,6 +28,7 @@ export const EVENTS = {
     VIRUS_MOVED: "virus_moved", // a move has been made /& test
     ANTIVIRUS_MOVED: "antivirus_moved", //
     BUG_MOVED: "bug_moved",
+    GAME_START: "game_start", // event for starting timer on client side
 }
 
 export const QUEUE_PREFERENCE = {

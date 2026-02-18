@@ -45,6 +45,9 @@ export class GameServer extends EventEmitter {
         // Skicka initial state till båda spelarna
         this.sendGameStart();
 
+        this.gameState.startTimer(); //
+        
+
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
             this.emitAll(EVENTS.TURN_TIMED_OUT, this.gameState.currentPlayer);
         });
@@ -82,9 +85,10 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid);
-            this.sendBugUpdates();
             this.gameState.handleMove();
+            this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid, this.gameState.currentPlayer);
+            this.sendBugUpdates();
+
         });
 
         this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
@@ -96,10 +100,9 @@ export class GameServer extends EventEmitter {
                 this.virusP.emit(EVENTS.INVALID_MOVE);
                 return;
             }
-
-            this.emitAll(EVENTS.VIRUS_MOVED, nodeid);
+            this.gameState.handleMove();   // Will this cause problems? I do not know
+            this.emitAll(EVENTS.VIRUS_MOVED, nodeid, this.gameState.currentPlayer);
             this.sendBugUpdates(); // This needs to be after virus moved
-            this.gameState.handleMove();
         });
     }
 
@@ -162,6 +165,8 @@ export class GameServer extends EventEmitter {
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
+        this.virusP.emit(EVENTS.GAME_START)
+        this.antivirusP.emit(EVENTS.GAME_START)
     }
     
 }
