@@ -93,7 +93,7 @@ export class Game extends Phaser.Scene {
             this.startGame(data);
         });
 
-        socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
+        socket.on(EVENTS.VIRUS_MOVED, (nodeid, cp) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
@@ -104,20 +104,16 @@ export class Game extends Phaser.Scene {
                     return;
                 }
 
-            this.gameState.changeTurn();
-//            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp;
+            this.ui.showCurrentPlayer(cp);
 
             if (!this.isVirus) {
                 this.antivirusTurn();
             }
-
-            // en rest från display av vems tur det är
-
-
-
         });
 
-        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
+        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid, cp) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
             this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
 
@@ -133,8 +129,9 @@ export class Game extends Phaser.Scene {
 
             // En rest från display av vems tur det är
 
-            this.gameState.changeTurn();
-//            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp;
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
             if (this.isVirus) {
@@ -156,8 +153,10 @@ export class Game extends Phaser.Scene {
             this.inputHandler.removeAllInput();
             
             // en rest från när vems tur det var (inkorrekt) displayades
-            // this.ui.showCurrentPlayer(cp);
-            this.gameState.changeTurn(); // ändrar lokalt för att resetta timer och sånt
+
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp; // ändrar lokalt för att resetta timer och sånt
+            this.ui.showCurrentPlayer(cp);
 
                     
 
