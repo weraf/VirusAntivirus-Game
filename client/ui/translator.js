@@ -20,7 +20,6 @@ export class Translator {
         manager.addEventListener(HtmlManager.EVENTS.INSTANCE_CREATED, (event) => {
             Translator.onNewInstanceCreated(event.detail.instance)
         })
-        console.log("connected!");
     }
 
     /**

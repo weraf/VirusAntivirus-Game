@@ -4,7 +4,8 @@ export class GameState extends EventTarget {
     static EVENTS = {
         TIMED_OUT: "timed_out",
         GAME_OVER: "game_over",
-        UPDATE_TIMER: "update_timer"
+        UPDATE_TIMER: "update_timer",
+        TURN_CHANGED: "turn_changed",
     }
 
     constructor(board, timerLength) {
@@ -77,7 +78,13 @@ export class GameState extends EventTarget {
 
     // Byter internt this.currentPlayer, clearar timer, startar ny timer
     changeTurn() {
+        if (this.gameOver) {
+            return;
+        }
         this.currentPlayer = this.currentPlayer === 0 ? 1 : 0;
+        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TURN_CHANGED, {
+            detail: this.currentPlayer
+        }));
         this.timeLeft = this.timerLength / 1000; // reset timer
         this.startTimer();
     }
@@ -89,6 +96,17 @@ export class GameState extends EventTarget {
         this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
     }
 
+    stopTimer() {
+        clearTimeout(this.timer);
+        clearInterval(this.displayInterval)
+    }
+
+    // This is called directly from game when socket recieves a game over from server
+    stopGame() { 
+        this.stopTimer();
+        this.gameOver = true;
+    }
+
     // När ett drag gjorts kollar vi om någon vunnit, om någon vunnit dispatchar vi event, annars byter vi tur
     handleMove() {
         // TODO: kanske borde kolla vinst innan vi skickar update_board eventet, så att clienten inte uppdaterar brädet i onödan efter ett vinnande drag?
@@ -97,10 +115,9 @@ export class GameState extends EventTarget {
 
         if (this.gameOver) {
             this.dispatchEvent(new CustomEvent(GameState.EVENTS.GAME_OVER, {
-                detail: this.winner
+                detail: this.winner === 0 // If virus won
             }));
-            clearTimeout(this.timer);
-            clearInterval(this.displayInterval)
+            this.stopTimer();
             return;
         }
     }
