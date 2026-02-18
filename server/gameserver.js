@@ -5,7 +5,10 @@ import { Board } from "../client/shared/board.js";
 import EventEmitter from "node:events";
 import { BoardCreator } from "../client/shared/boardCreator.js";
 
-import mapData from "../client/assets/map1.json" with { type: 'json' };
+//---- HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
+//import mapData from "../client/assets/map1.json" with { type: 'json' }; // 33 Nodes: 3 Servers!
+import mapData from "../client/assets/map2.json" with { type: 'json' }; // 44 Nodes: 4 Servers!
+
 import { Bugs } from "../client/shared/bugs.js";
 
 // Class for handling the flow and events of a match

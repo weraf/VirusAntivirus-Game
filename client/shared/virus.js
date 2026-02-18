@@ -104,20 +104,24 @@ export class Virus extends EventTarget {
         
         const validNodes = board.getAllNodes().filter(isStartNodeValid);
         while (body.length < amount) {
-            let possibleNodes = []
-            if (body.length == 0) {
-                // Find random start node
-                possibleNodes = validNodes;
+            if (body.length === 0) {
+                // choose random start node
+                let startNode = validNodes[Math.floor(Math.random() * validNodes.length)];
+                body.push(startNode);
             } else {
-                const currentNode = body[0] // First node is head
-                possibleNodes = currentNode.neighbors.filter(isStartNodeValid)
+                // find neighbour to chosen node
+                let head = body[0];
+                let possibleNeighbors = head.neighbors.filter(n => 
+                    !body.includes(n) && board.isNodeEmpty(n) && !n.isServer()
+                );
+    
+                if (possibleNeighbors.length > 0) {
+                    body.unshift(possibleNeighbors[Math.floor(Math.random() * possibleNeighbors.length)]);
+                } else {
+                    // if stuck, do again from start
+                    body = [];
+                }
             }
-            if (possibleNodes.length == 0) {
-                // No options left. Restart
-                body = [];
-                continue;
-            }
-            body.unshift(possibleNodes[Math.floor(Math.random()*possibleNodes.length)])
         }
         return body;
     }
