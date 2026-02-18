@@ -22,10 +22,9 @@ export class Game extends Phaser.Scene {
     preload() {
         this.load.image('bg', './assets/bdr.png')
         
-        // Första kartan
-        //this.load.json('minKarta', './assets/map1.json');
-        this.load.json('minKarta', './assets/map2.json');
-        // Kan ändras när man lägger in fler kartor!
+        // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
+        this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!
+        //this.load.json('minKarta', './assets/map2.json'); // 44 Nodes: 4 Servers!
 
         //ladda in ljud
         this.load.audio('click', './assets/Click.wav');
