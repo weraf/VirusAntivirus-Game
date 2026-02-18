@@ -59,9 +59,17 @@ html, button {
     min-width: 110px;
 }
 
-#description {
+.rules {
+    display: grid;
     text-align: center;
+    margin-left: 135px;
+    margin-right: 135px;
+}
+
+#description {
+    text-align: left;
     min-height: 100px;
+    white-space: pre-line;
 }
 
 .undertext {

@@ -53,12 +53,16 @@
     "en": "The Antivirus won!"
   },
   "virusdescription": {
-    "sv": "Virus 🤑🤑🤑",
-    "en": "Virus 👍👍👍"
+    "sv": "Virusets spelpjäs består av en kropp som upptar flera noder samtidigt i en sammanhängande koppling. Spelaren utför ett drag genom att välja en ledig, angränsande nod att flytta till där kroppen flyttar sedan längs med rörelseriktningen. Möjliga drag indikeras av gröna cirklar.\nTurordningen går därefter över till motståndaren.\n \nVirusets syfte är att angripa kartans servrar. Målet för viruset är att skapa en sammanhängande koppling mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste viruset undvika att bli isolerad på kartan",
+    "en": "The virus piece consists of a body that covers several nodes at the same time in a continuous link. The player makes a move by selecting an adjacent node to move to, where the body moves along the direction of the movement. Possible moves are indicated by green circles.\nThe turn is then over and the opponent makes their move.\n \nThe virus goal is to attack the servers on the map. The goal is to establish a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus cannot make any valid moves, so the virus have to prevent itself from becoming isolated on the map."
   },
   "antivirusdescription": {
-    "sv": "Antivirus 😂😂😂",
-    "en": "Antivirus 😎😎😎"
+    "sv": "Antiviruset har två spelpjäser som placeras på två olika noder angränsande till kartans servrar.\n Antiviruset utför ett drag genom att:\n1. Välja en av spelpjäserna som ska flyttas\n2. Välja en angränsande nod för att flytta spelpjäsen \nTurordningen går därefter över till motståndaren.\n \nAntivirusets syfte är att försvara kartans servrar från virusets angrepp. Målet är att förhindra viruset från att skapa en sammanhängande länk mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste antiviruset sträva efter att isolera viruset på kartan.",    
+    "en": "The antivirus has two pieces that are placed on two different nodes adjacent to the servers on the map. \nThe antivirus makes a move by: \n1. Selecting one of the pieces to be moved. \n2. Select an adjacent node to move the piece. \nThe turn is then over and the opponent makes their move\n \nThe antivirus goal is to defend the servers from the virus attack. The goal is to prevent the virus from creating a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus is unable to make any valid moves, so the antivirus has to work toward isolating the virus on the map."
+  },
+  "prules": {
+    "sv": "Regler",
+    "en": "Rules"
   }
 
 }

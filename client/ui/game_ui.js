@@ -41,35 +41,72 @@ export class GameUI {
             
             this.htmlManager.showOnly(this.mainmenu);
 
-
-            //const virussound = new Audio();
-            //virussound.src="../assets/virus.mp3"
-            
-            //const antivirussound = new Audio();
-            //antivirussound.src="../assets/antivirus.mp3"
             // Blank description text från början
             this.mainmenu.setPlaceholder("description", "");
 
+            this.mainmenu.rules.onclick = () => {
+                this.activeRules = !this.activeRules
+                if (!this.activeRules) {
+                        this.mainmenu.setPlaceholder("description", "");
+                        return;
+                } 
+                if (this.queuePreference === QUEUE_PREFERENCE.VIRUS) {
+                    this.mainmenu.setPlaceholder("description", "virusdescription");
+                    return;
+                }
+                if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
+                    this.mainmenu.setPlaceholder("description", "antivirusdescription");
+                    return;
+                }
+            }
+
+
             this.mainmenu.virus.onclick = () => {
-                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                // this.queuePreference = QUEUE_PREFERENCE.VIRUS;
                 // Visa virustexten
-                this.mainmenu.setPlaceholder("description", "virusdescription")
+                // this.mainmenu.setPlaceholder("description", "virusdescription")
                 // Visa en linje på den markerade knappen
-                this.mainmenu.virus.classList.add("selected");
-                this.mainmenu.antivirus.classList.remove("selected");
+                // this.mainmenu.virus.classList.add("selected");
+                // this.mainmenu.antivirus.classList.remove("selected");
+                if(this.mainmenu.virus.classList.contains("selected")) {
+                    this.mainmenu.virus.classList.remove("selected");
+                    this.mainmenu.setPlaceholder("description", "")
+                    this.mainmenu.rules.classList.add("hidden");
+                    this.queuePreference = QUEUE_PREFERENCE.ANY;
+                } else {
+                    this.activeRules = false;
+                    this.mainmenu.virus.classList.add("selected");
+                    this.mainmenu.antivirus.classList.remove("selected");
+                    this.mainmenu.setPlaceholder("description", "")
+                    this.mainmenu.rules.classList.remove("hidden");
+                    this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                }
 
                 //const virussound = new Audio();
                 //virussound.src="../assets/virus.mp3"
                 //virussound.play();
             }
             
-            this.mainmenu.antivirus.onclick = () => {
-                this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+            this.mainmenu.antivirus.onclick = () => {     
+                // this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
                 // Visa antivirustexten
-                this.mainmenu.setPlaceholder("description", "antivirusdescription")
+                // this.mainmenu.setPlaceholder("description", "antivirusdescription")
+                if(this.mainmenu.antivirus.classList.contains("selected")) {
+                    this.mainmenu.antivirus.classList.remove("selected");
+                    this.mainmenu.setPlaceholder("description", "")
+                    this.mainmenu.rules.classList.add("hidden");
+                    this.queuePreference = QUEUE_PREFERENCE.ANY;
+                } else {
+                    this.activeRules = false;
+                    this.mainmenu.antivirus.classList.add("selected");
+                    this.mainmenu.virus.classList.remove("selected");
+                    this.mainmenu.setPlaceholder("description", "")
+                    this.mainmenu.rules.classList.remove("hidden");
+                    this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+                }
                 // Visa en linje på den markerade knappen
-                this.mainmenu.antivirus.classList.add("selected");
-                this.mainmenu.virus.classList.remove("selected");
+                // this.mainmenu.antivirus.classList.add("selected");
+                // this.mainmenu.virus.classList.remove("selected");
 
 
             //    const antivirussound = new Audio();
