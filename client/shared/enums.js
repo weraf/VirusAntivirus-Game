@@ -11,6 +11,8 @@ export const ACTIONS = {
     TEST_ACTION: "test_action", //
     VIRUS_MOVE: "virus_move", // test virus make move
     ANTIVIRUS_MOVE: "antivirus_move", // antivirus move
+    SPECTATE_GAME: "spectate_game", // When client wants to spectate a game
+    LEAVE_GAME: "leave_game", // When a player/spectator want to leave
 } 
 
 /**
@@ -25,6 +27,8 @@ export const EVENTS = {
     TURN_TIMED_OUT: "turn_timed_out", // The current player took too long to make a move, their turn is over. Arg 1: player: int (0 for virus, 1 for antivirus)
     VIRUS_MOVED: "virus_moved", // a move has been made /& test
     ANTIVIRUS_MOVED: "antivirus_moved", //
+    BUG_MOVED: "bug_moved",
+    GAME_START: "game_start", // event for starting timer on client side
 }
 
 export const QUEUE_PREFERENCE = {

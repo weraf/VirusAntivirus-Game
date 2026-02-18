@@ -63,6 +63,9 @@
   "prules": {
     "sv": "Regler",
     "en": "Rules"
+  },
+  "leave": {
+    "sv": "Lämna",
+    "en": "Leave"
   }
-
 }

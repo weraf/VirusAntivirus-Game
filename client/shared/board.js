@@ -24,10 +24,7 @@ export class Board extends EventTarget {
         }
 
         this.virus = new Virus(this,startNodes);
-        // Make bugs respawn a bug that got eaten
-        this.virus.addEventListener(Virus.EVENTS.BUG_EATEN,(event) => {
-            this.bugs.respawnBugAtNode(event.detail.node);
-        })
+        
     }
 
     spawnStartBugs(startNodes = []) {
@@ -58,14 +55,23 @@ export class Board extends EventTarget {
         }
     
         this.antivirus = new Antivirus(this, startNodes);
-        // Make bugs that antivirus steps on move
+        
+    }
+
+    // Running this makes bugs react to being stepped on.
+    // Only runs on server, clients gets bug move events direct from the server instead
+    connectBugListeners() {
+        // Antivirus: Move bugs that get stepped on
         this.antivirus.addEventListener(Antivirus.EVENTS.MOVED,(event) => {
             const movedTo = event.detail.node;
             if (this.bugs.hasNode(movedTo)) {
                 this.bugs.respawnBugAtNode(movedTo);
             }
         })
-
+        // Virus: Make bugs respawn a bug that got eaten
+        this.virus.addEventListener(Virus.EVENTS.BUG_EATEN,(event) => {
+            this.bugs.respawnBugAtNode(event.detail.node);
+        })
     }
 
     addNode(id, x, y, type) {

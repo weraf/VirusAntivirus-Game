@@ -11,6 +11,8 @@ import { GameState } from "./shared/gamestate.js"
 import InputHandler from "./inputhandler.js"
 import { GameUI } from "./ui/game_ui.js";
 
+import { SoundManager } from "./soundManager.js";
+
 const socket = io();
 
 // Game klassen. Exporteras för att kunna använda som type-hint
@@ -23,6 +25,14 @@ export class Game extends Phaser.Scene {
         // Första kartan
         this.load.json('minKarta', './assets/map1.json');
         // Kan ändras när man lägger in fler kartor!
+
+        //ladda in ljud
+        this.load.audio('click', './assets/Click.wav');
+        this.load.audio('AVmove', './assets/AVmove.wav');
+        this.load.audio('Vmove', './assets/Vmove.wav');
+        this.load.audio('bugMove', './assets/bugMove.wav');
+        this.load.audio('lose', './assets/lose.wav');
+        this.load.audio('win', './assets/win.wav');
     }
     
     onResize() {
@@ -57,39 +67,54 @@ export class Game extends Phaser.Scene {
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
+        // ljud
+        this.soundManager = new SoundManager(this, this.gameBoard);
+
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
-        
-        this.gameState = new GameState(this.gameBoard, 2000);
-        this.queuePreference = QUEUE_PREFERENCE.ANY;
-        this.ui = new GameUI(document.getElementById("ui"),socket);
 
-        socket.on(EVENTS.GAME_FOUND, (isVirus) => {  
-            this.isVirus = isVirus;
-            this.startGame(isVirus);
-            
+        this.gameState = new GameState(this.gameBoard, 20000);
+        this.queuePreference = QUEUE_PREFERENCE.ANY;
+        this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+
+        socket.on(EVENTS.GAME_START, () => {
+            this.gameState.startTimer();
+        })
+
+        this.gameState.addEventListener(GameState.EVENTS.UPDATE_TIMER, (event) => {
+            this.ui.updateTimer(event.detail);
+        })
+
+
+        socket.on(EVENTS.GAME_FOUND, (data) => {  
+            this.isVirus = data.isVirus;
+            this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+            this.startGame(data);
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
         });
 
-        
-
-        
-        
-        socket.on(EVENTS.VIRUS_MOVED, (nodeid) => {
+        socket.on(EVENTS.VIRUS_MOVED, (nodeid, cp) => {
             this.gameBoard.virus.moveTo(this.gameBoard.getNode(nodeid));
             
             if (this.gameBoard.virus.getCoveredServerCount() >= 2) {
                     // Virus has won
                     this.ui.showWinScreen(true);
+                    //Ljud för vinst/förlust
+                    this.soundManager.playWinLose(true, this.isVirus); 
                     return;
                 }
+
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp;
+            this.ui.showCurrentPlayer(cp);
+
             if (!this.isVirus) {
                 this.antivirusTurn();
             }
+        });
 
-        })
-
-        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid) => {
+        socket.on(EVENTS.ANTIVIRUS_MOVED, (nodeid, selectedid, cp) => {
             this.gameBoard.antivirus.selectedNode = this.gameBoard.getNode(selectedid)
             this.gameBoard.antivirus.moveTo(this.gameBoard.getNode(selectedid), this.gameBoard.getNode(nodeid))
 
@@ -98,58 +123,112 @@ export class Game extends Phaser.Scene {
             if (valid.length == 0) {
                 // Virus has lost
                 this.ui.showWinScreen(false);
+                //Ljud för vinst/förlust
+                this.soundManager.playWinLose(false, this.isVirus);
                 return;
             }
+
+            // En rest från display av vems tur det är
+
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp;
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+            
 
             if (this.isVirus) {
                 this.virusTurn();
             }
             
             
-        })
+        });
 
+        socket.on(EVENTS.BUG_MOVED, (fromId, toId) => {
+            const bugs = this.gameBoard.bugs;
+            const fromNode = this.gameBoard.getNode(fromId);
+            const toNode = this.gameBoard.getNode(toId);
+            bugs.respawnBugAtNode(fromNode,toNode);
+        });
+
+        socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
+
+            this.inputHandler.removeAllInput();
+
+            this.gameState.startTimer();
+            this.gameState.currentPlayer = cp;
+            this.ui.showCurrentPlayer(cp);
+
+            if (cp === 0 && this.isVirus) {
+                this.virusTurn();
+            } else if (cp === 1 && !this.isVirus) {
+                this.antivirusTurn();
+            }
+            
+        })
     }
 
-    startGame(isVirus) {
-        // Lägg till en ormen
-        this.gameBoard.spawnVirus([this.gameBoard.getNode("n4"),this.gameBoard.getNode("n0"),this.gameBoard.getNode("n2")]);
-        this.gameBoard.spawnStartBugs([this.gameBoard.getNode("n28"),this.gameBoard.getNode("n20")]);
-        // lägg ut antivirus
-        this.gameBoard.spawnAntivirus([this.gameBoard.getNode("n21"),this.gameBoard.getNode("n30")]);
+    startGame(data) {
+        this.gameBoard.spawnVirus(
+            data.virusNodes.map(id => this.gameBoard.getNode(id))
+        );
 
-        // Game has started, now we can add gamedrawer
+        this.gameBoard.spawnAntivirus(
+            data.antivirusNodes.map(id => this.gameBoard.getNode(id))
+        );
+
+        this.gameBoard.spawnStartBugs(
+            data.bugNodes.map(id => this.gameBoard.getNode(id))
+        );
+        // Starta Ljud
+        this.soundManager.initGameListeners();
+
+        // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
-        this.ui.showGameStart(isVirus);
-        this.started = true;
+        this.ui.showGameStart(this.isVirus,this.isSpectator);
+        
+        //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
+
+        this.started = true; 
         
         this.gameDrawer.draw(); 
 
-        if (isVirus) {
+        if (this.isVirus) {
             this.virusTurn();
         }
     }
 
-    // Spelare gör ett drag, skickar till GameServer, GameServer skickar tillbaka till båda spelarna
-
     virusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         this.inputHandler.removeAllInput();
         const valid = this.gameBoard.virus.getValidMoves()
 
         for (const node of valid) {
             this.inputHandler.addInput(node, (clicked) => {
+
+
                 socket.emit(ACTIONS.VIRUS_MOVE, clicked.id)
                 this.inputHandler.removeAllInput();
+                
             })
         }
     }
     antivirusTurn() {
+        if (this.isSpectator) {
+            return;
+        }
         const av = this.gameBoard.antivirus;
         this.inputHandler.removeAllInput();
 
         av.getNodesToEnableInput(this.gameBoard).forEach(node => {
             this.inputHandler.addInput(node, (clicked) => {
+
                 if (av.hasNode(clicked)) {
+                    
+                    //klick-ljud
+                    this.soundManager.play('click');
+                    
                     av.selectAVNode(clicked);
                     this.gameDrawer.antivirusDrawer.update() // Update so we can see that it's selected
                     this.antivirusTurn(); 

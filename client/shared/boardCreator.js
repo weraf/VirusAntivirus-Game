@@ -26,7 +26,5 @@ export class BoardCreator {
         jsonData.edges.forEach(edge => {
             boardInstance.addEdge(edge.from, edge.to);
         });
-
-        console.log(`Har laddat ${jsonData.nodes.length} noder!`);
     }
 }
