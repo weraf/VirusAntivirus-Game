@@ -91,6 +91,7 @@ export class Game extends Phaser.Scene {
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
             this.startGame(data);
+            this.ui.showCurrentPlayer(this.gameState.currentPlayer);
         });
 
         socket.on(EVENTS.VIRUS_MOVED, (nodeid, cp) => {
@@ -151,18 +152,14 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
 
             this.inputHandler.removeAllInput();
-            
-            // en rest från när vems tur det var (inkorrekt) displayades
 
             this.gameState.startTimer();
-            this.gameState.currentPlayer = cp; // ändrar lokalt för att resetta timer och sånt
+            this.gameState.currentPlayer = cp;
             this.ui.showCurrentPlayer(cp);
 
-                    
-
-            if (cp === 0) {
+            if (cp === 0 && this.isVirus) {
                 this.virusTurn();
-            } else {
+            } else if (cp === 1 && !this.isVirus) {
                 this.antivirusTurn();
             }
             
