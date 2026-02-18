@@ -108,7 +108,9 @@ export class Game extends Phaser.Scene {
                 this.antivirusTurn();
             }
 
-            this.gameState.changeTurn();
+            // en rest från display av vems tur det är
+
+            //this.gameState.changeTurn();
             //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
 
         });
@@ -127,7 +129,9 @@ export class Game extends Phaser.Scene {
                 return;
             }
 
-            this.gameState.changeTurn();
+            // En rest från display av vems tur det är
+
+            //this.gameState.changeTurn();
             //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
@@ -147,11 +151,13 @@ export class Game extends Phaser.Scene {
 
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
 
-            console.log("timed out reached");
+            console.log("timed out");
 
             this.inputHandler.removeAllInput();
             
-            this.gameState.changeTurn();
+            // en rest från när vems tur det var (inkorrekt) displayades
+
+            //this.gameState.changeTurn();
             //this.ui.showCurrentPlayer(this.gameState.currentPlayer);
             
 
