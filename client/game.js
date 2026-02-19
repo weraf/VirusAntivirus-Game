@@ -22,8 +22,9 @@ export class Game extends Phaser.Scene {
     preload() {
         this.load.image('bg', './assets/bdr.png')
         
-        // Första kartan
-        this.load.json('minKarta', './assets/map1.json');
+        // ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
+        this.load.json('minKarta', './assets/map1.json'); // 33 noder: 3 servrar
+        //this.load.json('minKarta', './assets/map2.json'); // 44 noder: 4 servrar
         // Kan ändras när man lägger in fler kartor!
 
         //ladda in ljud
@@ -148,6 +149,7 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
+
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
         );
@@ -159,6 +161,7 @@ export class Game extends Phaser.Scene {
         this.gameBoard.spawnStartBugs(
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
+        
         // Starta Ljud
         this.soundManager.initGameListeners();
 
