@@ -75,7 +75,7 @@ html, button {
 #description {
     text-align: left;
     min-height: 100px;
-    white-space: pre-line;
+    white-space: pre-line;  
 }
 
 .undertext {
@@ -127,6 +127,11 @@ html, button {
 
 .winpanel > button {
     font-size: larger;
+}
+
+#rulesbutton {
+    color: black;
+    width: 100px;
 }
 
 .red {

@@ -118,5 +118,38 @@
     "no": "",
     "fi": "",
     "zh": ""
+  },
+  "displayrules": {
+    "sv": "Regler",
+    "en": "Rules",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "exitrules": {
+    "sv": "Gå tillbaka",
+    "en": "Go back",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "ingamerules": {
+    "sv": "Reglerna på svenska",
+    "en": "The rules in english",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "ingamerulebutton": {
+    "sv": "Regler",
+    "en": "The Rules",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   }
+  
 }

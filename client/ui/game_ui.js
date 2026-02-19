@@ -52,6 +52,7 @@ export class GameUI {
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
         this.winscreen.leavebutton.onclick = this.leaveGame.bind(this);
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
+        this.rules.hide()
     }
 
     showCurrentPlayer(current) {
@@ -74,14 +75,18 @@ export class GameUI {
         }
         this.showCurrentPlayer(0);
         this.queue.switchTo(this.player_indicator);
+        this.rulesbutton.show();
+
     }
 
     setup() {
-        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html"]).then(() => {
+        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html", "./ui/rules.html", "./ui/rulesbutton.html"]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.winscreen = this.htmlManager.create("winscreen");
+            this.rules = this.htmlManager.create("rules");
+            this.rulesbutton = this.htmlManager.create("rulesbutton");
             
             this.htmlManager.showOnly(this.mainmenu);
 
@@ -178,6 +183,22 @@ export class GameUI {
                     Translator.setLanguage("en");
                 }
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
+            }
+
+            this.rulesbutton.rulesbutton.onclick = () => {
+                this.soundManager.play('click'); // ljud 🤑
+                this.rules.show();
+                if (this.queuePreference === QUEUE_PREFERENCE.VIRUS) {
+                    this.rules.setPlaceholder("description", "virusdescription");
+                }
+                else if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
+                    this.rules.setPlaceholder("description", "antivirusdescription");
+                }
+            }
+
+            this.rules.norulesbutton.onclick = () => {
+                this.soundManager.play('click'); // ljud 🤑
+                this.rules.hide();
             }
 
             
