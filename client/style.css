@@ -15,6 +15,7 @@ button:hover {
     padding: 1em;
     background-color: darkgray;
     border: 2px solid gray;
+
 }
 
 .main {
@@ -78,6 +79,10 @@ html, button {
     white-space: pre-line;  
 }
 
+.description {
+    max-width: 500px;
+}
+
 .undertext {
     color:aqua;
     text-align: center;
@@ -86,6 +91,11 @@ html, button {
 
 .selected {
     text-decoration: underline;
+}
+
+.tutorialimage {
+    width: 500px;
+    height: 500px;
 }
 
 .lowest {
@@ -140,4 +150,14 @@ html, button {
 
 .blue {
     color: #0000ff;
+}
+
+.transparent {
+    background-color: rgba(48, 56, 54, 0.65);
+    padding: 1em;
+    border: 2px;
+}
+
+.tutorialimage {
+    opacity: 0.65;
 }

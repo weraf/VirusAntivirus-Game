@@ -75,7 +75,7 @@ export class Game extends Phaser.Scene {
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
-        this.gameState = new GameState(this.gameBoard, 20000);
+        this.gameState = new GameState(this.gameBoard, 4000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
         this.ui.connectToGameState(this.gameState);
@@ -83,7 +83,9 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
             // Play the sound effect
 
-            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            this.soundManager.playWinLose(virusWon, this.isVirus);
+            this.gameState.stopTimer();
+            this.ui.showWinScreen(virusWon);
 
             if (!disconnect) {
                 // If this is not a disconnect, we will automatically notice game over from our local gamestate
