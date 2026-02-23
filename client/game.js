@@ -20,7 +20,8 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
-        this.load.image('bg', './assets/bdr.png')
+        this.load.image('bg', './assets/backdrop.png')
+        this.load.image('shield', './assets/shield.png')
         
         // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
         this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!
@@ -38,15 +39,13 @@ export class Game extends Phaser.Scene {
     onResize() {
         if (this.gameDrawer) {
             this.gameDrawer.onResize();
-        } else {
-            // If we got no gameDrawer, normalize zoom and center camera on 0,0
-            // This keeps the background image scale fixed
-            let zoom = Math.max(this.scale.height / 500, this.scale.width / 2000);
-            this.cameras.main.setZoom(zoom);
-            this.cameras.main.centerOn(0,0);
-            // Move the background to the center of the camera    
-            
         }
+        const cameraSizeX = this.cameras.main.width/this.cameras.main.zoomX;
+        const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
+        // Scale the background so it fits the camera area
+        this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
+        this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
     }
 
     create() {
@@ -178,6 +177,8 @@ export class Game extends Phaser.Scene {
         if (this.isVirus) {
             this.virusTurn();
         }
+
+        this.onResize();
     }
 
     virusTurn() {
@@ -222,6 +223,13 @@ export class Game extends Phaser.Scene {
                 }
             });
         });
+    }
+
+    update(time,delta) {
+        if (this.gameDrawer) {
+            // Animate the input circles
+            this.gameDrawer.inputDrawer.update();
+        }
     }
     
     

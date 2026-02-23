@@ -6,6 +6,14 @@ import InputHandler from "./inputhandler.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
 
+const EDGE_COLOR = 0x75a5a9;
+const NODE_COLOR = 0xe5e5e7;
+
+const RED = 0xff1060;
+const GREEN = 0x10ff80;
+
+const BLUE = 0x0020ef;
+
 export class GameDrawer {
     /**
      * @param {Phaser.Scene} scene 
@@ -59,48 +67,43 @@ export class GameDrawer {
         const av = this.board.antivirus;
     
         for (const node of this.board.getAllNodes()) {
-            let color = 0xe5e5e5; 
-            
-            // Kolla om det är en server
-            if (node.type === 'server') {
-                color = 0x1a1a1a;
-            }
-    
-            this.graphics.fillStyle(color, 1);
+            this.graphics.fillStyle(NODE_COLOR, 1);
             
             // Nod grafik
             if (node.isServer()) {
                 // Server grafik
+                this.graphics.fillStyle(0x191c26, 1);
                 const width = 38;
                 const height = 50;
                 const cornerRadius = 5; 
                 const x = node.x - width / 2;
                 const y = node.y - height / 2;
-                this.graphics.lineStyle(2, 0xcccccc, 1); 
+                this.graphics.lineStyle(3, EDGE_COLOR, 1); 
                 this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, cornerRadius);
 
                 this.graphics.fillRoundedRect(x, y, width, height, cornerRadius);
 
-                this.graphics.lineStyle(1, 0x333333, 0.8);
+                this.graphics.lineStyle(1, 0x403a52, 0.8);
                 this.graphics.lineBetween(x + 5, y + height * 0.4, x + width - 5, y + height * 0.4);
                 this.graphics.lineBetween(x + 5, y + height * 0.7, x + width - 5, y + height * 0.7);
 
                 // server lampor (Röd/Grön)
-                this.graphics.fillStyle(0x00ff00, 1);
+                this.graphics.fillStyle(GREEN, 1);
                 this.graphics.fillCircle(x + 8, y + 8, 3);
-                this.graphics.fillStyle(0xff0000, 1);
+                this.graphics.fillStyle(RED, 1);
                 this.graphics.fillCircle(x + 16, y + 8, 3);
 
-                this.graphics.fillStyle(color, 1);
             } else {
                 // Vanlig nod
+                this.graphics.lineStyle(3, EDGE_COLOR, 1); 
                 this.graphics.fillCircle(node.x, node.y, 18);
+                this.graphics.strokeCircle(node.x, node.y, 18);
             }
         }
     }
     
     drawEdges() {
-        this.graphics.lineStyle(3, 0xffffff, 0.3); 
+        this.graphics.lineStyle(3, EDGE_COLOR, 0.4); 
         for (const node of this.board.getAllNodes()) {
             for (const neighbor of node.neighbors) {
                 if (node.id < neighbor.id) {
@@ -196,9 +199,9 @@ class BugsDrawer {
             if (fromNode === toNode) {
                 rot = 0; // No movement, don't rotate
             }
-            this.graphics.fillStyle(0xcc10dd);
+            this.graphics.fillStyle(0x8f1020);
             this.drawRotatedSquare(x,y,11,rot);
-            this.graphics.fillStyle(0xee20ee);
+            this.graphics.fillStyle(RED);
             this.drawRotatedSquare(x,y,12,Math.PI/4+rot);
 
         });
@@ -243,7 +246,7 @@ class VirusDrawer {
     renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
         let HEAD_RADIUS = 14;
         let LINE_RADIUS = 10;
-        const BODY_COLOR = 0xff0030;
+        const BODY_COLOR = RED;
 
         if (growAnim) {
             HEAD_RADIUS += (1-progress)*6;
@@ -323,7 +326,7 @@ class AntivirusDrawer {
         this.scene = scene;
         this.antivirus = antivirus;
         this.graphics = this.scene.add.graphics();
-        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        this.displayNodes = this.antivirus.nodes.map(node => (this.scene.add.image(node.x,node.y,"shield").setScale(0.25)));
         
         this.animationProgress = 1.0;
         this.tween = null;
@@ -332,7 +335,12 @@ class AntivirusDrawer {
 
     update() {
         if (this.tween && this.tween.isPlaying()) return;
-        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        
+        this.antivirus.nodes.forEach((node, i) => {
+            this.displayNodes[i].x = node.x;
+            this.displayNodes[i].y = node.y;
+        })
+
         this.draw();
     }
 
@@ -366,28 +374,29 @@ class AntivirusDrawer {
     draw() {
         this.graphics.clear();
         this.displayNodes.forEach((pos, index) => {
+            return;
             const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
             
             // Yttre ring
-            this.graphics.lineStyle(2, 0x00ffff, 0.5);
+            this.graphics.lineStyle(2, EDGE_COLOR, 0.5);
             this.graphics.strokeCircle(pos.x, pos.y, 28);
 
             //Huvudcirkeln
-            const mainColor = isSelected ? 0x0077ff : 0x0000ff;
+            const mainColor = isSelected ? 0x0077ff : BLUE;
             this.graphics.lineStyle(4, mainColor, 1);
-            this.graphics.strokeCircle(pos.x, pos.y, 22);
+            this.graphics.strokeCircle(pos.x, pos.y, 21);
 
 			this.graphics.lineStyle(2, mainColor, 0.8);
         
-			this.graphics.lineStyle(3, 0x000099, 1); // Vit för max synlighet
-        
+			this.graphics.lineStyle(3, BLUE, 1); // Vit för max synlighet
+            
 			// Vertikal streck
 			this.graphics.lineBetween(pos.x, pos.y - 12, pos.x, pos.y + 12);
 			// Horisontell streck
 			this.graphics.lineBetween(pos.x - 12, pos.y, pos.x + 12, pos.y);
 			
 			// liten kvadrat i mitten
-			this.graphics.fillStyle(0x000099, 1);
+			this.graphics.fillStyle(BLUE, 1);
 			this.graphics.fillRect(pos.x - 4, pos.y - 4, 8, 8);
 	
 			// hörn vinklar
@@ -404,7 +413,7 @@ class AntivirusDrawer {
 			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d, pos.y - d + s);
             this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d - s, pos.y + d);
             this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d, pos.y + d - s);
-	
+            
 			if (isSelected) {
 				this.graphics.fillStyle(0x00ffff, 0.3);
 				this.graphics.fillCircle(pos.x, pos.y, 22);
@@ -416,6 +425,8 @@ class AntivirusDrawer {
 
 }
 
+const INPUT_COLOR = 0x00dddd;
+
 class InputDrawer {
     /**
      * 
@@ -426,25 +437,55 @@ class InputDrawer {
         this.scene = scene;
         this.inputHandler = inputHandler;
         this.graphics = this.scene.add.graphics();
-
+        this.hasActiveInputs = false;
+        
         // Rita om input-hints (gröna cirklar) när input har ändrats
-        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.update.bind(this))
+        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.inputChanged.bind(this))
+    }
+
+    inputChanged() {
+        this.hasActiveInputs = this.inputHandler.activeNodes.length > 0;
+        if (this.hasActiveInputs) {
+            this.update();
+        } else {
+            // No more active, clear them
+            this.graphics.clear();
+        }
     }
 
     update() {
+        if (!this.hasActiveInputs) {
+            return;
+        }
 		this.graphics.clear();
         const inputNodes = this.inputHandler.activeNodes;
         const av = this.inputHandler.board.antivirus;
-
+        const time = performance.now();
+        const size = Math.sin(time*0.005)*1+1;
         for (const node of inputNodes) {
 
             if (av && av.hasNode(node)) {
-                continue; 
+                if (av.selectedNode == node) {
+                    continue; // Don't draw on the selected one
+                }
+                this.graphics.fillStyle(0xffffff,1.0);
+                this.graphics.fillCircle(node.x,node.y,5+size);
+                continue;
             }
 
-            this.graphics.lineStyle(3, 0x00ff00, 0.8); 
-            this.graphics.strokeCircle(node.x, node.y, 22);
-            this.graphics.fillStyle(0x00ff00, 0.15);
+            this.graphics.lineStyle(3,INPUT_COLOR, 1); 
+            this.graphics.fillStyle(INPUT_COLOR, 0.25);
+            if (node.isServer()) {
+                const width = 48+size;
+                const height = 60+size;
+                const x = node.x - width / 2;
+                const y = node.y - height / 2;
+                this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, 10);
+                //this.graphics.fillRoundedRect(x - 1, y - 1, width + 2, height + 2, 10);
+            } else {
+                this.graphics.strokeCircle(node.x, node.y, 23+size);
+                //this.graphics.fillCircle(node.x, node.y, 23+size);
+            }
 		}
 	}
 }
