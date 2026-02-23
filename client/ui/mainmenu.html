@@ -3,32 +3,36 @@
         Virus vs Antivirus
     </p>
 
+    <div class="start-container">
+      <button class="start-btn" id="start">{startbutton}</button>      
+    </div>
+
     <p class="undertext text">
         {pickmode}
     </p>
 
     <div class="modelist">
-        <button class="text" id="virus">{pvirus}</button>
-        <button class="text" id="antivirus">{pantivirus}</button>
-        <button class="text" id="spectate">{pspectator}</button>
-    </div>
-
-    <div class="rules">
-        <button class="text hidden" id="rules">{prules}</button>
+        <button class="gamemode" id="virus">{pvirus}</button>
+        <button class="gamemode" id="antivirus">{pantivirus}</button>
+        <button class="gamemode" id="spectate">{pspectator}</button>
     </div>
 
     <p id="description"> {description}</p>
 
-    <div class="lowest text">
-      <button class="text" id="start">{startbutton}</button>      
+    <div class="bottom-row">
+        <div class="language">
+            <button class="text" id="language_button">
+                {languagebutton}
+            </button>
+        </div>
+
+        <div class="rules">
+            <button class="text hidden" id="rules">
+                {prules}
+            </button>
+        </div>
     </div>
 
-    
-    <div class="language"> 
-        <button class="text" id="language_button">
-            {languagebutton}
-        </button>
-    </div>
 
 
 </div>

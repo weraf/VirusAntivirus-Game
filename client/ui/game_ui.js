@@ -46,6 +46,13 @@ export class GameUI {
         location.reload(); // TODO: implement going back to menu without reloading the page
     }
 
+    setRoleTheme(role) {
+        this.mainPanel.classList.remove("virus", "antivirus", "spectator");
+        if (role) {
+            this.mainPanel.classList.add(role);
+        }
+    }
+
     showWinScreen(virusWon) {
         this.winscreen.setPlaceholder("wintext",virusWon ? "viruswon":"antiviruswon");
         this.winscreen.show();
@@ -79,6 +86,7 @@ export class GameUI {
     setup() {
         this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html"]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
+            this.mainPanel = this.mainmenu.root;
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.winscreen = this.htmlManager.create("winscreen");
@@ -108,10 +116,12 @@ export class GameUI {
             this.mainmenu.virus.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+                this.setRoleTheme("virus");
                 // Visa en linje på den markerade knappen
                 // this.mainmenu.virus.classList.add("selected");
                 // this.mainmenu.antivirus.classList.remove("selected");
                 if(this.mainmenu.virus.classList.contains("selected")) {
+                    this.setRoleTheme(null);
                     this.mainmenu.virus.classList.remove("selected");
                     this.mainmenu.setPlaceholder("description", "")
                     this.mainmenu.rules.classList.add("hidden");
@@ -128,13 +138,17 @@ export class GameUI {
             }
 
             this.mainmenu.spectate.onclick = () => {
+                this.setRoleTheme("spectator");
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue);
                 this.socket.emit(ACTIONS.SPECTATE_GAME);
+                this.setRoleTheme(null);
             }
             
             this.mainmenu.antivirus.onclick = () => {     
+                this.setRoleTheme("antivirus");
                 if(this.mainmenu.antivirus.classList.contains("selected")) {
+                    this.setRoleTheme(null);
                     this.mainmenu.antivirus.classList.remove("selected");
                     this.mainmenu.setPlaceholder("description", "")
                     this.mainmenu.rules.classList.add("hidden");
