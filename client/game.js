@@ -20,10 +20,10 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
-        this.load.image('bg', './assets/backdrop.png')
-        this.load.image('shield', './assets/shield.png')
-        this.load.image('fire', './assets/fire.png')
-        this.load.image('eyes', './assets/eyes.png')
+        this.load.image('bg', './assets/backdrop.png');
+        this.load.image('shield', './assets/shield.png');
+        this.load.image('fire', './assets/fire.png');
+        this.load.image('eyes', './assets/eyes.png');
         
         // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
         this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!
@@ -53,7 +53,7 @@ export class Game extends Phaser.Scene {
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
-        this.bg = this.add.image(0, 0, 'bg');
+        this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
         
         this.scale.on("resize",this.onResize.bind(this));
         this.onResize();
@@ -238,6 +238,8 @@ export class Game extends Phaser.Scene {
             // Animate the input circles
             this.gameDrawer.animate();
         }
+        // Slowly scroll the background, multiply with delta to get it frame-rate independant
+        this.bg.tilePositionY -= 0.02*delta;
     }
     
     

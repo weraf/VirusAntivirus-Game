@@ -26,8 +26,10 @@ export class GameDrawer {
 		
 		this.inputHandler = inputHandler;
         
-		this.graphics = scene.add.graphics();
+        
 
+		this.graphics = scene.add.graphics();
+        
         this.glitchDrawer = new GlitchDrawer(scene, board);
         
         this.virusDrawer = new VirusDrawer(board.virus, scene);
@@ -449,10 +451,10 @@ class AntivirusDrawer {
     }
 
     draw() {
-        this.graphics.clear();
+        // Vi behöver inte rita något längre, det sker via bilderna som flyttar på sig direkt
+        /*this.graphics.clear();
         this.displayNodes.forEach((pos, index) => {
-            // Vi behöver inte rita något längre, det sker via bilderna som flyttar på sig direkt
-            return;
+            
             const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
             
             // Yttre ring
@@ -498,7 +500,7 @@ class AntivirusDrawer {
 				this.graphics.lineStyle(2, 0xffffff, 0.8);
 				this.graphics.strokeCircle(pos.x, pos.y, 24);
 			}
-        });
+        });*/
     }
 
 }
