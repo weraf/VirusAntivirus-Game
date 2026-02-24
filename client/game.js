@@ -23,6 +23,7 @@ export class Game extends Phaser.Scene {
         this.load.image('bg', './assets/backdrop.png')
         this.load.image('shield', './assets/shield.png')
         this.load.image('fire', './assets/fire.png')
+        this.load.image('eyes', './assets/eyes.png')
         
         // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
         this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!

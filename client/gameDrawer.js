@@ -10,6 +10,7 @@ const EDGE_COLOR = 0x75a5a9;
 const NODE_COLOR = 0xe5e5e7;
 
 const RED = 0xff1060;
+const DARK_RED = 0xB00451;
 const GREEN = 0x10ff80;
 
 const BLUE = 0x0020ef;
@@ -30,10 +31,10 @@ export class GameDrawer {
         this.glitchDrawer = new GlitchDrawer(scene, board);
         
         this.virusDrawer = new VirusDrawer(board.virus, scene);
-        this.bugsDrawer = new BugsDrawer(board.bugs,scene);
-
+        
 		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
-
+        this.bugsDrawer = new BugsDrawer(board.bugs,scene);
+        
 		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
         this.isRotated = false; // It's starts not rotated
         
@@ -72,16 +73,21 @@ export class GameDrawer {
             // Nod grafik
             if (node.isServer()) {
                 // Server grafik
-                this.graphics.fillStyle(0x191c26, 1);
                 const width = 38;
                 const height = 50;
                 const cornerRadius = 5; 
                 const x = node.x - width / 2;
                 const y = node.y - height / 2;
                 this.graphics.lineStyle(3, EDGE_COLOR, 1); 
+                this.graphics.fillStyle(0x1F202B, 1);
+                this.graphics.fillRect(x, y, width, height);
+                this.graphics.fillStyle(0x151624, 1);
+                
+                // Shading
+                this.graphics.fillRect(x+width/2, y, width/2, height);
+                //this.graphics.fillTriangle(x+width, y, x+width, y+height, x, y+height);
+                
                 this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, cornerRadius);
-
-                this.graphics.fillRoundedRect(x, y, width, height, cornerRadius);
 
                 this.graphics.lineStyle(1, 0x403a52, 0.8);
                 this.graphics.lineBetween(x + 5, y + height * 0.4, x + width - 5, y + height * 0.4);
@@ -137,7 +143,7 @@ export class GameDrawer {
 
     animate() {
         this.inputDrawer.update();
-        this.glitchDrawer.update();
+        this.bugsDrawer.update();
     }
 }
 
@@ -172,8 +178,11 @@ class BugsDrawer {
     }
 
     update() {
+        if (this.tween) {
+            return // still animating
+        }
         if (!this.hasChanged()) {
-            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,1.0);
+            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,performance.now()/2000);
             return;
         }
         this.nextNodes = [...this.bugs.nodes]; // shallow copy
@@ -182,7 +191,7 @@ class BugsDrawer {
             targets: this,
             animationProgress: {from: 0.0, to:1.0}, 
             duration: 800,
-            ease: 'Quad.easeInOut',
+            ease: 'Quad.easeOut',
             onUpdate: (tween, target, key, current, previous, param) => {
                 this.drawBetweenNodes(this.prevNodes,this.nextNodes,current)
             },
@@ -194,21 +203,58 @@ class BugsDrawer {
         
     }
 
-    drawBetweenNodes(fromNodes,toNodes,progress) {
-        this.graphics.clear();
-        fromNodes.forEach((fromNode,index) => {
-            const toNode = toNodes[index];
-            const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
-            const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
-            let rot = progress*Math.PI*2;
-            if (fromNode === toNode) {
-                rot = 0; // No movement, don't rotate
+    drawBugAt(x,y,rot,glitchOut = 0.0) {
+        const GLITCH_COLOR = 0xff00ff;
+        const GLITCH_COLOR_DARK = 0x000000;
+        const glitch = () => {
+            if (Math.random() > 0.02+glitchOut*0.1) {
+                return 0;
             }
-            this.graphics.fillStyle(0x8f1020);
-            this.drawRotatedSquare(x,y,11,rot);
-            this.graphics.fillStyle(RED);
-            this.drawRotatedSquare(x,y,12,Math.PI/4+rot);
+            this.graphics.fillStyle(Math.random() < 0.2 ? GLITCH_COLOR_DARK:GLITCH_COLOR);
+            let v = Math.floor(Math.pow(Math.random()*3,2))*(1+glitchOut*3)+2
+            return Math.random() < 0.5 ? v : -v;
+        }
+        const drawSegment = (index,size,rot) => {
+            if (glitchOut > 0 && Math.random() < (index+1)*0.5*glitchOut*glitchOut) {
+                return; // Skip drawing if transitioning
+            }
+            if (glitchOut > 0) {
+                size += Math.abs(glitch())*size*0.15+size*0.5*glitchOut;
+            }
+            this.drawRotatedSquare(x+glitch(),y+glitch(),size,-rot*0.5);
+        }
+        this.graphics.fillStyle(RED);
+        drawSegment(0,15,-rot+glitch());
+        this.graphics.fillStyle(DARK_RED);
+        drawSegment(1,9,Math.PI/4+rot);
+        this.graphics.fillStyle(RED);
+        drawSegment(2,5,-rot*0.5);
+    }
 
+    drawBetweenNodes(fromNodes,toNodes,progress) {
+        if (Math.random() < 0.6) {
+            // Skip drawing this frame for a buggier effect
+            return;
+        }
+        this.graphics.clear();
+        
+        fromNodes.forEach((fromNode,index) => {
+            const nextNode = toNodes[index];
+            let rot = progress*Math.PI*2;
+            rot += index;
+            if (nextNode != fromNode) {
+                // A new bug as been added
+                if (progress > 0.5) {
+                    // Transition the new bug in
+                    this.drawBugAt(nextNode.x,nextNode.y,rot,2.0-progress*2);
+                } else {
+                    // Transition the old bug out
+                    this.drawBugAt(fromNode.x,fromNode.y,rot,progress*2);
+                }
+            } else {
+                // Draw like usual
+                this.drawBugAt(fromNode.x,fromNode.y,rot,0);
+            }
         });
     }
 
@@ -242,23 +288,28 @@ class VirusDrawer {
         this.nextNodes = [...this.virus.nodes];
         this.animationProgress = 0.0; // Number between 0 and 1
         this.graphics = this.scene.add.graphics();
-        this.lastRotation = false;
-        
+        const vHead = virus.getHeadNode();
+        this.eyes = this.scene.add.image(vHead.x,vHead.y,"eyes").setScale(0.2);
+        this.lastRotation = 0;
         // Automatically redraw snake when it has moved
         this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
-    renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
-        let HEAD_RADIUS = 14;
-        let LINE_RADIUS = 10;
-        const BODY_COLOR = RED;
+    renderSnakeProgress(fromNodes,toNodes,progress,growAnim, alt = false) {
+        // Alt parameter is used to draw it twice at different thicknesses to get the outline
+        let HEAD_RADIUS = alt ? 11 : 15;
+        let LINE_RADIUS = alt ? 7 : 11;
+        const BODY_COLOR = alt ? RED : DARK_RED;
 
+        let headGrow = 0;
         if (growAnim) {
-            HEAD_RADIUS += (1-progress)*6;
-            LINE_RADIUS += (1-progress)*2;
+            headGrow = 1.0-progress;
+            HEAD_RADIUS += headGrow*8;
+            LINE_RADIUS += headGrow*2;
         }
-
-        this.graphics.clear();
+        if (!alt) {
+            this.graphics.clear();
+        }
         this.graphics.fillStyle(BODY_COLOR);
         this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
 
@@ -282,6 +333,27 @@ class VirusDrawer {
                 this.graphics.fillCircle(fromNode.x,fromNode.y,LINE_RADIUS);
             }
         }
+        if (!alt) {
+            this.renderSnakeProgress(fromNodes,toNodes,progress,growAnim,true);
+            if (fromNodes[0] == toNodes[0]) {
+                this.updateEyes(toNodes[1],toNodes[0],toNodes[2],progress,headGrow);
+            } else {
+                this.updateEyes(fromNodes[0],toNodes[0],fromNodes[1],progress,headGrow);
+            }
+        } 
+    }
+
+    updateEyes(fromNode, toNode, prevNode, progress, headGrow) {
+        this.eyes.x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
+        this.eyes.y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
+        let scale = 0.2+headGrow*0.1;
+        
+        this.eyes.setScale(scale)
+        const targetAngle = Math.atan2(toNode.y-fromNode.y,toNode.x-fromNode.x);
+        const lastAngle = Math.atan2(fromNode.y-prevNode.y,fromNode.x-prevNode.x);
+        // Animate from the last head angle to the new one. Progres*2 to make it faster.
+        this.eyes.rotation = lastAngle + Phaser.Math.Angle.GetShortestDistance(lastAngle,targetAngle)*Math.min(progress*2,1);
+        
     }
 
     update() {
@@ -379,6 +451,7 @@ class AntivirusDrawer {
     draw() {
         this.graphics.clear();
         this.displayNodes.forEach((pos, index) => {
+            // Vi behöver inte rita något längre, det sker via bilderna som flyttar på sig direkt
             return;
             const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
             
@@ -504,6 +577,7 @@ class GlitchDrawer {
         this.graphics = scene.add.graphics();
         this.serverNodes = board.getAllNodes().filter((n) => {return n.isServer()});
         this.board = board;
+        this.board.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this));
         this.board.addEventListener(Board.EVENTS.BOARD_FLIP,() => {
             // Update positions of particles if board gets flipped
             this.serverNodes.forEach((server, index) => {
@@ -527,6 +601,7 @@ class GlitchDrawer {
                 quantity: 3,
                 frequency: 700,
                 scale: {values: [0, 0.6, 0.5, 0.2, 0.0], interpolation: "catmull"},
+                emitting: false,
                 
             })
             this.emitters.push(newEmitter)
