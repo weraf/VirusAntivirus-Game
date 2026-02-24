@@ -190,7 +190,7 @@ class BugsDrawer {
         this.tween = this.scene.tweens.add({
             targets: this,
             animationProgress: {from: 0.0, to:1.0}, 
-            duration: 800,
+            duration: 1000,
             ease: 'Quad.easeOut',
             onUpdate: (tween, target, key, current, previous, param) => {
                 this.drawBetweenNodes(this.prevNodes,this.nextNodes,current)
@@ -211,7 +211,7 @@ class BugsDrawer {
                 return 0;
             }
             this.graphics.fillStyle(Math.random() < 0.2 ? GLITCH_COLOR_DARK:GLITCH_COLOR);
-            let v = Math.floor(Math.pow(Math.random()*3,2))*(1+glitchOut*3)+2
+            let v = Math.floor(Math.pow(Math.random()*3+glitchOut*2,2))*(1+glitchOut)+2
             return Math.random() < 0.5 ? v : -v;
         }
         const drawSegment = (index,size,rot) => {
@@ -594,7 +594,7 @@ class GlitchDrawer {
                     type: 'random',
                     source: new Phaser.Geom.Rectangle(-10,-10,20,30)
                 },
-                rotate: {min: -20, max: 20},
+                rotate: {min: -30, max: 30},
                 blendMode: "ADD",
                 lifespan: 1500,
                 gravityY: -30,
@@ -615,7 +615,9 @@ class GlitchDrawer {
             const emitter = this.emitters[index]; 
             if (this.board.virus.hasNode(server)) {
                 if (!emitter.emitting) {
-                    emitter.start()
+                    emitter.start();
+                    // Emit some early
+                    setTimeout(emitter.emitParticle.bind(emitter,2),250);
                 }
             } else {
                 if (emitter.emitting) {
