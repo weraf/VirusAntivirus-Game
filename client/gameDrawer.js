@@ -30,7 +30,7 @@ export class GameDrawer {
 
 		this.graphics = scene.add.graphics();
         
-        this.glitchDrawer = new GlitchDrawer(scene, board);
+        this.fireDrawer = new FireDrawer(scene, board);
         
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         
@@ -205,28 +205,30 @@ class BugsDrawer {
         
     }
 
-    drawBugAt(x,y,rot,glitchOut = 0.0) {
+    getGlitchValue(strength = 0.0) {
         const GLITCH_COLOR = 0xff00ff;
         const GLITCH_COLOR_DARK = 0x000000;
-        const glitch = () => {
-            if (Math.random() > 0.02+glitchOut*0.1) {
-                return 0;
-            }
-            this.graphics.fillStyle(Math.random() < 0.2 ? GLITCH_COLOR_DARK:GLITCH_COLOR);
-            let v = Math.floor(Math.pow(Math.random()*3+glitchOut*2,2))*(1+glitchOut)+2
-            return Math.random() < 0.5 ? v : -v;
+        if (Math.random() > 0.02+strength*0.1) {
+            return 0;
         }
+        this.graphics.fillStyle(Math.random() < 0.2 ? GLITCH_COLOR_DARK:GLITCH_COLOR);
+        let v = Math.floor(Math.pow(Math.random()*3+strength*2,2))*(1+strength)+2
+        return Math.random() < 0.5 ? v : -v;
+    }
+
+    drawBugAt(x,y,rot,glitchOut = 0.0) {
+        
         const drawSegment = (index,size,rot) => {
             if (glitchOut > 0 && Math.random() < (index+1)*0.5*glitchOut*glitchOut) {
                 return; // Skip drawing if transitioning
             }
             if (glitchOut > 0) {
-                size += Math.abs(glitch())*size*0.15+size*0.5*glitchOut;
+                size += Math.abs(this.getGlitchValue(glitchOut))*size*0.15+size*0.5*glitchOut;
             }
-            this.drawRotatedSquare(x+glitch(),y+glitch(),size,-rot*0.5);
+            this.drawRotatedSquare(x+this.getGlitchValue(glitchOut),y+this.getGlitchValue(glitchOut),size,-rot*0.5);
         }
         this.graphics.fillStyle(RED);
-        drawSegment(0,15,-rot+glitch());
+        drawSegment(0,15,-rot+this.getGlitchValue(glitchOut));
         this.graphics.fillStyle(DARK_RED);
         drawSegment(1,9,Math.PI/4+rot);
         this.graphics.fillStyle(RED);
@@ -248,10 +250,19 @@ class BugsDrawer {
                 // A new bug as been added
                 if (progress > 0.5) {
                     // Transition the new bug in
-                    this.drawBugAt(nextNode.x,nextNode.y,rot,2.0-progress*2);
-                } else {
+                    this.drawBugAt(nextNode.x,nextNode.y,rot,2-progress*2);
+                } else if (progress < 0.4) {
                     // Transition the old bug out
-                    this.drawBugAt(fromNode.x,fromNode.y,rot,progress*2);
+                    this.drawBugAt(fromNode.x,fromNode.y,rot,progress*2.5);
+                }
+                if (progress > 0.45 && progress < 0.55 && Math.random() < 0.7) {
+                    // Draw somewhere inbetween
+                    let moveProgress = (progress-0.45)*10 + this.getGlitchValue(0.5)*0.1; // Remap from 0 to 1
+                    // Clamp between 0 and 1
+                    moveProgress = Math.min(Math.max(moveProgress,0.0),1.0)
+                    const x = Phaser.Math.Linear(fromNode.x,nextNode.x,moveProgress+Math.random()*4-2);
+                    const y = Phaser.Math.Linear(fromNode.y,nextNode.y,moveProgress+Math.random()*4-2);
+                    this.drawBugAt(x,y,rot,1.0);
                 }
             } else {
                 // Draw like usual
@@ -570,7 +581,7 @@ class InputDrawer {
 	}
 }
 
-class GlitchDrawer {
+class FireDrawer {
     /**
      * @param {Game} scene 
      * @param {Board} board 
