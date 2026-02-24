@@ -27,14 +27,14 @@ export class GameDrawer {
         
 		this.graphics = scene.add.graphics();
 
-        // Later the virus will be part of the board
+        this.glitchDrawer = new GlitchDrawer(scene, board);
+        
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         this.bugsDrawer = new BugsDrawer(board.bugs,scene);
 
 		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
 
 		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
-
         this.isRotated = false; // It's starts not rotated
         
         this.onResize();
@@ -133,6 +133,11 @@ export class GameDrawer {
         let zoom = Math.min(this.scene.scale.width / (maxX - minX + margin * 2), 
                             this.scene.scale.height / (maxY - minY + margin * 2));
         this.scene.cameras.main.setZoom(zoom);
+    }
+
+    animate() {
+        this.inputDrawer.update();
+        this.glitchDrawer.update();
     }
 }
 
@@ -488,4 +493,63 @@ class InputDrawer {
             }
 		}
 	}
+}
+
+class GlitchDrawer {
+    /**
+     * @param {Game} scene 
+     * @param {Board} board 
+     */
+    constructor(scene, board) {
+        this.graphics = scene.add.graphics();
+        this.serverNodes = board.getAllNodes().filter((n) => {return n.isServer()});
+        this.board = board;
+        this.board.addEventListener(Board.EVENTS.BOARD_FLIP,() => {
+            // Update positions of particles if board gets flipped
+            this.serverNodes.forEach((server, index) => {
+                this.emitters[index].x = server.x;
+                this.emitters[index].y = server.y;
+            })
+        })
+        this.emitters = [];
+        // Create one particle system per server
+        for (const server of this.serverNodes) {
+            const newEmitter = scene.add.particles(server.x,server.y, 'fire', {
+                speed: {start: 30, end: 0, random: true},
+                emitZone: {
+                    type: 'random',
+                    source: new Phaser.Geom.Rectangle(-10,-10,20,30)
+                },
+                rotate: {min: -20, max: 20},
+                blendMode: "ADD",
+                lifespan: 1500,
+                gravityY: -30,
+                quantity: 3,
+                frequency: 700,
+                scale: {values: [0, 0.6, 0.5, 0.2, 0.0], interpolation: "catmull"},
+                
+            })
+            this.emitters.push(newEmitter)
+        }
+    }
+    
+    update() {
+        this.graphics.clear()
+        
+        this.serverNodes.forEach((server, index) => {
+            const emitter = this.emitters[index]; 
+            if (this.board.virus.hasNode(server)) {
+                if (!emitter.emitting) {
+                    emitter.start()
+                }
+            } else {
+                if (emitter.emitting) {
+                    emitter.stop()
+                }
+            }
+        });
+        
+
+    }
+
 }

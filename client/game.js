@@ -22,6 +22,7 @@ export class Game extends Phaser.Scene {
     preload() {
         this.load.image('bg', './assets/backdrop.png')
         this.load.image('shield', './assets/shield.png')
+        this.load.image('fire', './assets/fire.png')
         
         // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
         this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!
@@ -144,6 +145,12 @@ export class Game extends Phaser.Scene {
             }
             
         })
+        /*this.startGame({
+            virusNodes: [],
+            antivirusNodes: [],
+            bugNodes: [],
+            currentPlayer: 0,
+        });*/
     }
 
     startGame(data) {
@@ -228,7 +235,7 @@ export class Game extends Phaser.Scene {
     update(time,delta) {
         if (this.gameDrawer) {
             // Animate the input circles
-            this.gameDrawer.inputDrawer.update();
+            this.gameDrawer.animate();
         }
     }
     
