@@ -1,0 +1,556 @@
+{
+  "nodes": [
+    {
+      "id": "n0",
+      "type": "node",
+      "pos_x": 285,
+      "pos_y": 135
+    },
+    {
+      "id": "n1",
+      "type": "node",
+      "pos_x": 375,
+      "pos_y": 75
+    },
+    {
+      "id": "n2",
+      "type": "node",
+      "pos_x": 465,
+      "pos_y": 135
+    },
+    {
+      "id": "n3",
+      "type": "node",
+      "pos_x": 555,
+      "pos_y": 75
+    },
+    {
+      "id": "n4",
+      "type": "node",
+      "pos_x": 645,
+      "pos_y": 135
+    },
+    {
+      "id": "n5",
+      "type": "node",
+      "pos_x": 705,
+      "pos_y": 225
+    },
+    {
+      "id": "n6",
+      "type": "node",
+      "pos_x": 645,
+      "pos_y": 315
+    },
+    {
+      "id": "n7",
+      "type": "node",
+      "pos_x": 705,
+      "pos_y": 405
+    },
+    {
+      "id": "n8",
+      "type": "node",
+      "pos_x": 645,
+      "pos_y": 495
+    },
+    {
+      "id": "n9",
+      "type": "node",
+      "pos_x": 555,
+      "pos_y": 555
+    },
+    {
+      "id": "n10",
+      "type": "server",
+      "pos_x": 465,
+      "pos_y": 495
+    },
+    {
+      "id": "n11",
+      "type": "node",
+      "pos_x": 375,
+      "pos_y": 555
+    },
+    {
+      "id": "n12",
+      "type": "node",
+      "pos_x": 285,
+      "pos_y": 495
+    },
+    {
+      "id": "n13",
+      "type": "node",
+      "pos_x": 225,
+      "pos_y": 405
+    },
+    {
+      "id": "n14",
+      "type": "node",
+      "pos_x": 297,
+      "pos_y": 315
+    },
+    {
+      "id": "n15",
+      "type": "node",
+      "pos_x": 242,
+      "pos_y": 214
+    },
+    {
+      "id": "n16",
+      "type": "server",
+      "pos_x": 585,
+      "pos_y": 195
+    },
+    {
+      "id": "n17",
+      "type": "node",
+      "pos_x": 345,
+      "pos_y": 195
+    },
+    {
+      "id": "n18",
+      "type": "node",
+      "pos_x": 585,
+      "pos_y": 435
+    },
+    {
+      "id": "n19",
+      "type": "node",
+      "pos_x": 345,
+      "pos_y": 435
+    },
+    {
+      "id": "n20",
+      "type": "node",
+      "pos_x": 525,
+      "pos_y": 315
+    },
+    {
+      "id": "n21",
+      "type": "node",
+      "pos_x": 405,
+      "pos_y": 315
+    },
+    {
+      "id": "n22",
+      "type": "node",
+      "pos_x": 465,
+      "pos_y": 255
+    },
+    {
+      "id": "n23",
+      "type": "node",
+      "pos_x": 465,
+      "pos_y": 375
+    },
+    {
+      "id": "n24",
+      "type": "node",
+      "pos_x": 735,
+      "pos_y": 105
+    },
+    {
+      "id": "n25",
+      "type": "node",
+      "pos_x": 195,
+      "pos_y": 105
+    },
+    {
+      "id": "n26",
+      "type": "node",
+      "pos_x": 735,
+      "pos_y": 525
+    },
+    {
+      "id": "n27",
+      "type": "node",
+      "pos_x": 195,
+      "pos_y": 525
+    },
+    {
+      "id": "n28",
+      "type": "node",
+      "pos_x": 795,
+      "pos_y": 315
+    },
+    {
+      "id": "n29",
+      "type": "node",
+      "pos_x": 135,
+      "pos_y": 315
+    },
+    {
+      "id": "n30",
+      "type": "node",
+      "pos_x": 165,
+      "pos_y": 465
+    },
+    {
+      "id": "n31",
+      "type": "node",
+      "pos_x": 765,
+      "pos_y": 165
+    },
+    {
+      "id": "n32",
+      "type": "node",
+      "pos_x": 765,
+      "pos_y": 465
+    },
+    {
+      "id": "n33",
+      "type": "node",
+      "pos_x": 225,
+      "pos_y": 315
+    },
+    {
+      "id": "n34",
+      "type": "node",
+      "pos_x": 735,
+      "pos_y": 315
+    },
+    {
+      "id": "n35",
+      "type": "node",
+      "pos_x": 615,
+      "pos_y": 375
+    },
+    {
+      "id": "n36",
+      "type": "node",
+      "pos_x": 345,
+      "pos_y": 375
+    },
+    {
+      "id": "n37",
+      "type": "node",
+      "pos_x": 555,
+      "pos_y": 255
+    },
+    {
+      "id": "n38",
+      "type": "node",
+      "pos_x": 327,
+      "pos_y": 255
+    },
+    {
+      "id": "n39",
+      "type": "node",
+      "pos_x": 509,
+      "pos_y": 419
+    },
+    {
+      "id": "n40",
+      "type": "server",
+      "pos_x": 165,
+      "pos_y": 165
+    }
+  ],
+  "edges": [
+    {
+      "from": "n0",
+      "to": "n1"
+    },
+    {
+      "from": "n0",
+      "to": "n15"
+    },
+    {
+      "from": "n2",
+      "to": "n1"
+    },
+    {
+      "from": "n3",
+      "to": "n2"
+    },
+    {
+      "from": "n5",
+      "to": "n4"
+    },
+    {
+      "from": "n6",
+      "to": "n16"
+    },
+    {
+      "from": "n6",
+      "to": "n37"
+    },
+    {
+      "from": "n7",
+      "to": "n28"
+    },
+    {
+      "from": "n7",
+      "to": "n6"
+    },
+    {
+      "from": "n7",
+      "to": "n18"
+    },
+    {
+      "from": "n8",
+      "to": "n32"
+    },
+    {
+      "from": "n8",
+      "to": "n7"
+    },
+    {
+      "from": "n9",
+      "to": "n8"
+    },
+    {
+      "from": "n10",
+      "to": "n18"
+    },
+    {
+      "from": "n10",
+      "to": "n11"
+    },
+    {
+      "from": "n10",
+      "to": "n39"
+    },
+    {
+      "from": "n11",
+      "to": "n19"
+    },
+    {
+      "from": "n11",
+      "to": "n9"
+    },
+    {
+      "from": "n12",
+      "to": "n30"
+    },
+    {
+      "from": "n12",
+      "to": "n11"
+    },
+    {
+      "from": "n13",
+      "to": "n29"
+    },
+    {
+      "from": "n13",
+      "to": "n33"
+    },
+    {
+      "from": "n13",
+      "to": "n12"
+    },
+    {
+      "from": "n13",
+      "to": "n14"
+    },
+    {
+      "from": "n13",
+      "to": "n36"
+    },
+    {
+      "from": "n15",
+      "to": "n14"
+    },
+    {
+      "from": "n15",
+      "to": "n17"
+    },
+    {
+      "from": "n16",
+      "to": "n3"
+    },
+    {
+      "from": "n16",
+      "to": "n4"
+    },
+    {
+      "from": "n16",
+      "to": "n2"
+    },
+    {
+      "from": "n16",
+      "to": "n22"
+    },
+    {
+      "from": "n17",
+      "to": "n21"
+    },
+    {
+      "from": "n17",
+      "to": "n0"
+    },
+    {
+      "from": "n17",
+      "to": "n2"
+    },
+    {
+      "from": "n18",
+      "to": "n9"
+    },
+    {
+      "from": "n18",
+      "to": "n20"
+    },
+    {
+      "from": "n18",
+      "to": "n8"
+    },
+    {
+      "from": "n19",
+      "to": "n10"
+    },
+    {
+      "from": "n19",
+      "to": "n23"
+    },
+    {
+      "from": "n19",
+      "to": "n39"
+    },
+    {
+      "from": "n19",
+      "to": "n12"
+    },
+    {
+      "from": "n19",
+      "to": "n13"
+    },
+    {
+      "from": "n20",
+      "to": "n22"
+    },
+    {
+      "from": "n20",
+      "to": "n23"
+    },
+    {
+      "from": "n21",
+      "to": "n22"
+    },
+    {
+      "from": "n22",
+      "to": "n17"
+    },
+    {
+      "from": "n22",
+      "to": "n2"
+    },
+    {
+      "from": "n23",
+      "to": "n21"
+    },
+    {
+      "from": "n23",
+      "to": "n14"
+    },
+    {
+      "from": "n24",
+      "to": "n4"
+    },
+    {
+      "from": "n24",
+      "to": "n3"
+    },
+    {
+      "from": "n25",
+      "to": "n40"
+    },
+    {
+      "from": "n25",
+      "to": "n15"
+    },
+    {
+      "from": "n25",
+      "to": "n1"
+    },
+    {
+      "from": "n26",
+      "to": "n9"
+    },
+    {
+      "from": "n26",
+      "to": "n32"
+    },
+    {
+      "from": "n27",
+      "to": "n12"
+    },
+    {
+      "from": "n28",
+      "to": "n31"
+    },
+    {
+      "from": "n29",
+      "to": "n40"
+    },
+    {
+      "from": "n30",
+      "to": "n29"
+    },
+    {
+      "from": "n30",
+      "to": "n27"
+    },
+    {
+      "from": "n31",
+      "to": "n5"
+    },
+    {
+      "from": "n31",
+      "to": "n4"
+    },
+    {
+      "from": "n32",
+      "to": "n7"
+    },
+    {
+      "from": "n33",
+      "to": "n40"
+    },
+    {
+      "from": "n33",
+      "to": "n29"
+    },
+    {
+      "from": "n34",
+      "to": "n31"
+    },
+    {
+      "from": "n34",
+      "to": "n6"
+    },
+    {
+      "from": "n34",
+      "to": "n16"
+    },
+    {
+      "from": "n35",
+      "to": "n20"
+    },
+    {
+      "from": "n36",
+      "to": "n14"
+    },
+    {
+      "from": "n37",
+      "to": "n35"
+    },
+    {
+      "from": "n38",
+      "to": "n15"
+    },
+    {
+      "from": "n38",
+      "to": "n14"
+    },
+    {
+      "from": "n39",
+      "to": "n23"
+    },
+    {
+      "from": "n40",
+      "to": "n15"
+    }
+  ]
+}

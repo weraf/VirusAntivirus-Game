@@ -25,9 +25,13 @@ export class Game extends Phaser.Scene {
         this.load.image('fire', './assets/fire.png');
         this.load.image('eyes', './assets/eyes.png');
         
-        // ------ HÄR KAN MAN LÄGG IN NYA BRÄDOR! ------
-        this.load.json('minKarta', './assets/map1.json'); // 33 Nodes: 3 Servers!
-        //this.load.json('minKarta', './assets/map2.json'); // 44 Nodes: 4 Servers!
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
+        // ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
+        this.load.json('minKarta', './assets/map1.json'); // 33 noder: 3 servrar
+        //this.load.json('minKarta', './assets/map2.json'); // 44 noder: 4 servrar
+        //this.load.json('minKarta', './assets/map3.json'); // 41 noder: 3 servrar
+        // Kan ändras när man lägger in fler kartor! ta bort kommentar på kartan du vill använda!
+        // --------------
 
         //ladda in ljud
         this.load.audio('click', './assets/Click.wav');
@@ -57,14 +61,18 @@ export class Game extends Phaser.Scene {
         
         this.scale.on("resize",this.onResize.bind(this));
         this.onResize();
+        
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // Hämta datan från JSON-filen
         const data = this.cache.json.get('minKarta');
 
         // Skapa Brädet
         this.gameBoard = new Board();
 
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
+        // --------------
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
@@ -155,18 +163,29 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
+
+        /*
+        // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
+        // bygger brädet här istället för i create()
+        BoardCreator.createFromJSON(this.gameBoard, data.mapData);
+        // Skapa GameState efter att brädet är byggt
+        this.gameState = new GameState(this.gameBoard, 20000);
+        this.ui.connectToGameState(this.gameState);
+        //------------------
+        */
+
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
         );
-    
+
         this.gameBoard.spawnAntivirus(
             data.antivirusNodes.map(id => this.gameBoard.getNode(id))
         );
-    
+
         this.gameBoard.spawnStartBugs(
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
-
+        
         // Starta Ljud
         this.soundManager.initGameListeners();
 
