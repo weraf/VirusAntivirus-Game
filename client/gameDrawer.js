@@ -30,7 +30,7 @@ export class GameDrawer {
 
 		this.graphics = scene.add.graphics();
         
-        this.fireDrawer = new FireDrawer(scene, board);
+        this.serverFXDrawer = new ServerFXDrawer(scene, board);
         
         this.virusDrawer = new VirusDrawer(board.virus, scene);
         
@@ -95,11 +95,7 @@ export class GameDrawer {
                 this.graphics.lineBetween(x + 5, y + height * 0.4, x + width - 5, y + height * 0.4);
                 this.graphics.lineBetween(x + 5, y + height * 0.7, x + width - 5, y + height * 0.7);
 
-                // server lampor (Röd/Grön)
-                this.graphics.fillStyle(GREEN, 1);
-                this.graphics.fillCircle(x + 8, y + 8, 3);
-                this.graphics.fillStyle(RED, 1);
-                this.graphics.fillCircle(x + 16, y + 8, 3);
+                // Serverlampor ritas i ServerFXDrawer
 
             } else {
                 // Vanlig nod
@@ -146,6 +142,7 @@ export class GameDrawer {
     animate() {
         this.inputDrawer.update();
         this.bugsDrawer.update();
+        //this.serverFXDrawer.update();
     }
 }
 
@@ -223,7 +220,7 @@ class BugsDrawer {
                 return; // Skip drawing if transitioning
             }
             if (glitchOut > 0) {
-                size += Math.abs(this.getGlitchValue(glitchOut))*size*0.15+size*0.5*glitchOut;
+                size += Math.abs(this.getGlitchValue(glitchOut))*size*0.1+size*0.5*glitchOut;
             }
             this.drawRotatedSquare(x+this.getGlitchValue(glitchOut),y+this.getGlitchValue(glitchOut),size,-rot*0.5);
         }
@@ -581,16 +578,20 @@ class InputDrawer {
 	}
 }
 
-class FireDrawer {
+class ServerFXDrawer {
     /**
      * @param {Game} scene 
      * @param {Board} board 
      */
     constructor(scene, board) {
-        this.graphics = scene.add.graphics();
+        this.graphics = scene.add.graphics(); // For drawing blinking lights
         this.serverNodes = board.getAllNodes().filter((n) => {return n.isServer()});
+        this.blinkStates = []
+        for (const server of this.serverNodes) {
+            this.blinkStates.push([0])
+        }
         this.board = board;
-        this.board.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this));
+        this.board.virus.addEventListener(Virus.EVENTS.MOVED,this.updateFire.bind(this));
         this.board.addEventListener(Board.EVENTS.BOARD_FLIP,() => {
             // Update positions of particles if board gets flipped
             this.serverNodes.forEach((server, index) => {
@@ -619,12 +620,12 @@ class FireDrawer {
             })
             this.emitters.push(newEmitter)
         }
+        setInterval(this.update.bind(this),70);
     }
-    
-    update() {
-        this.graphics.clear()
-        
+
+    updateFire() {
         this.serverNodes.forEach((server, index) => {
+            // Burn particles
             const emitter = this.emitters[index]; 
             if (this.board.virus.hasNode(server)) {
                 if (!emitter.emitting) {
@@ -637,9 +638,45 @@ class FireDrawer {
                     emitter.stop()
                 }
             }
+        }); 
+    }
+
+    drawBlinkingLight(x,y,color,on,size=3) {
+        
+        if (on) {
+            this.graphics.fillStyle(color, color == RED ? 0.25 : 0.12);
+            this.graphics.fillCircle(x, y, size+2);
+        }
+        
+        this.graphics.fillStyle(on ? color : 0x000000, 1);
+        this.graphics.fillCircle(x, y, size);
+    }
+
+    drawLights(serverNode, blinkState) {
+        const width = 38;
+        const height = 50;
+        const x = serverNode.x - width / 2;
+        const y = serverNode.y - height / 2;
+        
+        // Create a pattern of frequent blinking with breaks in between
+        blinkState[0] = (blinkState[0]+1)%20;
+        if (Math.random() < 0.1) {
+            blinkState[0] = 0;
+        }
+        
+        
+        const blink1 = blinkState[0] < 6 ? blinkState[0] % 3 >= 1: true;
+        // Server lampor (Grön/Röd)
+        this.drawBlinkingLight(x+8,y+8,GREEN,blink1);
+        this.drawBlinkingLight(x+16,y+8,RED,blinkState[0] < 3);
+    }
+    
+    update() {
+        this.graphics.clear();
+        this.serverNodes.forEach((server, index) => {
+            this.drawLights(server, this.blinkStates[index]);
         });
         
-
     }
 
 }
