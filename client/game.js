@@ -20,7 +20,10 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
-        this.load.image('bg', './assets/bdr.png')
+        this.load.image('bg', './assets/backdrop.png');
+        this.load.image('shield', './assets/shield.png');
+        this.load.image('fire', './assets/fire.png');
+        this.load.image('eyes', './assets/eyes.png');
         
         // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
@@ -42,21 +45,19 @@ export class Game extends Phaser.Scene {
     onResize() {
         if (this.gameDrawer) {
             this.gameDrawer.onResize();
-        } else {
-            // If we got no gameDrawer, normalize zoom and center camera on 0,0
-            // This keeps the background image scale fixed
-            let zoom = Math.max(this.scale.height / 500, this.scale.width / 2000);
-            this.cameras.main.setZoom(zoom);
-            this.cameras.main.centerOn(0,0);
-            // Move the background to the center of the camera    
-            
         }
+        const cameraSizeX = this.cameras.main.width/this.cameras.main.zoomX;
+        const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
+        // Scale the background so it fits the camera area
+        this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
+        this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
     }
 
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
-        this.bg = this.add.image(0, 0, 'bg');
+        this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
         
         this.scale.on("resize",this.onResize.bind(this));
         this.onResize();
@@ -153,6 +154,12 @@ export class Game extends Phaser.Scene {
             }
             
         })
+        /*this.startGame({
+            virusNodes: [],
+            antivirusNodes: [],
+            bugNodes: [],
+            currentPlayer: 0,
+        });*/
     }
 
     startGame(data) {
@@ -197,6 +204,8 @@ export class Game extends Phaser.Scene {
         if (this.isVirus) {
             this.virusTurn();
         }
+
+        this.onResize();
     }
 
     virusTurn() {
@@ -241,6 +250,15 @@ export class Game extends Phaser.Scene {
                 }
             });
         });
+    }
+
+    update(time,delta) {
+        if (this.gameDrawer) {
+            // Animate the input circles
+            this.gameDrawer.animate();
+        }
+        // Slowly scroll the background, multiply with delta to get it frame-rate independant
+        this.bg.tilePositionY -= 0.02*delta;
     }
     
     

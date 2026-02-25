@@ -1,7 +1,6 @@
 /*Fixa så att skärmen inte har vita kanter runt sig*/
 body, html {
     margin: 0;
-    cursor: progress;
 }
 
 button:hover {
@@ -178,11 +177,11 @@ html, button {
 }
 
 .red {
-    color: #ff0040;
+    color: #ff0060;
 }
 
 .blue {
-    color: #0000ff;
+    color: #33c4fd;
 }
 
 .hidden {

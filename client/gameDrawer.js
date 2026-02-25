@@ -6,6 +6,15 @@ import InputHandler from "./inputhandler.js";
 // // -=< STORY 2 || TASK 4 >=-
 // // Class to print the board using primarily game.js and shared/board.js
 
+const EDGE_COLOR = 0x75a5a9;
+const NODE_COLOR = 0xe5e5e7;
+
+const RED = 0xff1060;
+const DARK_RED = 0xB00451;
+const GREEN = 0x10ff80;
+
+const BLUE = 0x0020ef;
+
 export class GameDrawer {
     /**
      * @param {Phaser.Scene} scene 
@@ -17,16 +26,18 @@ export class GameDrawer {
 		
 		this.inputHandler = inputHandler;
         
+        
+
 		this.graphics = scene.add.graphics();
-
-        // Later the virus will be part of the board
+        
+        this.serverFXDrawer = new ServerFXDrawer(scene, board);
+        
         this.virusDrawer = new VirusDrawer(board.virus, scene);
-        this.bugsDrawer = new BugsDrawer(board.bugs,scene);
-
+        
 		this.antivirusDrawer = new AntivirusDrawer(board.antivirus, scene);
-
+        this.bugsDrawer = new BugsDrawer(board.bugs,scene);
+        
 		this.inputDrawer = new InputDrawer(scene, this.inputHandler);
-
         this.isRotated = false; // It's starts not rotated
         
         this.onResize();
@@ -59,14 +70,7 @@ export class GameDrawer {
         const av = this.board.antivirus;
     
         for (const node of this.board.getAllNodes()) {
-            let color = 0xe5e5e5; 
-            
-            // Kolla om det är en server
-            if (node.type === 'server') {
-                color = 0x1a1a1a;
-            }
-    
-            this.graphics.fillStyle(color, 1);
+            this.graphics.fillStyle(NODE_COLOR, 1);
             
             // Nod grafik
             if (node.isServer()) {
@@ -76,31 +80,34 @@ export class GameDrawer {
                 const cornerRadius = 5; 
                 const x = node.x - width / 2;
                 const y = node.y - height / 2;
-                this.graphics.lineStyle(2, 0xcccccc, 1); 
+                this.graphics.lineStyle(3, EDGE_COLOR, 1); 
+                this.graphics.fillStyle(0x1F202B, 1);
+                this.graphics.fillRect(x, y, width, height);
+                this.graphics.fillStyle(0x151624, 1);
+                
+                // Shading
+                this.graphics.fillRect(x+width/2, y, width/2, height);
+                //this.graphics.fillTriangle(x+width, y, x+width, y+height, x, y+height);
+                
                 this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, cornerRadius);
 
-                this.graphics.fillRoundedRect(x, y, width, height, cornerRadius);
-
-                this.graphics.lineStyle(1, 0x333333, 0.8);
+                this.graphics.lineStyle(1, 0x403a52, 0.8);
                 this.graphics.lineBetween(x + 5, y + height * 0.4, x + width - 5, y + height * 0.4);
                 this.graphics.lineBetween(x + 5, y + height * 0.7, x + width - 5, y + height * 0.7);
 
-                // server lampor (Röd/Grön)
-                this.graphics.fillStyle(0x00ff00, 1);
-                this.graphics.fillCircle(x + 8, y + 8, 3);
-                this.graphics.fillStyle(0xff0000, 1);
-                this.graphics.fillCircle(x + 16, y + 8, 3);
+                // Serverlampor ritas i ServerFXDrawer
 
-                this.graphics.fillStyle(color, 1);
             } else {
                 // Vanlig nod
+                this.graphics.lineStyle(3, EDGE_COLOR, 1); 
                 this.graphics.fillCircle(node.x, node.y, 18);
+                this.graphics.strokeCircle(node.x, node.y, 18);
             }
         }
     }
     
     drawEdges() {
-        this.graphics.lineStyle(3, 0xffffff, 0.3); 
+        this.graphics.lineStyle(3, EDGE_COLOR, 0.4); 
         for (const node of this.board.getAllNodes()) {
             for (const neighbor of node.neighbors) {
                 if (node.id < neighbor.id) {
@@ -130,6 +137,12 @@ export class GameDrawer {
         let zoom = Math.min(this.scene.scale.width / (maxX - minX + margin * 2), 
                             this.scene.scale.height / (maxY - minY + margin * 2));
         this.scene.cameras.main.setZoom(zoom);
+    }
+
+    animate() {
+        this.inputDrawer.update();
+        this.bugsDrawer.update();
+        //this.serverFXDrawer.update();
     }
 }
 
@@ -164,8 +177,11 @@ class BugsDrawer {
     }
 
     update() {
+        if (this.tween) {
+            return // still animating
+        }
         if (!this.hasChanged()) {
-            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,1.0);
+            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,performance.now()/2000);
             return;
         }
         this.nextNodes = [...this.bugs.nodes]; // shallow copy
@@ -173,8 +189,8 @@ class BugsDrawer {
         this.tween = this.scene.tweens.add({
             targets: this,
             animationProgress: {from: 0.0, to:1.0}, 
-            duration: 800,
-            ease: 'Quad.easeInOut',
+            duration: 1000,
+            ease: 'Quad.easeOut',
             onUpdate: (tween, target, key, current, previous, param) => {
                 this.drawBetweenNodes(this.prevNodes,this.nextNodes,current)
             },
@@ -186,21 +202,69 @@ class BugsDrawer {
         
     }
 
-    drawBetweenNodes(fromNodes,toNodes,progress) {
-        this.graphics.clear();
-        fromNodes.forEach((fromNode,index) => {
-            const toNode = toNodes[index];
-            const x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
-            const y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
-            let rot = progress*Math.PI*2;
-            if (fromNode === toNode) {
-                rot = 0; // No movement, don't rotate
-            }
-            this.graphics.fillStyle(0xcc10dd);
-            this.drawRotatedSquare(x,y,11,rot);
-            this.graphics.fillStyle(0xee20ee);
-            this.drawRotatedSquare(x,y,12,Math.PI/4+rot);
+    getGlitchValue(strength = 0.0) {
+        const GLITCH_COLOR = 0xff00ff;
+        const GLITCH_COLOR_DARK = 0x000000;
+        if (Math.random() > 0.02+strength*0.1) {
+            return 0;
+        }
+        this.graphics.fillStyle(Math.random() < 0.2 ? GLITCH_COLOR_DARK:GLITCH_COLOR);
+        let v = Math.floor(Math.pow(Math.random()*3+strength*2,2))*(1+strength)+2
+        return Math.random() < 0.5 ? v : -v;
+    }
 
+    drawBugAt(x,y,rot,glitchOut = 0.0) {
+        
+        const drawSegment = (index,size,rot) => {
+            if (glitchOut > 0 && Math.random() < (index+1)*0.5*glitchOut*glitchOut) {
+                return; // Skip drawing if transitioning
+            }
+            if (glitchOut > 0) {
+                size += Math.abs(this.getGlitchValue(glitchOut))*size*0.1+size*0.5*glitchOut;
+            }
+            this.drawRotatedSquare(x+this.getGlitchValue(glitchOut),y+this.getGlitchValue(glitchOut),size,-rot*0.5);
+        }
+        this.graphics.fillStyle(RED);
+        drawSegment(0,15,-rot+this.getGlitchValue(glitchOut));
+        this.graphics.fillStyle(DARK_RED);
+        drawSegment(1,9,Math.PI/4+rot);
+        this.graphics.fillStyle(RED);
+        drawSegment(2,5,-rot*0.5);
+    }
+
+    drawBetweenNodes(fromNodes,toNodes,progress) {
+        if (Math.random() < 0.6) {
+            // Skip drawing this frame for a buggier effect
+            return;
+        }
+        this.graphics.clear();
+        
+        fromNodes.forEach((fromNode,index) => {
+            const nextNode = toNodes[index];
+            let rot = progress*Math.PI*2;
+            rot += index;
+            if (nextNode != fromNode) {
+                // A new bug as been added
+                if (progress > 0.5) {
+                    // Transition the new bug in
+                    this.drawBugAt(nextNode.x,nextNode.y,rot,2-progress*2);
+                } else if (progress < 0.4) {
+                    // Transition the old bug out
+                    this.drawBugAt(fromNode.x,fromNode.y,rot,progress*2.5);
+                }
+                if (progress > 0.45 && progress < 0.55 && Math.random() < 0.7) {
+                    // Draw somewhere inbetween
+                    let moveProgress = (progress-0.45)*10 + this.getGlitchValue(0.5)*0.1; // Remap from 0 to 1
+                    // Clamp between 0 and 1
+                    moveProgress = Math.min(Math.max(moveProgress,0.0),1.0)
+                    const x = Phaser.Math.Linear(fromNode.x,nextNode.x,moveProgress+Math.random()*4-2);
+                    const y = Phaser.Math.Linear(fromNode.y,nextNode.y,moveProgress+Math.random()*4-2);
+                    this.drawBugAt(x,y,rot,1.0);
+                }
+            } else {
+                // Draw like usual
+                this.drawBugAt(fromNode.x,fromNode.y,rot,0);
+            }
         });
     }
 
@@ -234,23 +298,28 @@ class VirusDrawer {
         this.nextNodes = [...this.virus.nodes];
         this.animationProgress = 0.0; // Number between 0 and 1
         this.graphics = this.scene.add.graphics();
-        this.lastRotation = false;
-        
+        const vHead = virus.getHeadNode();
+        this.eyes = this.scene.add.image(vHead.x,vHead.y,"eyes").setScale(0.2);
+        this.lastRotation = 0;
         // Automatically redraw snake when it has moved
         this.virus.addEventListener(Virus.EVENTS.MOVED,this.update.bind(this)); 
     }
 
-    renderSnakeProgress(fromNodes,toNodes,progress,growAnim) {
-        let HEAD_RADIUS = 14;
-        let LINE_RADIUS = 10;
-        const BODY_COLOR = 0xff0030;
+    renderSnakeProgress(fromNodes,toNodes,progress,growAnim, alt = false) {
+        // Alt parameter is used to draw it twice at different thicknesses to get the outline
+        let HEAD_RADIUS = alt ? 11 : 15;
+        let LINE_RADIUS = alt ? 7 : 11;
+        const BODY_COLOR = alt ? RED : DARK_RED;
 
+        let headGrow = 0;
         if (growAnim) {
-            HEAD_RADIUS += (1-progress)*6;
-            LINE_RADIUS += (1-progress)*2;
+            headGrow = 1.0-progress;
+            HEAD_RADIUS += headGrow*8;
+            LINE_RADIUS += headGrow*2;
         }
-
-        this.graphics.clear();
+        if (!alt) {
+            this.graphics.clear();
+        }
         this.graphics.fillStyle(BODY_COLOR);
         this.graphics.lineStyle(LINE_RADIUS*2, BODY_COLOR);
 
@@ -274,6 +343,27 @@ class VirusDrawer {
                 this.graphics.fillCircle(fromNode.x,fromNode.y,LINE_RADIUS);
             }
         }
+        if (!alt) {
+            this.renderSnakeProgress(fromNodes,toNodes,progress,growAnim,true);
+            if (fromNodes[0] == toNodes[0]) {
+                this.updateEyes(toNodes[1],toNodes[0],toNodes[2],progress,headGrow);
+            } else {
+                this.updateEyes(fromNodes[0],toNodes[0],fromNodes[1],progress,headGrow);
+            }
+        } 
+    }
+
+    updateEyes(fromNode, toNode, prevNode, progress, headGrow) {
+        this.eyes.x = Phaser.Math.Linear(fromNode.x,toNode.x,progress);
+        this.eyes.y = Phaser.Math.Linear(fromNode.y,toNode.y,progress);
+        let scale = 0.2+headGrow*0.1;
+        
+        this.eyes.setScale(scale)
+        const targetAngle = Math.atan2(toNode.y-fromNode.y,toNode.x-fromNode.x);
+        const lastAngle = Math.atan2(fromNode.y-prevNode.y,fromNode.x-prevNode.x);
+        // Animate from the last head angle to the new one. Progres*2 to make it faster.
+        this.eyes.rotation = lastAngle + Phaser.Math.Angle.GetShortestDistance(lastAngle,targetAngle)*Math.min(progress*2,1);
+        
     }
 
     update() {
@@ -323,7 +413,7 @@ class AntivirusDrawer {
         this.scene = scene;
         this.antivirus = antivirus;
         this.graphics = this.scene.add.graphics();
-        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        this.displayNodes = this.antivirus.nodes.map(node => (this.scene.add.image(node.x,node.y,"shield").setScale(0.25)));
         
         this.animationProgress = 1.0;
         this.tween = null;
@@ -332,7 +422,12 @@ class AntivirusDrawer {
 
     update() {
         if (this.tween && this.tween.isPlaying()) return;
-        this.displayNodes = this.antivirus.nodes.map(node => ({ x: node.x, y: node.y }));
+        
+        this.antivirus.nodes.forEach((node, i) => {
+            this.displayNodes[i].x = node.x;
+            this.displayNodes[i].y = node.y;
+        })
+
         this.draw();
     }
 
@@ -364,30 +459,32 @@ class AntivirusDrawer {
     }
 
     draw() {
-        this.graphics.clear();
+        // Vi behöver inte rita något längre, det sker via bilderna som flyttar på sig direkt
+        /*this.graphics.clear();
         this.displayNodes.forEach((pos, index) => {
+            
             const isSelected = this.antivirus.selectedNode === this.antivirus.nodes[index];
             
             // Yttre ring
-            this.graphics.lineStyle(2, 0x00ffff, 0.5);
+            this.graphics.lineStyle(2, EDGE_COLOR, 0.5);
             this.graphics.strokeCircle(pos.x, pos.y, 28);
 
             //Huvudcirkeln
-            const mainColor = isSelected ? 0x0077ff : 0x0000ff;
+            const mainColor = isSelected ? 0x0077ff : BLUE;
             this.graphics.lineStyle(4, mainColor, 1);
-            this.graphics.strokeCircle(pos.x, pos.y, 22);
+            this.graphics.strokeCircle(pos.x, pos.y, 21);
 
 			this.graphics.lineStyle(2, mainColor, 0.8);
         
-			this.graphics.lineStyle(3, 0x000099, 1); // Vit för max synlighet
-        
+			this.graphics.lineStyle(3, BLUE, 1); // Vit för max synlighet
+            
 			// Vertikal streck
 			this.graphics.lineBetween(pos.x, pos.y - 12, pos.x, pos.y + 12);
 			// Horisontell streck
 			this.graphics.lineBetween(pos.x - 12, pos.y, pos.x + 12, pos.y);
 			
 			// liten kvadrat i mitten
-			this.graphics.fillStyle(0x000099, 1);
+			this.graphics.fillStyle(BLUE, 1);
 			this.graphics.fillRect(pos.x - 4, pos.y - 4, 8, 8);
 	
 			// hörn vinklar
@@ -404,17 +501,19 @@ class AntivirusDrawer {
 			this.graphics.lineBetween(pos.x + d, pos.y - d, pos.x + d, pos.y - d + s);
             this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d - s, pos.y + d);
             this.graphics.lineBetween(pos.x + d, pos.y + d, pos.x + d, pos.y + d - s);
-	
+            
 			if (isSelected) {
 				this.graphics.fillStyle(0x00ffff, 0.3);
 				this.graphics.fillCircle(pos.x, pos.y, 22);
 				this.graphics.lineStyle(2, 0xffffff, 0.8);
 				this.graphics.strokeCircle(pos.x, pos.y, 24);
 			}
-        });
+        });*/
     }
 
 }
+
+const INPUT_COLOR = 0x00dddd;
 
 class InputDrawer {
     /**
@@ -426,25 +525,158 @@ class InputDrawer {
         this.scene = scene;
         this.inputHandler = inputHandler;
         this.graphics = this.scene.add.graphics();
-
+        this.hasActiveInputs = false;
+        
         // Rita om input-hints (gröna cirklar) när input har ändrats
-        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.update.bind(this))
+        this.inputHandler.addEventListener(InputHandler.EVENTS.CHANGED,this.inputChanged.bind(this))
+    }
+
+    inputChanged() {
+        this.hasActiveInputs = this.inputHandler.activeNodes.length > 0;
+        if (this.hasActiveInputs) {
+            this.update();
+        } else {
+            // No more active, clear them
+            this.graphics.clear();
+        }
     }
 
     update() {
+        if (!this.hasActiveInputs) {
+            return;
+        }
 		this.graphics.clear();
         const inputNodes = this.inputHandler.activeNodes;
         const av = this.inputHandler.board.antivirus;
-
+        const time = performance.now();
+        const size = Math.sin(time*0.005)*1+1;
         for (const node of inputNodes) {
 
             if (av && av.hasNode(node)) {
-                continue; 
+                if (av.selectedNode == node) {
+                    continue; // Don't draw on the selected one
+                }
+                this.graphics.fillStyle(0xffffff,1.0);
+                this.graphics.fillCircle(node.x,node.y,5+size);
+                continue;
             }
 
-            this.graphics.lineStyle(3, 0x00ff00, 0.8); 
-            this.graphics.strokeCircle(node.x, node.y, 22);
-            this.graphics.fillStyle(0x00ff00, 0.15);
+            this.graphics.lineStyle(3,INPUT_COLOR, 1); 
+            this.graphics.fillStyle(INPUT_COLOR, 0.25);
+            if (node.isServer()) {
+                const width = 48+size;
+                const height = 60+size;
+                const x = node.x - width / 2;
+                const y = node.y - height / 2;
+                this.graphics.strokeRoundedRect(x - 1, y - 1, width + 2, height + 2, 10);
+                //this.graphics.fillRoundedRect(x - 1, y - 1, width + 2, height + 2, 10);
+            } else {
+                this.graphics.strokeCircle(node.x, node.y, 23+size);
+                //this.graphics.fillCircle(node.x, node.y, 23+size);
+            }
 		}
 	}
+}
+
+class ServerFXDrawer {
+    /**
+     * @param {Game} scene 
+     * @param {Board} board 
+     */
+    constructor(scene, board) {
+        this.graphics = scene.add.graphics(); // For drawing blinking lights
+        this.serverNodes = board.getAllNodes().filter((n) => {return n.isServer()});
+        this.blinkStates = []
+        for (const server of this.serverNodes) {
+            this.blinkStates.push([0])
+        }
+        this.board = board;
+        this.board.virus.addEventListener(Virus.EVENTS.MOVED,this.updateFire.bind(this));
+        this.board.addEventListener(Board.EVENTS.BOARD_FLIP,() => {
+            // Update positions of particles if board gets flipped
+            this.serverNodes.forEach((server, index) => {
+                this.emitters[index].x = server.x;
+                this.emitters[index].y = server.y;
+            })
+        })
+        this.emitters = [];
+        // Create one particle system per server
+        for (const server of this.serverNodes) {
+            const newEmitter = scene.add.particles(server.x,server.y, 'fire', {
+                speed: {start: 30, end: 0, random: true},
+                emitZone: {
+                    type: 'random',
+                    source: new Phaser.Geom.Rectangle(-10,-10,20,30)
+                },
+                rotate: {min: -30, max: 30},
+                blendMode: "ADD",
+                lifespan: 1500,
+                gravityY: -30,
+                quantity: 3,
+                frequency: 700,
+                scale: {values: [0, 0.6, 0.5, 0.2, 0.0], interpolation: "catmull"},
+                emitting: false,
+                
+            })
+            this.emitters.push(newEmitter)
+        }
+        setInterval(this.update.bind(this),70);
+    }
+
+    updateFire() {
+        this.serverNodes.forEach((server, index) => {
+            // Burn particles
+            const emitter = this.emitters[index]; 
+            if (this.board.virus.hasNode(server)) {
+                if (!emitter.emitting) {
+                    emitter.start();
+                    // Emit some early
+                    setTimeout(emitter.emitParticle.bind(emitter,2),250);
+                }
+            } else {
+                if (emitter.emitting) {
+                    emitter.stop()
+                }
+            }
+        }); 
+    }
+
+    drawBlinkingLight(x,y,color,on,size=3) {
+        
+        if (on) {
+            this.graphics.fillStyle(color, color == RED ? 0.25 : 0.12);
+            this.graphics.fillCircle(x, y, size+2);
+        }
+        
+        this.graphics.fillStyle(on ? color : 0x000000, 1);
+        this.graphics.fillCircle(x, y, size);
+    }
+
+    drawLights(serverNode, blinkState) {
+        const width = 38;
+        const height = 50;
+        const x = serverNode.x - width / 2;
+        const y = serverNode.y - height / 2;
+        
+        // Create a pattern of frequent blinking with breaks in between
+        blinkState[0] = (blinkState[0]+1)%20;
+        if (Math.random() < 0.1) {
+            blinkState[0] = 0;
+        }
+        
+        
+        const blink1 = blinkState[0] < 6 ? blinkState[0] % 3 >= 1: true;
+        // Server lampor (Grön/Röd)
+        this.drawBlinkingLight(x+8,y+8,GREEN,blink1);
+        this.drawBlinkingLight(x+16,y+8,RED,blinkState[0] < 3);
+    }
+    
+    update() {
+        this.graphics.clear();
+        this.serverNodes.forEach((server, index) => {
+            this.drawLights(server, this.blinkStates[index]);
+        });
+        
+    }
+
 }
