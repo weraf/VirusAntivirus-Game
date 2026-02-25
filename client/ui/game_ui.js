@@ -22,7 +22,6 @@ export class GameUI {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
-        
     }
 
     /**
@@ -135,7 +134,7 @@ export class GameUI {
                 this.socket.emit(ACTIONS.STOP_FINDING_GAME)
             }
 
-            this.mainmenu.language_button.onclick = () => {
+            this.mainmenu.languageBtn.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 if (Translator.language === "en") {
                     Translator.setLanguage("sv");
@@ -145,9 +144,7 @@ export class GameUI {
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
 
-            
-
-
+            lucide.createIcons();
         })
     }
 }
