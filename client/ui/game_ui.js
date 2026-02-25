@@ -96,86 +96,37 @@ export class GameUI {
             // Blank description text från början
             this.mainmenu.setPlaceholder("description", "");
 
-            this.mainmenu.rules.onclick = () => {
-                this.activeRules = !this.activeRules
-                if (!this.activeRules) {
-                        this.mainmenu.setPlaceholder("description", "");
-                        return;
-                } 
-                if (this.queuePreference === QUEUE_PREFERENCE.VIRUS) {
-                    this.mainmenu.setPlaceholder("description", "virusdescription");
-                    return;
-                }
-                if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
-                    this.mainmenu.setPlaceholder("description", "antivirusdescription");
-                    return;
-                }
-            }
-
 
             this.mainmenu.virus.onclick = () => {
-                this.soundManager.play('click'); // ljud
-                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
-                this.setRoleTheme("virus");
-                // Visa en linje på den markerade knappen
-                // this.mainmenu.virus.classList.add("selected");
-                // this.mainmenu.antivirus.classList.remove("selected");
-                if(this.mainmenu.virus.classList.contains("selected")) {
-                    this.setRoleTheme(null);
-                    this.mainmenu.virus.classList.remove("selected");
-                    this.mainmenu.setPlaceholder("description", "")
-                    this.mainmenu.rules.classList.add("hidden");
-                    this.queuePreference = QUEUE_PREFERENCE.ANY;
-                } else {
-                    this.activeRules = false;
-                    this.mainmenu.virus.classList.add("selected");
-                    this.mainmenu.antivirus.classList.remove("selected");
-                    this.mainmenu.setPlaceholder("description", "")
-                    this.mainmenu.rules.classList.remove("hidden");
-                    this.queuePreference = QUEUE_PREFERENCE.VIRUS;
-                }
+                this.soundManager.play('click');
 
+                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
+
+                this.mainmenu.switchTo(this.queue);
+
+                this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
             }
 
             this.mainmenu.spectate.onclick = () => {
-                this.setRoleTheme("spectator");
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue);
                 this.socket.emit(ACTIONS.SPECTATE_GAME);
-                this.setRoleTheme(null);
             }
             
-            this.mainmenu.antivirus.onclick = () => {     
-                this.setRoleTheme("antivirus");
-                if(this.mainmenu.antivirus.classList.contains("selected")) {
-                    this.setRoleTheme(null);
-                    this.mainmenu.antivirus.classList.remove("selected");
-                    this.mainmenu.setPlaceholder("description", "")
-                    this.mainmenu.rules.classList.add("hidden");
-                    this.queuePreference = QUEUE_PREFERENCE.ANY;
-                } else {
-                    this.activeRules = false;
-                    this.mainmenu.antivirus.classList.add("selected");
-                    this.mainmenu.virus.classList.remove("selected");
-                    this.mainmenu.setPlaceholder("description", "")
-                    this.mainmenu.rules.classList.remove("hidden");
-                    this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
-                }
+            this.mainmenu.antivirus.onclick = () => {
+                this.soundManager.play('click');
 
-                this.soundManager.play('click'); // ljud
                 this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
-                // Visa en linje på den markerade knappen
-                // this.mainmenu.antivirus.classList.add("selected");
-                // this.mainmenu.virus.classList.remove("selected");
 
+                this.mainmenu.switchTo(this.queue);
 
-
+                this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
             }
 
             this.mainmenu.start.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue)
-                this.socket.emit(ACTIONS.FIND_GAME,this.queuePreference)
+                this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.ANY);
             }
 
             this.queue.abort.onclick = () => {
