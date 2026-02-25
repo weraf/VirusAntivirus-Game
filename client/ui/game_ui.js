@@ -3,7 +3,12 @@ import { Translator } from "./translator.js";
 import { QUEUE_PREFERENCE, ACTIONS, EVENTS } from "../shared/enums.js";
 import { GameState } from "../shared/gamestate.js";
 
-export class GameUI {
+export class GameUI extends EventTarget {
+
+    static EVENTS = {
+        PAUSE: "PAUSE",
+        UNPAUSE: "UNPAUSE"
+    } 
 
     /**
      * 
@@ -12,6 +17,7 @@ export class GameUI {
      * @param {SoundManager}
      */
     constructor(parent, socket, soundManager) {
+        super();
         this.soundManager = soundManager;
         this.htmlManager = new HtmlManager(parent);
         Translator.connectToHTMLManager(this.htmlManager);
@@ -188,6 +194,9 @@ export class GameUI {
             this.rulesbutton.rulesbutton.onclick = () => {
                 this.soundManager.play('click'); // ljud 🤑
                 this.rules.show();
+
+                this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
+
                 if (this.queuePreference === QUEUE_PREFERENCE.VIRUS) {
                     this.rules.setPlaceholder("description", "virusdescription");
                 }
@@ -197,6 +206,9 @@ export class GameUI {
             }
 
             this.rules.norulesbutton.onclick = () => {
+
+                this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                
                 this.soundManager.play('click'); // ljud 🤑
                 this.rules.hide();
             }

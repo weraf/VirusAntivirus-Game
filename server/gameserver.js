@@ -42,10 +42,13 @@ export class GameServer extends EventEmitter {
         board.spawnAntivirus();
         board.spawnStartBugs();
 
-        this.gameState = new GameState(board, 4000);
+        this.gameState = new GameState(board, 20000);
 
         // Skicka initial state till båda spelarna
         this.sendGameStart();
+
+        // use events to not start timer/input and wait until both players have
+        // clicked on a ready button when they have read the rules ?
 
         this.gameState.startTimer(); //
         

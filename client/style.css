@@ -153,11 +153,9 @@ html, button {
 }
 
 .transparent {
-    background-color: rgba(48, 56, 54, 0.65);
+    background-color: rgba(48, 56, 54);
     padding: 1em;
     border: 2px;
 }
 
-.tutorialimage {
-    opacity: 0.65;
-}
+
