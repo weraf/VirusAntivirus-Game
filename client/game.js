@@ -93,19 +93,19 @@ export class Game extends Phaser.Scene {
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
 
-            if (!disconnect) {
-                // If this is not a disconnect, we will automatically notice game over from our local gamestate
+            if (!disconnect && !this.isSpectator) {
+                // Non-spectator
                 return;
             }
-            // If our opponent disconnected we need to show that manually
+            // Spectators and disconnec
             this.ui.showWinScreen(virusWon);
-            this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.gameState.stopGame();
         })
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+
             this.startGame(data);
         });
 
@@ -163,6 +163,7 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
+
 
         /*
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
