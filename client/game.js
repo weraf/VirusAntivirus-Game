@@ -80,6 +80,7 @@ export class Game extends Phaser.Scene {
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
         this.ui.connectToGameState(this.gameState);
 
+
         this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
             this.inputHandler.tempRemoveInput();
         })
@@ -155,6 +156,10 @@ export class Game extends Phaser.Scene {
                 this.antivirusTurn();
             }
             
+        })
+
+        socket.on(EVENTS.START_TUTORIAL, () => {
+            this.ui.showTutorial();
         })
     }
 

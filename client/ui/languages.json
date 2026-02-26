@@ -127,9 +127,9 @@
     "fi": "",
     "zh": ""
   },
-  "exitrules": {
-    "sv": "Gå tillbaka",
-    "en": "Go back",
+  "exittutorial": {
+    "sv": "Redo att starta",
+    "en": "Ready to start",
     "da": "",
     "no": "",
     "fi": "",
@@ -150,6 +150,14 @@
     "no": "",
     "fi": "",
     "zh": ""
+  }, 
+  "waiting": {
+    "sv": "Väntar på att andra spelaren är redo.",
+    "en": "Waiting for the other player to ready up."
+  },
+  "exitrules": {
+    "sv": "Tillbaka till spelet",
+    "en": "Back to game"
   }
   
 }

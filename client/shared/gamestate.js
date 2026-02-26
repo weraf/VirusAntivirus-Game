@@ -19,6 +19,7 @@ export class GameState extends EventTarget {
         this.time = timerLength/1000; // hela sekunder
         this.displayInterval = null;
         this.timeLeft = this.timerLength / 1000; // i sekunder
+        this.tutorialFinished = false;
 
     }
 
@@ -38,6 +39,7 @@ export class GameState extends EventTarget {
             this.winner = 0;
         }
     }
+
 
     getVirus() {
         return this.board.virus;

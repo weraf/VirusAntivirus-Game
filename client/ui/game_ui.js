@@ -28,6 +28,7 @@ export class GameUI extends EventTarget {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
+        this.tutorialFinished = false;
         
     }
 
@@ -80,19 +81,30 @@ export class GameUI extends EventTarget {
             this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
         }
         this.showCurrentPlayer(0);
-        this.queue.switchTo(this.player_indicator);
+        this.waiting.switchTo(this.player_indicator);
         this.rulesbutton.show();
+        this.setRulesButton();
+    }
+
+    setRulesButton() {
+        
+        this.rules.setPlaceholder("exittutorial", "exitrules") // Visa olika texter beroende på
+    }
+
+        showTutorial() {
+        this.queue.switchTo(this.rules);
 
     }
 
     setup() {
-        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html", "./ui/rules.html", "./ui/rulesbutton.html"]).then(() => {
+        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html", "./ui/rules.html", "./ui/rulesbutton.html", "./ui/waiting.html"]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.winscreen = this.htmlManager.create("winscreen");
             this.rules = this.htmlManager.create("rules");
             this.rulesbutton = this.htmlManager.create("rulesbutton");
+            this.waiting = this.htmlManager.create("waiting");
             
             this.htmlManager.showOnly(this.mainmenu);
 
@@ -194,6 +206,7 @@ export class GameUI extends EventTarget {
             this.rulesbutton.rulesbutton.onclick = () => {
                 this.soundManager.play('click'); // ljud 🤑
                 this.rules.show();
+                this.setRulesButton();
 
                 this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
 
@@ -206,11 +219,16 @@ export class GameUI extends EventTarget {
             }
 
             this.rules.norulesbutton.onclick = () => {
-
-                this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
-                
+                if (this.tutorialFinished === true) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                } else {
+                    this.tutorialFinished = true;
+                    this.socket.emit(ACTIONS.READY)
+                    this.rules.hide();
+                    this.waiting.show();
+                }
                 this.soundManager.play('click'); // ljud 🤑
-                this.rules.hide();
             }
 
             
