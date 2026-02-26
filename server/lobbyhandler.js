@@ -44,7 +44,6 @@ export class LobbyHandler extends EventEmitter {
             
         const match = this.queue.getMatchablePlayers();
         if (match.matchFound) {
-            
             this.createGame(match.virusUser,match.antiVirusUser)
         }
         
