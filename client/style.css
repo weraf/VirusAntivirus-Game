@@ -102,7 +102,7 @@ html, button {
 .title {
     color:rgb(255, 255, 255);
     text-align: center;
-    font-size: 30px;
+    font-size: 35px;
     font-family: 'Gajraj One';
     text-shadow: 3px 3px 3px #000000;
 }
@@ -197,17 +197,17 @@ html, button {
 
 .start-btn {
     width: 100%;
-    padding: 30px;
-    font-size: 28px;
+    padding: 20px;
+    font-size: 20px;
     font-weight: bold;
-    border-radius: 15px;
+    border-radius: 12px;
     border: none;
     background: linear-gradient(90deg, #ff0040, #ff6a00);
     color: white;
     box-shadow: 0 15px 30px rgba(0,0,0,0.4);
     transition: all 0.2s ease;
-    margin-top: 35px;
-    margin-bottom: 60px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .start-btn:hover {
