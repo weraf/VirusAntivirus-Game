@@ -105,7 +105,8 @@ export class GameUI {
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.winscreen = this.htmlManager.create("winscreen");
-            
+
+            // Blank description text från början
             this.htmlManager.showOnly(this.mainmenu);
 
             // Blank description text från början
@@ -134,6 +135,10 @@ export class GameUI {
                 this.soundManager.play('click');
 
                 this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
+                // Visa en linje på den markerade knappen
+                // this.mainmenu.antivirus.classList.add("selected");
+                // this.mainmenu.virus.classList.remove("selected");
+
 
                 this.mainmenu.switchTo(this.queue);
 
@@ -147,6 +152,20 @@ export class GameUI {
                 this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.ANY);
                 this.startFullscreen();
             }
+
+            // --------------------- AI BUTTON ----------------------- 
+            if (this.mainmenu.playai) {
+                this.mainmenu.playai.onclick = () => {
+                    this.soundManager.play('click');
+                    this.mainmenu.switchTo(this.queue);
+                    if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
+                        this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_AS_VIRUS);
+                    } else {
+                        this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_AS_ANTIVIRUS);
+                    }
+                }
+            }
+            // -------------------------------------------------------
 
             this.queue.abort.onclick = () => {
                 this.soundManager.play('click'); // ljud

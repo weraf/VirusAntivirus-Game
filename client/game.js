@@ -105,20 +105,20 @@ export class Game extends Phaser.Scene {
             // Play the sound effect
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
+            this.ui.showWinScreen(virusWon);
 
-            if (!disconnect) {
-                // If this is not a disconnect, we will automatically notice game over from our local gamestate
+            if (!disconnect && !this.isSpectator) {
+                // Non-spectator
                 return;
             }
-            // If our opponent disconnected we need to show that manually
-            this.ui.showWinScreen(virusWon);
-            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            // Spectators and disconnec
             this.gameState.stopGame();
         })
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+
             this.startGame(data);
         });
 
@@ -127,8 +127,15 @@ export class Game extends Phaser.Scene {
             
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (!this.isVirus) {
-                this.antivirusTurn();
+                this.pendingTurn = "antivirus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "antivirus") {
+                        this.pendingTurn = null;
+                        this.antivirusTurn();
+                    }
+                }, 50);
             }
         });
 
@@ -138,8 +145,15 @@ export class Game extends Phaser.Scene {
 
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (this.isVirus) {
-                this.virusTurn();
+                this.pendingTurn = "virus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "virus") {
+                        this.pendingTurn = null;
+                        this.virusTurn();
+                    }
+                }, 50);
             }
             
             
@@ -150,6 +164,15 @@ export class Game extends Phaser.Scene {
             const fromNode = this.gameBoard.getNode(fromId);
             const toNode = this.gameBoard.getNode(toId);
             bugs.respawnBugAtNode(fromNode,toNode);
+
+            // FIXA BUGGEN
+            if (this.pendingTurn === "virus") {
+                this.pendingTurn = null;
+                this.virusTurn();
+            } else if (this.pendingTurn === "antivirus") {
+                this.pendingTurn = null;
+                this.antivirusTurn();
+            }
         });
 
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
@@ -176,6 +199,7 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
+
 
         /*
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
@@ -226,6 +250,10 @@ export class Game extends Phaser.Scene {
             return;
         }
         this.inputHandler.removeAllInput();
+
+        if (this.gameState.currentPlayer !== 0) return; // fixa bugg
+        this.gameBoard.antivirus.selectedNode = null; // fixa bugg
+
         const valid = this.gameState.getVirus().getValidMoves()
 
         for (const node of valid) {
@@ -242,6 +270,9 @@ export class Game extends Phaser.Scene {
         if (this.isSpectator) {
             return;
         }
+        
+        if (this.gameState.currentPlayer !== 1) return; // fixa bugg
+
         const av = this.gameState.getAntiVirus();
         this.inputHandler.removeAllInput();
 

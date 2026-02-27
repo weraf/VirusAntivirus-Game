@@ -67,5 +67,10 @@
   "leave": {
     "sv": "Lämna",
     "en": "Leave"
+  },
+  "aibutton": {
+    "sv": "Spela med AI",
+    "en": "Play With AI"
+
   }
 }

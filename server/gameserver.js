@@ -1,4 +1,5 @@
 import { Player } from "./player.js";
+import { AIPlayer } from "./aiplayer.js"; 
 import { ACTIONS, EVENTS } from "../client/shared/enums.js";
 import { GameState } from "../client/shared/gamestate.js"
 import { Board } from "../client/shared/board.js";
@@ -53,6 +54,7 @@ export class GameServer extends EventEmitter {
         this.virusP.setVirus();
         this.antivirusP = antiVirusPlayer;
 
+
         const board = new Board();
         BoardCreator.createFromJSON(board, mapData); //ta bort för nedan logik
 
@@ -69,6 +71,11 @@ export class GameServer extends EventEmitter {
 
         this.gameState = new GameState(board, 20000);
 
+        // --------------------------- AI IMPLEMENTATION ---------------------------
+        if (this.virusP instanceof AIPlayer)     this.virusP.board = board;
+        if (this.antivirusP instanceof AIPlayer) this.antivirusP.board = board;
+        // -------------------------------------------------------------------------
+
         // Skicka initial state till båda spelarna
         this.sendGameStart();
 
@@ -80,7 +87,9 @@ export class GameServer extends EventEmitter {
         });
         
         this.gameState.addEventListener(GameState.EVENTS.GAME_OVER, (e) => {
-            this.emitAll(EVENTS.GAME_OVER, e.detail, false); // Arg 1: winner (0 or 1), arg 2: disconnect (false) 
+            const virusWon = e.detail;
+
+            this.emitAll(EVENTS.GAME_OVER, virusWon, false);
             this.gameFinished();
         });
         
@@ -92,7 +101,12 @@ export class GameServer extends EventEmitter {
             this.pendingBugMovements.push({from:e.detail.from.id, to:e.detail.to.id});
         });
 
-       
+        // ---------------------------------- AI IMPLEMENTATION ---------------------------------
+        this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
+        this.virusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.virusP));
+        this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
+        this.antivirusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.antivirusP));
+        // ---------------------------------------------------------------------------------------
 
         // If either player disconnect/leaves, the game is over and can be removed from the server
         this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
@@ -102,11 +116,15 @@ export class GameServer extends EventEmitter {
 
         // Add other events here'
 
+        // Antivirus move
         this.antivirusP.on(ACTIONS.ANTIVIRUS_MOVE, (selectedid, nodeid) => {
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 1) return;
 
-            const success = this.gameState.board.antivirus.moveTo(this.gameState.board.getNode(nodeid), this.gameState.board.getNode(selectedid));
+            const success = this.gameState.board.antivirus.moveTo(
+                this.gameState.board.getNode(nodeid),
+                this.gameState.board.getNode(selectedid)
+            );
             if (!success) {
                 this.antivirusP.emit(EVENTS.INVALID_MOVE);
                 return;
@@ -115,9 +133,9 @@ export class GameServer extends EventEmitter {
             this.gameState.handleMove();
             this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid, this.gameState.currentPlayer);
             this.sendBugUpdates();
-
         });
 
+        // Virus move
         this.virusP.on(ACTIONS.VIRUS_MOVE, (nodeid) => {
             if (this.gameState.gameOver) return;
             if (this.gameState.currentPlayer !== 0) return;
@@ -151,6 +169,7 @@ export class GameServer extends EventEmitter {
             ...this.gameState.getSerializedState(),
             isSpectator: true,
             isVirus: false,
+            isAIvsAI: this.isAIvsAI,
         }
         spectator.on(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
         spectator.on(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
@@ -175,11 +194,12 @@ export class GameServer extends EventEmitter {
     gameFinished() {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
-        
+
         // Remove connected events
         for (const spec of this.spectators) {
             this.removeSpectator(spec);
         } 
+        
         for (const player of [this.virusP,this.antivirusP]) {
             // This player instance is only used on this gameserver.
             // Disconnect so we can't get messages after the game is over

@@ -29,11 +29,11 @@ export class GameState extends EventTarget {
             this.gameOver = true;
             this.winner = 0;
 
-        } else if (!this.board.virus.hasAnyValidMove() && this.currentPlayer === 0) {
+        } else if (!this.board.virus.hasAnyValidMove()) {
             this.gameOver = true;
             this.winner = 1;
 
-        } else if (!this.board.antivirus.hasAnyValidMove() && this.currentPlayer === 1) {
+        } else if (!this.board.antivirus.hasAnyValidMove()) {
             this.gameOver = true;
             this.winner = 0;
         }

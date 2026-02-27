@@ -34,4 +34,8 @@ export const QUEUE_PREFERENCE = {
     ANY:"any",
     VIRUS:"virus",
     ANTIVIRUS:"antivirus",
+    // ---------------- AI IMPLEMENTATION ------------------
+    AI_AS_VIRUS: "ai_as_virus",
+    AI_AS_ANTIVIRUS: "ai_as_antivirus",
+    // -----------------------------------------------------
 }
