@@ -82,7 +82,21 @@ export class GameUI {
         this.queue.switchTo(this.player_indicator);
     }
 
+    isSmallScreen() {
+        return Math.min(window.innerWidth,window.innerHeight) < 800;
+    }
 
+    startFullscreen() {
+        if (!this.isSmallScreen()) {
+            return; // Only auto enable fullscreen on small screens (mobile)
+        }
+        const gameElement = document.getElementById("game");
+        if (gameElement.requestFullscreen) {
+            gameElement.requestFullscreen();
+        } else if (gameElement.webkitRequestFullscreen) { /* Safari */
+            gameElement.webkitRequestFullscreen();
+        }
+    }
 
     setup() {
         this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html"]).then(() => {
@@ -107,12 +121,14 @@ export class GameUI {
                 this.mainmenu.switchTo(this.queue);
 
                 this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
+                this.startFullscreen();
             }
 
             this.mainmenu.spectate.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue);
                 this.socket.emit(ACTIONS.SPECTATE_GAME);
+                this.startFullscreen();
             }
             
             this.mainmenu.antivirus.onclick = () => {
@@ -127,12 +143,14 @@ export class GameUI {
                 this.mainmenu.switchTo(this.queue);
 
                 this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
+                this.startFullscreen();
             }
 
             this.mainmenu.start.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.queue)
                 this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.ANY);
+                this.startFullscreen();
             }
 
             // --------------------- AI BUTTON ----------------------- 
