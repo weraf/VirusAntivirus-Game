@@ -44,16 +44,15 @@ button:hover {
     pointer-events: none;
 }
 
-.gamemode {
+.gamemode, .smallbutton {
     padding: 12px;
     border-radius: 10px;
     border: none;
     background-color: #5c5c5c;
-    color: white;
     transition: all 0.2s ease;
 }
 
-.gamemode:hover {
+.gamemode:hover, .smallbutton:hover {
     background-color: #777;
 }
 
@@ -86,8 +85,9 @@ button:hover {
 }
 
 html, button {
-    /*Makes all text this font*/
+    /*Makes all text this font and white*/
     font-family: "OCR A Std", monospace;
+    color: white;
 }
 
 .text {
@@ -96,10 +96,74 @@ html, button {
     text-align: center;
 }
 
+.vstext {
+    font-size: 2rem;
+    font-style: italic;
+}
+
 .ingametext {
-    color:aliceblue;
     font-size: 20px;
     text-align: center;
+}
+
+#timer {
+    width: 3ch;
+    font-size: 5.5rem;
+    margin-top: -0.5rem; /*Move slighty up*/
+}
+
+.timecritical {
+    /*Make the time flash*/
+    color: #ff1060;
+    animation: blink 0.5s ease-out 0s infinite forwards;
+}
+
+@keyframes blink {
+    0% {transform: scale(100%);}
+    5% {transform: scale(130%);}
+    100% {transform: scale(100%);}
+}
+
+.turnui {
+    display: flex;
+    top: -1rem !important; /*Cancel the padding on the ui container*/
+    padding: 1rem;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #00000040;
+    background: linear-gradient(180deg, #000000cc, #00000000);
+}
+
+.activeturn .youindicator {
+    color: white;
+}
+
+.timercontainer, .turncontainer {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.turncontainer img {
+    filter: saturate(0%);
+    transition: filter 0.2s ease-in-out;
+}
+.activeturn img {
+    filter: saturate(100%);
+}
+
+.youindicator {
+    /*Center the "you" text on the icon*/
+    font-size: 2rem;
+    color: slategray; /*Set to gray so we can set it to white when it's your turn*/
+    transition: color 0.2s ease-in-out;
+    margin-top: -0.55rem; /*Move slighty up*/
+}
+
+.turnui > div {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
 .title {
@@ -124,7 +188,6 @@ html, button {
     border-radius: 10px;
     border: none;
     background-color: #5c5c5c;
-    color: white;
 }
 
 #description {
@@ -206,7 +269,6 @@ html, button {
     border-radius: 12px;
     border: none;
     background: linear-gradient(90deg, #ff0040, #ff6a00);
-    color: white;
     box-shadow: 0 15px 30px rgba(0,0,0,0.4);
     transition: all 0.2s ease;
     margin-top: 10px;
@@ -221,7 +283,6 @@ html, button {
 .icon-btn {
     background: transparent;
     border: none;
-    color: white;
     cursor: pointer;
     padding: 8px;
 }
