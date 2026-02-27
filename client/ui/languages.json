@@ -74,7 +74,11 @@
 
   },
   "watchaibutton": {
-    "sv" : "Kolla AI mot AI",
-    "en" : "Watch AI vs AI"
+    "sv": "Kolla AI mot AI",
+    "en": "Watch AI vs AI"
+  },
+  "you": {
+    "sv": "Du",
+    "en": "You"
   }
 }

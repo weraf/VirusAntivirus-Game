@@ -54,29 +54,51 @@ export class GameUI {
 
     showWinScreen(virusWon) {
         this.winscreen.setPlaceholder("wintext",virusWon ? "viruswon":"antiviruswon");
-        this.winscreen.show();
+        this.player_indicator.switchTo(this.winscreen);
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
         this.winscreen.leavebutton.onclick = this.leaveGame.bind(this);
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
     }
 
     showCurrentPlayer(current) {
-        this.player_indicator.setPlaceholder("currentplayer", current ? "pantivirus": "pvirus") // Current = 0, pviru
+        // Add a class that will make the active player light up
+        if (current == 0) {
+            this.player_indicator.turnvirus.classList.add("activeturn");
+            this.player_indicator.turnantivirus.classList.remove("activeturn");
+        } else {
+            this.player_indicator.turnantivirus.classList.add("activeturn");
+            this.player_indicator.turnvirus.classList.remove("activeturn");
+        }
+        //this.player_indicator.setPlaceholder("currentplayer", current ? "pantivirus": "pvirus") // Current = 0, pviru
     }
 
     updateTimer(time) {
-        this.player_indicator.setPlaceholder("timer", time)
+        this.player_indicator.setPlaceholder("timer", time);
+        if (time <= 5) { // Borde man göra så att den bara blinkar om det är ens tur? (GameState svårt att nå härifrån)
+            // PANIK!
+            this.player_indicator.timer.classList.add("timecritical");
+        } else {
+            this.player_indicator.timer.classList.remove("timecritical");
+        }
     }
 
     showGameStart(isVirus, isSpectator) {
         this.player_indicator.midleavebutton.hidden = true; // Hide leave button as default
 
         if (isSpectator) {
-            this.player_indicator.playingas.hidden = true;
             this.player_indicator.midleavebutton.hidden = false;
             this.player_indicator.midleavebutton.onclick = this.leaveGame.bind(this);
+            HtmlManager.hide(this.player_indicator.youantivirus)
+            HtmlManager.hide(this.player_indicator.youvirus)
         } else {
-            this.player_indicator.setPlaceholder("myplayer", isVirus ? "pvirus": "pantivirus");
+            // Show who I am
+            if (isVirus) {
+                HtmlManager.hide(this.player_indicator.youantivirus)
+                HtmlManager.show(this.player_indicator.youvirus)
+            } else {
+                HtmlManager.hide(this.player_indicator.youvirus)
+                HtmlManager.show(this.player_indicator.youantivirus)
+            }
         }
         this.showCurrentPlayer(0);
         this.queue.switchTo(this.player_indicator);

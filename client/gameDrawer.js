@@ -13,8 +13,6 @@ const RED = 0xff1060;
 const DARK_RED = 0xB00451;
 const GREEN = 0x10ff80;
 
-const BLUE = 0x0020ef;
-
 export class GameDrawer {
     /**
      * @param {Phaser.Scene} scene 
