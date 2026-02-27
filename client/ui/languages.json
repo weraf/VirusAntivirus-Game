@@ -72,5 +72,9 @@
     "sv": "Spela med AI",
     "en": "Play With AI"
 
+  },
+  "watchaibutton": {
+    "sv" : "Kolla AI mot AI",
+    "en" : "Watch AI vs AI"
   }
 }

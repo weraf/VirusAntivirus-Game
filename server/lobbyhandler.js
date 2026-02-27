@@ -39,6 +39,10 @@ export class LobbyHandler extends EventEmitter {
                 
                 this.createAIGame(new Player(user), new AIPlayer());
                 return;
+            case "ai_vs_ai":
+
+                this.createAIvsAIGame(user);
+                return;
             // -----------------------------------------------------------------------
         }
             
@@ -63,6 +67,20 @@ export class LobbyHandler extends EventEmitter {
         for (const user of this.spectateQueue.popAll()) {
             newGame.addSpectator(user);
         }
+    }
+
+    /**
+     * AI vs AI Spectate
+     * @param {User} user 
+     */
+    createAIvsAIGame(user) {
+        const virusAI     = new AIPlayer();
+        const antivirusAI = new AIPlayer();
+        const newGame     = new GameServer(virusAI, antivirusAI, true); // true : isAIvsAI
+        this.games.push(newGame);
+        newGame.once(GameServer.SIGNAL_GAME_FINISHED, this.gameFinished.bind(this, newGame));
+        // lägg till som spectator
+        newGame.addSpectator(user);
     }
     // ------------------------------------------------------------------------------------------
 
