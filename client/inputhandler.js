@@ -18,14 +18,13 @@ export default class InputHandler extends EventTarget {
         this.board = board;
         this.clickZones = new Set();
         // Rotera zoner när brädet roterar
-        this.board.addEventListener(Board.EVENTS.BOARD_FLIP,this.flipClickZones.bind(this));
+        this.board.addEventListener(Board.EVENTS.BOARD_FLIP,this.updateClickZonePositions.bind(this));
     }
 
-    flipClickZones() {
+    updateClickZonePositions() {
         this.clickZones.forEach((clickZone) => {
-            const tempX = clickZone.x;
-            clickZone.x = clickZone.y;
-            clickZone.y = tempX;
+            clickZone.x = clickZone.node.x;
+            clickZone.y = clickZone.node.y;
         })
     }
 
