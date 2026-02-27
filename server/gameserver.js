@@ -102,14 +102,10 @@ export class GameServer extends EventEmitter {
         });
 
         // ---------------------------------- AI IMPLEMENTATION ---------------------------------
-        if (!(this.virusP instanceof AIPlayer)) {
-            this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
-            this.virusP.on(ACTIONS.LEAVE_GAME,  this.playerLeft.bind(this, this.virusP));
-        }
-        if (!(this.antivirusP instanceof AIPlayer)) {
-            this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
-            this.antivirusP.on(ACTIONS.LEAVE_GAME,  this.playerLeft.bind(this, this.antivirusP));
-        }
+        this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
+        this.virusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.virusP));
+        this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
+        this.antivirusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.antivirusP));
         // ---------------------------------------------------------------------------------------
 
         // If either player disconnect/leaves, the game is over and can be removed from the server

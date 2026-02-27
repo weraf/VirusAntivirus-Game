@@ -1,8 +1,8 @@
 /**
- * BFS för att hitta kortaste avståndet
- * @param {Node} start = Startpunkten
- * @param {Node} goal = Målet
- * @param {Set} blocked = Noder som vi inte får gå tll
+ * BFS; hitta kortaste avståndet
+ * @param {Node} start = Startpunkt
+ * @param {Node} goal = Mål
+ * @param {Set} blocked = Förbjudna noder (du får ej gå dit!)
  */
 function bfsDist(start, goal, blocked) {
     // börja med avstånd mål
@@ -26,9 +26,7 @@ function bfsDist(start, goal, blocked) {
     return Infinity; // infinity om vi inte kan nå målet
 }
 
-/**
- * BFS - returnera första noden i den kortaste vägen mot mål
- */
+// BFS; returnera första noden i den kortaste vägen mot mål
 function bfsFirstStep(start, goal, blocked) {
     if (start === goal) return null;
     const visited = new Set([start]);
@@ -41,7 +39,7 @@ function bfsFirstStep(start, goal, blocked) {
             if (blocked.has(n) && n !== goal) continue;
             
             visited.add(n);
-            // Om 'first' är null... 'n' är den första steget
+            // om 'first' är null... 'n' är då den första steget
             const step = first ?? n; 
             if (n === goal) return step; // målet är nådd, ge första steget som togs dit
             queue.push([n, step]);
@@ -50,10 +48,7 @@ function bfsFirstStep(start, goal, blocked) {
     return null;
 }
 
-/**
- * Flood-fill algoritm - hur många noder en spelare kan nå
- * se om AIn håller på att bli instängd
- */
+// Flood-fill algoritm; hur många noder en spelare kan nå
 function countReachable(start, blocked) {
     const visited = new Set([start]);
     const queue = [start];
@@ -71,7 +66,7 @@ function countReachable(start, blocked) {
 
 // ------------------------- Virus algoritmen --------------------------------
 
-// Hitta alla giltiga drag för Virus
+// Hitta alla giltiga drag för virus
 function simVirusMoves(body, bugSet, avSet) {
     const head = body[0];
     const bodySet = new Set(body);
@@ -106,7 +101,23 @@ function simServerCount(body) {
     return c;
 }
 
-// hur bra är positionen för virus?
+// ------------------------- AntiVirus algoritmen --------------------------------
+
+function simAvMoves(avNode, avNodes, virusBody, bugSet) {
+    const bodySet = new Set(virusBody);
+    const tail    = virusBody[virusBody.length - 1];
+    const otherAV = avNodes.find(n => n !== avNode); // håll koll på båda antivirus noderna
+    
+    return avNode.neighbors.filter(n => {
+        if (n.isServer()) return false; // gå inte på server
+        if (otherAV && n === otherAV) return false; // två antivirus får inte vara på samma nod
+        const isEmpty = (!bodySet.has(n) || n === tail);
+        const hasBug  = bugSet.has(n);
+        return isEmpty || hasBug; // gå på tomma noder och buggar
+    });
+}
+
+//Virus heuristik; hur bra är positionen för virus?
 function virusHeuristic(body, bugSet, avSet, allNodes) {
     const head    = body[0];
     const bodySet = new Set(body);
@@ -115,10 +126,10 @@ function virusHeuristic(body, bugSet, avSet, allNodes) {
     blocked.delete(tail);
 
     const covered = simServerCount(body);
-    if (covered >= 2) return 1_000_000; // Virus har vunnit
+    if (covered >= 2) return 1_000_000; // redan vunnit
 
     const space = countReachable(head, blocked);
-    if (space < body.length) return -500_000 + space; // Virus är instängd
+    if (space < body.length) return -500_000 + space; // instängd
 
     const servers = allNodes.filter(n => n.isServer() && !bodySet.has(n));
     const bugs    = [...bugSet];
@@ -131,7 +142,7 @@ function virusHeuristic(body, bugSet, avSet, allNodes) {
         ? Math.min(...bugs.map(b => bfsDist(head, b, blocked)))
         : 30;
 
-    // när virus är kort, gå till buggar, när den är lång, fokusera på servrar
+    // buggar viktiga när vi är korta, servrar viktiga när vi är längre
     const bugWeight    = Math.max(0, 8 - len) * 12;
     const serverWeight = 20 + len * 3;
 
@@ -144,24 +155,7 @@ function virusHeuristic(body, bugSet, avSet, allNodes) {
     );
 }
 
-
-// ------------------------- AntiVirus algoritmen --------------------------------
-
-function simAvMoves(avNode, avNodes, virusBody, bugSet) {
-    const bodySet = new Set(virusBody);
-    const tail    = virusBody[virusBody.length - 1];
-    const otherAV = avNodes.find(n => n !== avNode); // håll koll på båda antivirus noderna
-    
-    return avNode.neighbors.filter(n => {
-        if (n.isServer()) return false; // gå inte på server
-        if (otherAV && n === otherAV) return false; // två antivirus får inte vara på sammanod
-        const isEmpty = (!bodySet.has(n) || n === tail);
-        const hasBug  = bugSet.has(n);
-        return isEmpty || hasBug; // gå på tomma noder och buggar
-    });
-}
-
-// hur bra är positionen för antivirus?
+// antivirus heuristik; hur bra är positionen för antivirus?
 function avHeuristic(virusBody, bugSet, avNodes, allNodes) {
     const avSet   = new Set(avNodes);
     const bodySet = new Set(virusBody);
@@ -170,7 +164,7 @@ function avHeuristic(virusBody, bugSet, avNodes, allNodes) {
     const blocked = new Set([...bodySet, ...avSet]);
     blocked.delete(tail);
 
-    // virus kan inte röra sig, antivirus vinner
+    // antivirus vinner om virus inte kan röra sig
     const virusMoves = simVirusMoves(virusBody, bugSet, avSet);
     if (!virusMoves.length) return 1_000_000;
 
@@ -179,49 +173,49 @@ function avHeuristic(virusBody, bugSet, avNodes, allNodes) {
     const servers = allNodes.filter(n => n.isServer());
     const bugs    = [...bugSet];
 
-    // metod 1: blockera virusets väg till server
+    // MÅL 1; blockera virusets väg till servrar
     let serverBlockScore = 0;
     for (const server of servers) {
-        // hur långt har virus till server
+        // hur långt är virus till servern utan AV?
         const distNoAV   = bfsDist(head, server, new Set([...bodySet]));
-        // hur långt till antivirus
+        // hur långt med AV?
         const distWithAV = bfsDist(head, server, blocked);
 
-        // antivirus belönas om den gör vägen längre
+        // bra om antivirus faktiskt gör vägen längre
         if (distWithAV > distNoAV + 1) serverBlockScore += 200;
         else if (distWithAV > distNoAV) serverBlockScore += 80;
 
-        // bonus om antivirus är på kortaste vägen till server
+        // bonus om en antivirus nod är direkt på kortaste vägen
         const stepToSrv = bfsFirstStep(head, server, new Set([...bodySet]));
         if (stepToSrv && avNodes.includes(stepToSrv)) serverBlockScore += 150;
 
-        // ännu en bonus om antivirus är nära server
+        // bonus om antivirus är nära servern
         for (const av of avNodes) {
             if (bfsDist(av, server, new Set()) <= 2) serverBlockScore += 60;
         }
     }
 
-    // metod 2; flytta buggarna ifrån virus
+    // MÅL 2; flytta buggar bort från virus
     let bugScore = 0;
     for (const bug of bugs) {
         const bugDistToVirus = bfsDist(bug, head, new Set());
         if (bugDistToVirus <= 3) {
             for (const av of avNodes) {
                 const avToBug = bfsDist(av, bug, new Set());
-                // belön om man är nära en bugg som är nära ett virus
+                // nära bugg som är nära virus, bra drag
                 bugScore += Math.max(0, 10 - avToBug) * (5 - bugDistToVirus) * 6;
             }
         }
-        // extra bonus om antivirus faktiskt går till den buggen
+        // extra bonus om antivirus faktiskt står på buggen
         if (avNodes.includes(bug)) bugScore += 100;
     }
 
-    // metod 3 (VIKTIGAST); stäng in viruset
+    // MÅL 3; Stäng in virus
     const space    = countReachable(head, blocked);
     const exits    = virusMoves.length;
     const trapScore = -space * 3 - exits * 10;
 
-    // sprid ut antivirus för att täcka mer
+    // sprid ut antivirus för att täcka mer av brädet
     const spread = avNodes.length === 2
         ? Math.min(bfsDist(avNodes[0], avNodes[1], new Set()), 10) * 4
         : 0;
@@ -237,28 +231,28 @@ export class VirusAI {
         this.recentNodes = [];
     }
 
-    // Minimax för Virus
+    // minimax för Virus
     minimax(body, bugSet, avSet, allNodes, depth, alpha, beta) {
         // är vi på två servrar?
         const covered = simServerCount(body);
         if (covered >= 2) return 1_000_000 + depth * 1000; // poäng för snabb vinst
 
-        // Hämta möjliga drag
+        // hämta möjliga drag
         const moves = simVirusMoves(body, bugSet, avSet);
         if (!moves.length) return -500_000; // inga drag, då har vi förlorat
         
-        // om vi har nått maxdjup så kollar hueteristics läget
+        // om vi har nått maxdjup så kollar heuristiken läget
         if (depth === 0)   return virusHeuristic(body, bugSet, avSet, allNodes);
 
         let best = -Infinity;
         for (const move of moves) {
             // nästa steg
             const { body: nb, bugSet: nb2 } = simVirusMove(body, bugSet, move);
-            //gå djupare
+            // gå djupare
             const score = this.minimax(nb, nb2, avSet, allNodes, depth - 1, alpha, beta);
             
             if (score > best) best = score;
-            // Alpha-beta pruning
+            // Alpha-Beta pruning
             alpha = Math.max(alpha, best);
             if (alpha >= beta) break; 
         }
@@ -312,25 +306,25 @@ export class AntivirusAI {
         this.lastMovedId = null;
     }
 
-    /// Minimax för Antivirus
+    // ninimax för antivirus
     minimax(virusBody, bugSet, avNodes, allNodes, depth, isAvTurn, alpha, beta) {
         const avSet = new Set(avNodes);
         const virusMoves = simVirusMoves(virusBody, bugSet, avSet);
 
-        // Kolla villkoren för ett avslutat spel, förlust eller vinst
+        // kolla villkoren för ett avslutat spel, förlust eller vinst
         if (!virusMoves.length)              return 1_000_000 + depth * 1000;
         if (simServerCount(virusBody) >= 2)  return -1_000_000;
         if (depth === 0) return avHeuristic(virusBody, bugSet, avNodes, allNodes);
 
         if (isAvTurn) {
-            // Antivirus tur
+            // antivirus tur
             let best = -Infinity;
             let anyMoves = false;
             for (let i = 0; i < avNodes.length; i++) {
                 const avNode = avNodes[i];
                 const other  = avNodes[1 - i];
                 const moves  = simAvMoves(avNode, avNodes, virusBody, bugSet);
-                if (!moves.length) continue; 
+                if (!moves.length) continue; // blockad, testa den andra
 
                 anyMoves = true;
                 for (const move of moves) {
@@ -343,6 +337,7 @@ export class AntivirusAI {
                 }
                 if (alpha >= beta) break;
             }
+            // Om ingen antivirus hade drag, utvärdera statiskt
             if (!anyMoves) return avHeuristic(virusBody, bugSet, avNodes, allNodes);
             return best;
 
@@ -376,17 +371,17 @@ export class AntivirusAI {
             const avNode = avNodes[i];
             const other  = avNodes[1 - i];
             
-            // Hämta alla giltiga drag
+            // Hämta giltiga drag via riktiga getValidMoves
             board.antivirus.selectedNode = avNode;
             const moves = board.antivirus.getValidMoves(board);
-            board.antivirus.selectedNode = null;
+            board.antivirus.selectedNode = null; // VIKTIGT: återställ alltid direkt!
 
             for (const move of moves) {
                 const newAV = i === 0 ? [move, other] : [avNodes[0], move];
                 // kolla 3 steg fram, så djup 3
                 let score = this.minimax(virusBody, bugSet, newAV, allNodes, 3, false, -Infinity, Infinity);
 
-                // ain får inte flytta samma antvirus nod för ofta!
+                // ain får inte flytta samma antivirus nod för ofta!
                 if (avNode.id === this.lastMovedId) score -= 80;
 
                 if (score > bestScore) {
@@ -397,12 +392,12 @@ export class AntivirusAI {
             }
         }
 
-        // fallback för om inget bra drag hittas, bara välj en laglig drag så länge
+        // fallback för om inget bra drag hittas, bara välj ett lagligt drag
         if (!bestFrom) {
             for (const avNode of avNodes) {
                 board.antivirus.selectedNode = avNode;
                 const moves = board.antivirus.getValidMoves(board);
-                board.antivirus.selectedNode = null;
+                board.antivirus.selectedNode = null; // återställ direkt efter varje anrop
                 if (moves.length) {
                     this.lastMovedId = avNode.id;
                     return { from: avNode, to: moves[Math.floor(Math.random() * moves.length)] };
@@ -411,7 +406,7 @@ export class AntivirusAI {
             return null;
         }
 
-        // Spara antivirus node som flyttades inför nästa tur
+        // Spara antivirus nod som flyttades inför nästa tur
         this.lastMovedId = bestFrom.id;
         return { from: bestFrom, to: bestTo };
     }
