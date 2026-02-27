@@ -82,7 +82,14 @@ export class GameUI {
         this.queue.switchTo(this.player_indicator);
     }
 
+    isSmallScreen() {
+        return Math.min(window.innerWidth,window.innerHeight) < 800;
+    }
+
     startFullscreen() {
+        if (!this.isSmallScreen()) {
+            return; // Only auto enable fullscreen on small screens (mobile)
+        }
         const gameElement = document.getElementById("game");
         if (gameElement.requestFullscreen) {
             gameElement.requestFullscreen();

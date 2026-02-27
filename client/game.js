@@ -50,8 +50,15 @@ export class Game extends Phaser.Scene {
         const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
         // Scale the background so it fits the camera area
         this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        // Move the background to the center of the camera
         this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
         this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
+    }
+
+    updateCanvasSize() {
+        // We take the ceil in order to not get small white stripes at the edges in certain situations.
+        this.scale.resize(Math.ceil(window.innerWidth*window.devicePixelRatio),Math.ceil(window.innerHeight*window.devicePixelRatio));
+        // This will trigger onResize() to trigger
     }
 
     create() {
@@ -59,8 +66,14 @@ export class Game extends Phaser.Scene {
 
         this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
         
+        // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
+        
+        // Update canvas when screen changes size
+        window.addEventListener("resize", this.updateCanvasSize.bind(this));
+        
         this.onResize();
+        
         
         // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // Hämta datan från JSON-filen
@@ -266,12 +279,12 @@ export class Game extends Phaser.Scene {
 
 
 const config = {
-    width: window.innerWidth*window.devicePixelRatio,
-    height: window.innerHeight*window.devicePixelRatio,
+    width: Math.ceil(window.innerWidth*window.devicePixelRatio),
+    height: Math.ceil(window.innerHeight*window.devicePixelRatio),
     type: Phaser.AUTO,
     scale: {
-            // För att spelet ska fylla hela skärmen
-            mode: Phaser.Scale.EXPAND,
+            // Vi hanterar skalning manuellt
+            mode: Phaser.Scale.NONE,
             autoCenter: Phaser.Scale.NO_CENTER,
     },
     parent: 'game',
