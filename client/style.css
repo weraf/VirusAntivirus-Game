@@ -161,17 +161,17 @@ html, button {
 
 .description {
     display: flex;
-    align-items: center;      /* vertically center */
-    gap: 1rem;                /* space between image and text */
+    align-items: center;  
+    gap: 1rem;                
     width: 100%;
     max-width: 800px;
     margin-top: 10px;   
 }
 
 .tutimage {
-    width: 60px;              /* control image size */
+    width: 60px;             
     height: auto;
-    flex-shrink: 0;           /* prevents image from shrinking */
+    flex-shrink: 0;           
 }
 
 .description:last-child {
