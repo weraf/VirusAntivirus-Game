@@ -81,10 +81,6 @@ html, button {
     white-space: pre-line;  
 }
 
-.description {
-    max-width: 500px;
-}
-
 .undertext {
     color:aqua;
     text-align: center;
@@ -158,16 +154,35 @@ html, button {
     background-color: rgb(255, 255, 255);
     padding: 1em;
     border: 2px;
-    width: 500px;
-    border-radius:15cqb;
-    border-color:lightsalmon;
+    width: 100%;
+    max-width: 800px;
+    border-radius:10cqb;
+}
+
+.description {
+    display: flex;
+    align-items: center;      /* vertically center */
+    gap: 1rem;                /* space between image and text */
+    width: 100%;
+    max-width: 800px;
+    margin-top: 10px;   
 }
 
 .tutimage {
-    width: 50px;
-    height: 50px;
+    width: 60px;              /* control image size */
+    height: auto;
+    flex-shrink: 0;           /* prevents image from shrinking */
+}
+
+.description:last-child {
+    justify-content: center;
+}
+
+.description:first-child {
+    justify-content: center;
+    text-align: center;
 }
 
 #norulesbutton {
-    margin-top: 100px;
+    margin-top: 20px;
 }

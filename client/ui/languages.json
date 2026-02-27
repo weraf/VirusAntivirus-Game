@@ -158,6 +158,30 @@
   "exitrules": {
     "sv": "Tillbaka till spelet",
     "en": "Back to game"
+  },
+  "virustutorial": {
+    "sv": "Detta är viruset, det växer genom att äta buggar, går genom att klicka på noder bredvid huvudet och vinner när den ligger på 2 servrar samtidigt.",
+    "en": "This is the virus, it grows by eating bugs, walks by clicking on nodes adjacent to the head and wins when it is on top of 2 servers at the same time."    
+  },
+  "antivirustutorial": {
+    "sv": "Detta är ett antivirus, det finns två stycken antivirusspelaren kan välja att gå med en av dem per tur, antivirusspelaren vinner när viruset inte har blivit instängt och inte har några giltiga drag.",
+    "en": "This is an antivirus, there are two of them and the antivirus player can choose one of them to walk with per turn, the antivirus player wins when the virus has no nodes nearby to walk to."
+  },
+  "bugtutorial": {
+    "sv": "Detta är en bugg, det finns två av dem, om viruset går på den så växer den och en by bugg placeras på slumpmässig plats. Om antiviruset går på en bug omplaceras den också.",
+    "en": "This is a bug, there are two of them, if the virus eats it grows and a new bug is placed on a random node. If the antivirus walks on the bug it is also placed elsewhere."    
+  },
+  "servertutorial": {
+    "sv": "Detta är en server, det är en special nod som virusormen försöker invadera och antiviruset försöker skydda. Antiviruset kan inte gå på dem.",
+    "en": "This is a server, it is a special node that the virus tries to invade and the antivirus tries to protect. The antivirus can't stand on it."
+  },
+  "generalrules": {
+    "sv": "Du har 20 sekunder på dig att göra ett drag, efter det så blir det automatiskt motståndarens tur.",
+    "en": "You have 20 seconds to make a move, if you exceed that time you will lose your chance to move that turn."
+  },
+  "rules": {
+    "sv": "Regler",
+    "en": "Rules"
   }
   
 }
