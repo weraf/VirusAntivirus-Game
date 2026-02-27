@@ -167,6 +167,17 @@ export class GameUI {
             }
             // -------------------------------------------------------
 
+            // --------------------- AI VS AI BUTTON -----------------
+            if (this.mainmenu.watchai) {
+                this.mainmenu.watchai.onclick = () => {
+                    this.soundManager.play('click');
+                    this.mainmenu.switchTo(this.queue);
+                    this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_VS_AI);
+                }
+            }
+            // -------------------------------------------------------
+
+
             this.queue.abort.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.queue.switchTo(this.mainmenu)

@@ -106,6 +106,7 @@ export class Game extends Phaser.Scene {
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);
+     
 
             if (!disconnect && !this.isSpectator) {
                 // Non-spectator

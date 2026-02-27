@@ -29,6 +29,8 @@ export class GameServer extends EventEmitter {
     gameState;
     spectators = []; // Array of user instances that are spectating
     pendingBugMovements = [];
+
+    isAIvsAI = false;         // AI vs AI-spel
     
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -37,6 +39,7 @@ export class GameServer extends EventEmitter {
      * 
      * @param {Player} virusPlayer 
      * @param {Player} antiVirusPlayer 
+     * @param {boolean} isAIvsAI : Sant om båda spelarna är AI
      */
     constructor(virusPlayer, antiVirusPlayer) {
         super();
@@ -130,9 +133,9 @@ export class GameServer extends EventEmitter {
                 return;
             }
 
-            this.gameState.handleMove();
             this.emitAll(EVENTS.ANTIVIRUS_MOVED, selectedid, nodeid, this.gameState.currentPlayer);
             this.sendBugUpdates();
+            this.gameState.handleMove();
         });
 
         // Virus move
@@ -145,9 +148,9 @@ export class GameServer extends EventEmitter {
                 this.virusP.emit(EVENTS.INVALID_MOVE);
                 return;
             }
-            this.gameState.handleMove();   // Will this cause problems? I do not know
             this.emitAll(EVENTS.VIRUS_MOVED, nodeid, this.gameState.currentPlayer);
-            this.sendBugUpdates(); // This needs to be after virus moved
+            this.sendBugUpdates();
+            this.gameState.handleMove();
         });
     }
 
@@ -169,7 +172,7 @@ export class GameServer extends EventEmitter {
             ...this.gameState.getSerializedState(),
             isSpectator: true,
             isVirus: false,
-            isAIvsAI: this.isAIvsAI,
+            isAIvsAI: this.isAIvsAI, // skicka med så klienten vet om AI VS AI
         }
         spectator.on(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
         spectator.on(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
@@ -213,13 +216,15 @@ export class GameServer extends EventEmitter {
         const virusData = {
             ...data,
             //mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
-            isVirus: true
+            isVirus: true,
+            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
 
         const antivirusData = {
             ...data,
             //mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
-            isVirus: false
+            isVirus: false,
+            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
