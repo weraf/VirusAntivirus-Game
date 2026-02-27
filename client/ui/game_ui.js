@@ -28,7 +28,8 @@ export class GameUI extends EventTarget {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
-        this.tutorialFinished = false;
+        this.tutorialFinished = false; // variable to distinguish between rules ingame and rules in tutorial
+        this.rulesOpened = false; // are the rules currently open in game?
         
     }
 
@@ -105,6 +106,10 @@ export class GameUI extends EventTarget {
             this.rules = this.htmlManager.create("rules");
             this.rulesbutton = this.htmlManager.create("rulesbutton");
             this.waiting = this.htmlManager.create("waiting");
+
+            this.ui = document.getElementById("ui");
+
+            const ruleswindow = this.ui.querySelector(".transparent.center");
             
             this.htmlManager.showOnly(this.mainmenu);
 
@@ -204,36 +209,35 @@ export class GameUI extends EventTarget {
             }
 
             this.rulesbutton.rulesbutton.onclick = () => {
+                this.rulesOpened = true;
                 this.soundManager.play('click'); // ljud 🤑
                 this.rules.show();
                 this.setRulesButton();
-
                 this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
-
-                if (this.queuePreference === QUEUE_PREFERENCE.VIRUS) {
-                    this.rules.setPlaceholder("description", "virusdescription");
-                }
-                else if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
-                    this.rules.setPlaceholder("description", "antivirusdescription");
-                }
             }
 
             this.rules.norulesbutton.onclick = () => {
                 if (this.tutorialFinished === true) {
                     this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
                     this.rules.hide();
+                    this.tutorialOpened = false;
                 } else {
                     this.tutorialFinished = true;
                     this.socket.emit(ACTIONS.READY)
                     this.rules.hide();
                     this.waiting.show();
+                    this.rulesOpened = false;
                 }
                 this.soundManager.play('click'); // ljud 🤑
             }
 
-            
-
-
+            this.ui.onclick = (e) => {
+                if (!ruleswindow.contains(e.target) && this.tutorialFinished && this.rulesOpened && !this.rulesbutton.rulesbutton.contains(e.target)) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                    this.rulesOpened = false;
+                }
+            };
         })
     }
 }
