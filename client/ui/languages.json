@@ -107,10 +107,10 @@
   "on-pmusicbtn": {
     "sv": "På",
     "en": "On"
-  "aibutton": {
+  },
+    "aibutton": {
     "sv": "Spela med AI",
     "en": "Play With AI"
-
   },
   "watchaibutton": {
     "sv": "Kolla AI mot AI",
