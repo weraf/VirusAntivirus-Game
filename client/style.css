@@ -295,3 +295,63 @@ html, button {
     font-family: 'Gajraj One';
     src: url('ui/fonts/gajraj-one-v7-latin-regular.woff2') format('woff2');
 }
+
+.backb {
+    display: grid;
+    text-align: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.backb > button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background-color: #5c5c5c;
+    color: white;
+}
+
+.backbutton {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: #5c5c5c;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.backbutton:hover {
+    background-color: #777;
+}
+
+.backbutton.selected {
+    background-color: #ffffff;
+    color: #1e1e2f;
+    box-shadow: 0 0 15px rgba(255,255,255,0.4);
+}
+
+.settingsbutton {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.settingsbutton > button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+    background-color: #5c5c5c;
+    border: none;
+    color: white;
+}
+
+.settingsbutton > .onbutton {
+    background-color: #00ff0d;
+}
+
+.settingsbutton > .offbutton {
+    background-color: #ff0000;
+}
