@@ -142,6 +142,15 @@ export class GameDrawer {
         this.bugsDrawer.update();
         //this.serverFXDrawer.update();
     }
+
+    destroy() {
+        this.antivirusDrawer.graphics.destroy();
+        this.virusDrawer.graphics.destroy();
+        this.bugsDrawer.graphics.destroy();
+        this.serverFXDrawer.destroy();
+        this.inputDrawer.graphics.destroy();
+        this.inputDrawer.graphics.destroy();
+    }
 }
 
 class BugsDrawer {
@@ -637,6 +646,13 @@ class ServerFXDrawer {
                 }
             }
         }); 
+    }
+
+    destroy() {
+        this.graphics.destroy();
+        for (const emitter of this.emitters) {
+            emitter.destroy();
+        }
     }
 
     drawBlinkingLight(x,y,color,on,size=3) {

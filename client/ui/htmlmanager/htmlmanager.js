@@ -117,6 +117,13 @@ export class HtmlManager extends EventTarget {
         }
     }
 
+    destroy() {
+        for (let instance of this.instances) {
+            instance.destroy();
+        }
+        this.instances = [];
+    }
+
     /**
      * Helper function to show a hidden html element
      * @param {*} element 
@@ -244,4 +251,10 @@ export class HtmlInstance extends EventTarget {
         this.dispatchEvent(new Event(HtmlInstance.EVENTS.SHOWN));
         HtmlManager.show(this.root);
     }
+
+    // Remove from document
+    destroy() {
+        this.root.remove();
+    }
+
 }

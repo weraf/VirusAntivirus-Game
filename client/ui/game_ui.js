@@ -3,7 +3,11 @@ import { Translator } from "./translator.js";
 import { QUEUE_PREFERENCE, ACTIONS, EVENTS } from "../shared/enums.js";
 import { GameState } from "../shared/gamestate.js";
 
-export class GameUI {
+export class GameUI extends EventTarget {
+
+    static EVENTS = {
+        LEAVE_GAME: "leave_game",
+    }
 
     /**
      * 
@@ -12,6 +16,7 @@ export class GameUI {
      * @param {SoundManager}
      */
     constructor(parent, socket, soundManager) {
+        super();
         this.soundManager = soundManager;
         this.htmlManager = new HtmlManager(parent);
         Translator.connectToHTMLManager(this.htmlManager);
@@ -42,7 +47,8 @@ export class GameUI {
 
     leaveGame() {
         this.socket.emit(ACTIONS.LEAVE_GAME);
-        location.reload(); // TODO: implement going back to menu without reloading the page
+        // Send event to game that can restart the scene
+        this.dispatchEvent(new Event(GameUI.EVENTS.LEAVE_GAME));
     }
 
     setRoleTheme(role) {
@@ -270,5 +276,10 @@ export class GameUI {
 
             lucide.createIcons();
         })
+    }
+
+    destroy() {
+        this.htmlManager.destroy();
+        this.htmlManager = undefined;
     }
 }

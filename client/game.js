@@ -62,6 +62,21 @@ export class Game extends Phaser.Scene {
         // This will trigger onResize() to trigger
     }
 
+    leaveGame() {
+        // Unset all game related variables
+        this.gameBoard = undefined;
+        this.gameState = undefined;
+        this.gameDrawer.destroy();
+        this.gameDrawer = undefined;
+        this.soundManager = undefined;
+        this.inputHandler.removeAllInput();
+        this.inputHandler = undefined;
+        this.bg.destroy();
+        this.ui.destroy();
+        this.ui = undefined;
+        this.scene.restart();
+    }
+
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
@@ -100,6 +115,7 @@ export class Game extends Phaser.Scene {
         this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+        this.ui.addEventListener(GameUI.EVENTS.LEAVE_GAME,this.leaveGame.bind(this));
         this.ui.connectToGameState(this.gameState);
 
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
