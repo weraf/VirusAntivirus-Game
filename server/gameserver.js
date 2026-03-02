@@ -132,13 +132,6 @@ export class GameServer extends EventEmitter {
             this.pendingBugMovements.push({from:e.detail.from.id, to:e.detail.to.id});
         });
 
-        // ---------------------------------- AI IMPLEMENTATION ---------------------------------
-        this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
-        this.virusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.virusP));
-        this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
-        this.antivirusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.antivirusP));
-        // ---------------------------------------------------------------------------------------
-
         // If either player disconnect/leaves, the game is over and can be removed from the server
         this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
         this.virusP.on(ACTIONS.LEAVE_GAME,this.playerLeft.bind(this,this.virusP));

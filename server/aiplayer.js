@@ -24,14 +24,17 @@ export class AIPlayer extends EventEmitter {
         }
         if (eventName === EVENTS.GAME_FOUND) {
             console.log("We are Charlie Kirk")
+            console.log(this.isVirus)
             if (this.isVirus) setTimeout(() => this.doVirusMove(), 300);
             return;
         }
         if (eventName === EVENTS.VIRUS_MOVED && !this.isVirus) {
+            console.log("We are Jeffrey Epstein")
             setTimeout(() => this.doAntivirusMove(), 300);
             return;
         }
         if (eventName === EVENTS.ANTIVIRUS_MOVED && this.isVirus) {
+            console.log("Yeap.")
             setTimeout(() => this.doVirusMove(), 300);
             return;
         }
@@ -52,8 +55,9 @@ export class AIPlayer extends EventEmitter {
     }
 
     doAntivirusMove() {
-        if (!this.board) return;
         console.log("Yeap do antivirus move")
+        console.log(this.board)
+        if (!this.board) return;
         const result = this.antivirusAI.pickMove(this.board);
         if (!result?.from || !result?.to) return;
         super.emit(ACTIONS.ANTIVIRUS_MOVE, result.to.id, result.from.id);
