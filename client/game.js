@@ -20,12 +20,18 @@ export class Game extends Phaser.Scene {
 
     // Ladda in JSON-filen (Mapp filen)
     preload() {
-        this.load.image('bg', './assets/bdr.png')
+        this.load.image('bg', './assets/backdrop.png');
+        this.load.image('shield', './assets/shield.png');
+        this.load.image('fire', './assets/fire.png');
+        this.load.image('eyes', './assets/eyes.png');
         
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
         this.load.json('minKarta', './assets/map1.json'); // 33 noder: 3 servrar
         //this.load.json('minKarta', './assets/map2.json'); // 44 noder: 4 servrar
-        // Kan ändras när man lägger in fler kartor!
+        //this.load.json('minKarta', './assets/map3.json'); // 41 noder: 3 servrar
+        // Kan ändras när man lägger in fler kartor! ta bort kommentar på kartan du vill använda!
+        // --------------
 
         //ladda in ljud
         this.load.audio('click', './assets/Click.wav');
@@ -39,32 +45,47 @@ export class Game extends Phaser.Scene {
     onResize() {
         if (this.gameDrawer) {
             this.gameDrawer.onResize();
-        } else {
-            // If we got no gameDrawer, normalize zoom and center camera on 0,0
-            // This keeps the background image scale fixed
-            let zoom = Math.max(this.scale.height / 500, this.scale.width / 2000);
-            this.cameras.main.setZoom(zoom);
-            this.cameras.main.centerOn(0,0);
-            // Move the background to the center of the camera    
-            
         }
+        const cameraSizeX = this.cameras.main.width/this.cameras.main.zoomX;
+        const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
+        // Scale the background so it fits the camera area
+        this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        // Move the background to the center of the camera
+        this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
+        this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
+    }
+
+    updateCanvasSize() {
+        // We take the ceil in order to not get small white stripes at the edges in certain situations.
+        this.scale.resize(Math.ceil(window.innerWidth*window.devicePixelRatio),Math.ceil(window.innerHeight*window.devicePixelRatio));
+        // This will trigger onResize() to trigger
     }
 
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
-        this.bg = this.add.image(0, 0, 'bg');
+        this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
         
+        // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
+        
+        // Update canvas when screen changes size
+        window.addEventListener("resize", this.updateCanvasSize.bind(this));
+        
         this.onResize();
+        
+        
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // Hämta datan från JSON-filen
         const data = this.cache.json.get('minKarta');
 
         // Skapa Brädet
         this.gameBoard = new Board();
 
+        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // fyller brädet med boardCreator klassen
         BoardCreator.createFromJSON(this.gameBoard, data);
+        // --------------
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
@@ -92,23 +113,24 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
             // Play the sound effect
 
-            this.soundManager.playWinLose(virusWon, this.isVirus);
-            this.gameState.stopTimer();
-            this.ui.showWinScreen(virusWon);
+            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
 
-            if (!disconnect) {
-                // If this is not a disconnect, we will automatically notice game over from our local gamestate
+            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            this.ui.showWinScreen(virusWon);
+     
+
+            if (!disconnect && !this.isSpectator) {
+                // Non-spectator
                 return;
             }
-            // If our opponent disconnected we need to show that manually
-            this.ui.showWinScreen(virusWon);
-            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            // Spectators and disconnec
             this.gameState.stopGame();
         })
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+
             this.startGame(data);
         });
 
@@ -117,8 +139,15 @@ export class Game extends Phaser.Scene {
             
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (!this.isVirus) {
-                this.antivirusTurn();
+                this.pendingTurn = "antivirus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "antivirus") {
+                        this.pendingTurn = null;
+                        this.antivirusTurn();
+                    }
+                }, 50);
             }
         });
 
@@ -128,8 +157,15 @@ export class Game extends Phaser.Scene {
 
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (this.isVirus) {
-                this.virusTurn();
+                this.pendingTurn = "virus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "virus") {
+                        this.pendingTurn = null;
+                        this.virusTurn();
+                    }
+                }, 50);
             }
             
             
@@ -140,6 +176,15 @@ export class Game extends Phaser.Scene {
             const fromNode = this.gameBoard.getNode(fromId);
             const toNode = this.gameBoard.getNode(toId);
             bugs.respawnBugAtNode(fromNode,toNode);
+
+            // FIXA BUGGEN
+            if (this.pendingTurn === "virus") {
+                this.pendingTurn = null;
+                this.virusTurn();
+            } else if (this.pendingTurn === "antivirus") {
+                this.pendingTurn = null;
+                this.antivirusTurn();
+            }
         });
 
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
@@ -161,9 +206,26 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.START_TUTORIAL, () => {
             this.ui.showTutorial();
         })
+        /*this.startGame({
+            virusNodes: [],
+            antivirusNodes: [],
+            bugNodes: [],
+            currentPlayer: 0,
+        });*/
     }
 
     startGame(data) {
+
+
+        /*
+        // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
+        // bygger brädet här istället för i create()
+        BoardCreator.createFromJSON(this.gameBoard, data.mapData);
+        // Skapa GameState efter att brädet är byggt
+        this.gameState = new GameState(this.gameBoard, 20000);
+        this.ui.connectToGameState(this.gameState);
+        //------------------
+        */
 
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
@@ -195,6 +257,8 @@ export class Game extends Phaser.Scene {
         if (this.isVirus) {
             this.virusTurn();
         }
+
+        this.onResize();
     }
 
     virusTurn() {
@@ -202,6 +266,10 @@ export class Game extends Phaser.Scene {
             return;
         }
         this.inputHandler.removeAllInput();
+
+        if (this.gameState.currentPlayer !== 0) return; // fixa bugg
+        this.gameBoard.antivirus.selectedNode = null; // fixa bugg
+
         const valid = this.gameState.getVirus().getValidMoves()
 
         for (const node of valid) {
@@ -218,6 +286,9 @@ export class Game extends Phaser.Scene {
         if (this.isSpectator) {
             return;
         }
+        
+        if (this.gameState.currentPlayer !== 1) return; // fixa bugg
+
         const av = this.gameState.getAntiVirus();
         this.inputHandler.removeAllInput();
 
@@ -240,18 +311,27 @@ export class Game extends Phaser.Scene {
             });
         });
     }
+
+    update(time,delta) {
+        if (this.gameDrawer) {
+            // Animate the input circles
+            this.gameDrawer.animate();
+        }
+        // Slowly scroll the background, multiply with delta to get it frame-rate independant
+        this.bg.tilePositionY -= 0.02*delta;
+    }
     
     
 }
 
 
 const config = {
-    width: window.innerWidth*window.devicePixelRatio,
-    height: window.innerHeight*window.devicePixelRatio,
+    width: Math.ceil(window.innerWidth*window.devicePixelRatio),
+    height: Math.ceil(window.innerHeight*window.devicePixelRatio),
     type: Phaser.AUTO,
     scale: {
-            // För att spelet ska fylla hela skärmen
-            mode: Phaser.Scale.EXPAND,
+            // Vi hanterar skalning manuellt
+            mode: Phaser.Scale.NONE,
             autoCenter: Phaser.Scale.NO_CENTER,
     },
     parent: 'game',

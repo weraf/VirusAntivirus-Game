@@ -3,6 +3,7 @@ import {User} from "./user.js";
 import { ACTIONS, EVENTS } from "../client/shared/enums.js";
 import { GameServer } from "./gameserver.js";
 import { Player } from "./player.js";
+import { AIPlayer } from "./aiplayer.js"; 
 
 export class LobbyHandler extends EventEmitter {
     queue = new GameQueue();
@@ -28,15 +29,60 @@ export class LobbyHandler extends EventEmitter {
             case "any":
                 this.queue.addUserToAnyQueue(user);
                 break;
+            
+            // ------------------------ AI IMPLEMENTATION ---------------------------
+            case "ai_as_virus":
+                
+                this.createAIGame(new AIPlayer(), new Player(user));
+                return;
+            case "ai_as_antivirus":
+                
+                this.createAIGame(new Player(user), new AIPlayer());
+                return;
+            case "ai_vs_ai":
+
+                this.createAIvsAIGame(user);
+                return;
+            // -----------------------------------------------------------------------
         }
-        
+            
         const match = this.queue.getMatchablePlayers();
         if (match.matchFound) {
-            
             this.createGame(match.virusUser,match.antiVirusUser)
         }
         
     }
+
+    // --------------------------------- AI IMPLEMENTATION -------------------------------------
+    /**
+     * en människa som spelar mot AI
+     * @param {Player|AIPlayer} virusPlayer
+     * @param {Player|AIPlayer} antivirusPlayer
+     * @param {boolean} humanIsVirus 
+     */
+    createAIGame(virusPlayer, antivirusPlayer) {
+        const newGame = new GameServer(virusPlayer, antivirusPlayer);
+        this.games.push(newGame);
+        newGame.once(GameServer.SIGNAL_GAME_FINISHED, this.gameFinished.bind(this, newGame));
+        for (const user of this.spectateQueue.popAll()) {
+            newGame.addSpectator(user);
+        }
+    }
+
+    /**
+     * AI vs AI Spectate
+     * @param {User} user 
+     */
+    createAIvsAIGame(user) {
+        const virusAI     = new AIPlayer();
+        const antivirusAI = new AIPlayer();
+        const newGame     = new GameServer(virusAI, antivirusAI, true); // true : isAIvsAI
+        this.games.push(newGame);
+        newGame.once(GameServer.SIGNAL_GAME_FINISHED, this.gameFinished.bind(this, newGame));
+        // lägg till som spectator
+        newGame.addSpectator(user);
+    }
+    // ------------------------------------------------------------------------------------------
 
     userStartSpectate(user) {
         if (this.games.length == 0) {

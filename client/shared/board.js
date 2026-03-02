@@ -14,6 +14,7 @@ export class Board extends EventTarget {
         this.virus = null;
         this.antivirus = null;
         this.bugs = new Bugs(this);
+        this.isFlipped = false;
     }
 
     spawnVirus(startNodes = []) {
@@ -38,10 +39,21 @@ export class Board extends EventTarget {
     }
 
     flipCoordinates() {
+        this.isFlipped = !this.isFlipped;
         for (const node of this.getAllNodes()) {
+            // Reworked flipping to do a 90 degree rotation instead of mirroring x and y
+            // This makes it behave more as expected when rotating a phone
+            // This will cause negative node positions but that doesn't matter since we
+            // center the camera anyway
+            
             const tempX = node.x;
-            node.x = node.y;
-            node.y = tempX;
+            if (this.isFlipped) {
+                node.x = node.y;
+                node.y = -tempX;
+            } else {
+                node.x = -node.y;
+                node.y = tempX;
+            }
         }
         this.dispatchEvent(new Event(Board.EVENTS.BOARD_FLIP));
     }

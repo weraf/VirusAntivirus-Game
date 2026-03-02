@@ -9,6 +9,9 @@ export class Translator {
 
     }
 
+    // Holds all placeholder names that have a alias
+    static placeholderAliases = {}
+
     // Dictionary only for the language currently selected
     static currentDictionary = {}
 
@@ -39,6 +42,12 @@ export class Translator {
                 // Save the "alias" so we can correctly update the string on language change
                 Translator.currentDictionary[placeholder] = Translator.getText(value);
                 Translator.dictionary[placeholder] = Translator.dictionary[value];
+                Translator.placeholderAliases[placeholder] = true;
+            } else if (Translator.placeholderAliases[placeholder] !== undefined) {
+                // The alias is no longer valid, it may have been set to empty string ""
+                delete Translator.placeholderAliases[placeholder];
+                delete Translator.currentDictionary[placeholder];
+                delete Translator.dictionary[placeholder];
             }
         })
         instance.addEventListener(HtmlInstance.EVENTS.SHOWN,(event) => {
