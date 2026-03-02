@@ -51,8 +51,15 @@ export class Game extends Phaser.Scene {
         const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
         // Scale the background so it fits the camera area
         this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        // Move the background to the center of the camera
         this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
         this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
+    }
+
+    updateCanvasSize() {
+        // We take the ceil in order to not get small white stripes at the edges in certain situations.
+        this.scale.resize(Math.ceil(window.innerWidth*window.devicePixelRatio),Math.ceil(window.innerHeight*window.devicePixelRatio));
+        // This will trigger onResize() to trigger
     }
 
     create() {
@@ -60,8 +67,14 @@ export class Game extends Phaser.Scene {
 
         this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
         
+        // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
+        
+        // Update canvas when screen changes size
+        window.addEventListener("resize", this.updateCanvasSize.bind(this));
+        
         this.onResize();
+        
         
         // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
         // Hämta datan från JSON-filen
@@ -93,20 +106,21 @@ export class Game extends Phaser.Scene {
             // Play the sound effect
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
+            this.ui.showWinScreen(virusWon);
+     
 
-            if (!disconnect) {
-                // If this is not a disconnect, we will automatically notice game over from our local gamestate
+            if (!disconnect && !this.isSpectator) {
+                // Non-spectator
                 return;
             }
-            // If our opponent disconnected we need to show that manually
-            this.ui.showWinScreen(virusWon);
-            this.soundManager.playWinLose(virusWon, this.isVirus); 
+            // Spectators and disconnec
             this.gameState.stopGame();
         })
 
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
+
             this.startGame(data);
         });
 
@@ -115,8 +129,15 @@ export class Game extends Phaser.Scene {
             
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (!this.isVirus) {
-                this.antivirusTurn();
+                this.pendingTurn = "antivirus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "antivirus") {
+                        this.pendingTurn = null;
+                        this.antivirusTurn();
+                    }
+                }, 50);
             }
         });
 
@@ -126,8 +147,15 @@ export class Game extends Phaser.Scene {
 
             this.gameState.handleMove();
 
+            // FIXA BUGGEN!
             if (this.isVirus) {
-                this.virusTurn();
+                this.pendingTurn = "virus";
+                setTimeout(() => {
+                    if (this.pendingTurn === "virus") {
+                        this.pendingTurn = null;
+                        this.virusTurn();
+                    }
+                }, 50);
             }
             
             
@@ -138,6 +166,15 @@ export class Game extends Phaser.Scene {
             const fromNode = this.gameBoard.getNode(fromId);
             const toNode = this.gameBoard.getNode(toId);
             bugs.respawnBugAtNode(fromNode,toNode);
+
+            // FIXA BUGGEN
+            if (this.pendingTurn === "virus") {
+                this.pendingTurn = null;
+                this.virusTurn();
+            } else if (this.pendingTurn === "antivirus") {
+                this.pendingTurn = null;
+                this.antivirusTurn();
+            }
         });
 
         socket.on(EVENTS.TURN_TIMED_OUT, (cp) => {
@@ -164,6 +201,7 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
+
 
         /*
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
@@ -214,6 +252,10 @@ export class Game extends Phaser.Scene {
             return;
         }
         this.inputHandler.removeAllInput();
+
+        if (this.gameState.currentPlayer !== 0) return; // fixa bugg
+        this.gameBoard.antivirus.selectedNode = null; // fixa bugg
+
         const valid = this.gameState.getVirus().getValidMoves()
 
         for (const node of valid) {
@@ -230,6 +272,9 @@ export class Game extends Phaser.Scene {
         if (this.isSpectator) {
             return;
         }
+        
+        if (this.gameState.currentPlayer !== 1) return; // fixa bugg
+
         const av = this.gameState.getAntiVirus();
         this.inputHandler.removeAllInput();
 
@@ -267,12 +312,12 @@ export class Game extends Phaser.Scene {
 
 
 const config = {
-    width: window.innerWidth*window.devicePixelRatio,
-    height: window.innerHeight*window.devicePixelRatio,
+    width: Math.ceil(window.innerWidth*window.devicePixelRatio),
+    height: Math.ceil(window.innerHeight*window.devicePixelRatio),
     type: Phaser.AUTO,
     scale: {
-            // För att spelet ska fylla hela skärmen
-            mode: Phaser.Scale.EXPAND,
+            // Vi hanterar skalning manuellt
+            mode: Phaser.Scale.NONE,
             autoCenter: Phaser.Scale.NO_CENTER,
     },
     parent: 'game',
