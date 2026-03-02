@@ -83,18 +83,20 @@ export class GameUI {
     }
 
     setup() {
-        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html"]).then(() => {
+        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html", "./ui/settings.html"]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.winscreen = this.htmlManager.create("winscreen");
-            
+            this.settings = this.htmlManager.create("settings");
             this.htmlManager.showOnly(this.mainmenu);
 
             // Blank description text från början
             this.mainmenu.setPlaceholder("description", "");
 
+            // musik
+            //this.soundManager.playMusic();
 
             this.mainmenu.virus.onclick = () => {
                 this.soundManager.play('click');
@@ -142,6 +144,55 @@ export class GameUI {
                     Translator.setLanguage("en");
                 }
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
+            }
+
+            this.mainmenu.settingsBtn.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.mainmenu.switchTo(this.settings)
+            }
+
+            this.settings.backBtn.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.settings.switchTo(this.mainmenu)
+            }
+
+            this.settings.masterButtonOn.onclick = () => {
+                this.soundManager.setVolume("masterVolume", 1)
+                this.soundManager.play('click');
+                this.settings.masterButtonOn.classList.add("onbutton");
+                this.settings.masterButtonOff.classList.remove("offbutton");
+            };
+
+            this.settings.masterButtonOff.onclick = () => {
+                this.soundManager.setVolume("masterVolume", 0)
+                this.settings.masterButtonOff.classList.add("offbutton");
+                this.settings.masterButtonOn.classList.remove("onbutton");
+            };
+
+            this.settings.sfxButtonOn.onclick = () => {
+                this.soundManager.sfxVolume = 1;
+                this.soundManager.play('click');
+                this.settings.sfxButtonOn.classList.add("onbutton");
+                this.settings.sfxButtonOff.classList.remove("offbutton");
+            }
+
+            this.settings.sfxButtonOff.onclick = () => {
+                this.soundManager.sfxVolume = 0;
+                this.settings.sfxButtonOff.classList.add("offbutton");
+                this.settings.sfxButtonOn.classList.remove("onbutton");
+            }
+
+            this.settings.musicButtonOn.onclick = () => {
+                this.soundManager.play('click');
+                this.soundManager.setVolume("musicVolume", 1)
+                this.settings.musicButtonOn.classList.add("onbutton");
+                this.settings.musicButtonOff.classList.remove("offbutton");
+            }
+
+            this.settings.musicButtonOff.onclick = () => {
+                this.soundManager.setVolume("musicVolume", 0)
+                this.settings.musicButtonOff.classList.add("offbutton");
+                this.settings.musicButtonOn.classList.remove("onbutton");
             }
 
             lucide.createIcons();
