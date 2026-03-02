@@ -19,7 +19,11 @@ export class AIPlayer extends EventEmitter {
 
     // events från GameServer
     emit(eventName, ...args) {
+        if (eventName === EVENTS.START_TUTORIAL) {
+            super.emit(ACTIONS.READY)
+        }
         if (eventName === EVENTS.GAME_FOUND) {
+            console.log("We are Charlie Kirk")
             if (this.isVirus) setTimeout(() => this.doVirusMove(), 300);
             return;
         }
@@ -41,6 +45,7 @@ export class AIPlayer extends EventEmitter {
 
     doVirusMove() {
         if (!this.board) return;
+        console.log("Yeap do virus move")
         const node = this.virusAI.pickMove(this.board);
         if (!node) return;
         super.emit(ACTIONS.VIRUS_MOVE, node.id);
@@ -48,6 +53,7 @@ export class AIPlayer extends EventEmitter {
 
     doAntivirusMove() {
         if (!this.board) return;
+        console.log("Yeap do antivirus move")
         const result = this.antivirusAI.pickMove(this.board);
         if (!result?.from || !result?.to) return;
         super.emit(ACTIONS.ANTIVIRUS_MOVE, result.to.id, result.from.id);
