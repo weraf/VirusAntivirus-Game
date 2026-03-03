@@ -111,6 +111,7 @@ export class GameUI extends EventTarget {
             }
         }
         this.showCurrentPlayer(0);
+        this.queue.hide()
         this.waiting.switchTo(this.player_indicator);
         this.rulesbutton.show();
         this.setRulesButton();
@@ -131,6 +132,7 @@ export class GameUI extends EventTarget {
     }
 
     startFullscreen() {
+        return; // temporary 
         if (!this.isSmallScreen()) {
             return; // Only auto enable fullscreen on small screens (mobile)
         }
@@ -155,7 +157,7 @@ export class GameUI extends EventTarget {
 
             this.ui = document.getElementById("ui");
 
-            const ruleswindow = this.ui.querySelector(".transparent.center");
+            const ruleswindow = this.rules.root
             
             this.settings = this.htmlManager.create("settings");
 

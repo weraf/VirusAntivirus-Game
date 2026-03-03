@@ -114,7 +114,7 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
             // Play the sound effect
 
-            // Något fattas kanske här?
+            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);

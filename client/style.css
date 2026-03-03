@@ -90,12 +90,6 @@ html, button {
     color: white;
 }
 
-.text {
-    color:rgb(0, 0, 0);
-    font-size: 20px;
-    text-align: center;
-}
-
 .vstext {
     font-size: 2rem;
     font-style: italic;
