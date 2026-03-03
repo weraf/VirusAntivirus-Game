@@ -144,6 +144,7 @@ export class GameDrawer {
     }
 
     destroy() {
+        this.graphics.destroy();
         this.antivirusDrawer.graphics.destroy();
         this.virusDrawer.graphics.destroy();
         this.bugsDrawer.graphics.destroy();

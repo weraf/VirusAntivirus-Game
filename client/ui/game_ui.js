@@ -12,21 +12,32 @@ export class GameUI extends EventTarget {
     /**
      * 
      * @param {HTMLElement} parent 
-     * @param {Socket} socket 
-     * @param {SoundManager}
      */
-    constructor(parent, socket, soundManager) {
+    constructor(parent) {
         super();
-        this.soundManager = soundManager;
         this.htmlManager = new HtmlManager(parent);
         Translator.connectToHTMLManager(this.htmlManager);
         // Fetch the translations and then load the UI
         Translator.fetchTranslations().then(this.setup.bind(this))
         this.queuePreference = QUEUE_PREFERENCE.ANY;
+    }
+    
+    /**
+     * @param {Socket} socket 
+     */
+    setSocket(socket) {
         // The simplest solution is to include a reference to socket in this class
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
+    }
+
+    /**
+     * 
+     * @param {SoundManager} soundManager 
+     */
+    setSoundManager(soundManager) {
+        this.soundManager = soundManager;
     }
 
     /**
@@ -45,8 +56,7 @@ export class GameUI extends EventTarget {
         })
     }
 
-    leaveGame() {
-        this.socket.emit(ACTIONS.LEAVE_GAME);
+    leaveGamePressed() {
         // Send event to game that can restart the scene
         this.dispatchEvent(new Event(GameUI.EVENTS.LEAVE_GAME));
     }
@@ -62,7 +72,7 @@ export class GameUI extends EventTarget {
         this.winscreen.setPlaceholder("wintext",virusWon ? "viruswon":"antiviruswon");
         this.player_indicator.switchTo(this.winscreen);
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
-        this.winscreen.leavebutton.onclick = this.leaveGame.bind(this);
+        this.winscreen.leavebutton.onclick = this.leaveGamePressed.bind(this);
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
     }
 
@@ -93,7 +103,7 @@ export class GameUI extends EventTarget {
 
         if (isSpectator) {
             this.player_indicator.midleavebutton.hidden = false;
-            this.player_indicator.midleavebutton.onclick = this.leaveGame.bind(this);
+            this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
             HtmlManager.hide(this.player_indicator.youantivirus)
             HtmlManager.hide(this.player_indicator.youvirus)
         } else {
@@ -276,6 +286,10 @@ export class GameUI extends EventTarget {
 
             lucide.createIcons();
         })
+    }
+
+    backToMenu() {
+        this.htmlManager.showOnly(this.mainmenu)
     }
 
     destroy() {

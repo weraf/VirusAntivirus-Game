@@ -61,7 +61,7 @@ export class SoundManager {
     play(key, volume = 0.5) {
         const thisVolume = volume * this.masterVolume * this.sfxVolume;
         if (thisVolume <= 0) return;
-        console.log("spelar ljud:", key); 
+        //console.log("spelar ljud:", key); 
         try {
             this.scene.sound.play(key, {volume: thisVolume});
         } catch (e) {
