@@ -115,6 +115,7 @@ export class LobbyHandler extends EventEmitter {
     removeUserFromQueue(user) {
         user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user));
         user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user));
+        this.queue.removeUserFromQueue(user);
         this.queue = this.queue.filter((u) => {return u != user});
         return user; // Returns the user that got removed
     }

@@ -24,6 +24,10 @@
     "en": "Cancel",
     "zh": "取消"
   },
+  "prandom": {
+    "sv": "Slumpmässig",
+    "en": "Random"
+  },
   "pvirus": {
     "sv": "Virus",
     "en": "Virus"
