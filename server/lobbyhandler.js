@@ -111,14 +111,6 @@ export class LobbyHandler extends EventEmitter {
         this.games = this.games.filter((g) => {return g != game});
         console.log("Game finished");
     }
-
-    removeUserFromQueue(user) {
-        user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user));
-        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user));
-        this.queue.removeUserFromQueue(user);
-        this.queue = this.queue.filter((u) => {return u != user});
-        return user; // Returns the user that got removed
-    }
 }
 
 class SpectateQueue {
@@ -185,8 +177,15 @@ class GameQueue {
         let virusUser = null;
         let antiVirusUser = null;
         if (this.anyQueue.length >= 2) {
-            virusUser = this.anyQueue[0];
-            antiVirusUser = this.anyQueue[1];
+            // Both has any, randomize which gets virus
+            const P1Virus = Math.random() < 0.5;
+            if (P1Virus) {
+                virusUser = this.anyQueue[0];
+                antiVirusUser = this.anyQueue[1];
+            } else {
+                virusUser = this.anyQueue[1];
+                antiVirusUser = this.anyQueue[0];
+            }
         } else {
             // Fill from picked arrays
             if (this.virusQueue.length > 0) {
