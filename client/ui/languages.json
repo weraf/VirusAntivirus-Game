@@ -24,6 +24,10 @@
     "en": "Cancel",
     "zh": "取消"
   },
+  "backToMainMenu": {
+    "sv": "Tillbaka till huvudmenyn",
+    "en": "Back to main menu"
+  },
   "prandom": {
     "sv": "Slumpmässig",
     "en": "Random"

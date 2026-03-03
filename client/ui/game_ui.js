@@ -214,6 +214,12 @@ export class GameUI {
                 this.startAIGame("antivirus");
             };
 
+            this.aiSelect.abort.onclick = () => {
+                this.soundManager.play('click');
+                this.aiSelect.switchTo(this.mainmenu);
+                this.socket.emit(ACTIONS.STOP_FINDING_GAME)
+            };
+
             // -------------------------------------------------------
 
             // --------------------- AI VS AI BUTTON -----------------
