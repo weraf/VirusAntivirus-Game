@@ -10,7 +10,7 @@ const httpServer = createServer(app);
 startSocketServer(httpServer)
 
 // Setup so we can serve socket files and websocket end point
-httpServer.listen(3000, "0.0.0.0", () => {
+httpServer.listen(3000, () => {
     console.log("Socket server started!")
 }) 
 
