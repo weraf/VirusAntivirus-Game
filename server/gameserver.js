@@ -6,19 +6,12 @@ import { Board } from "../client/shared/board.js";
 import EventEmitter from "node:events";
 import { BoardCreator } from "../client/shared/boardCreator.js";
 
-// ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
-import mapData from "../client/assets/map1.json" with { type: 'json' }; // 33 noder: 3 servrar
-//import mapData from "../client/assets/map2.json" with { type: 'json' }; // 44 noder: 4 servrar
-//import mapData from "../client/assets/map3.json" with { type: 'json' }; // 41 noder: 3 servrar
 
-/*
-// ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
 import map1 from "../client/assets/map1.json" with { type: 'json' }; // 33 noder: 3 servrar
 import map2 from "../client/assets/map2.json" with { type: 'json' }; // 44 noder: 4 servrar
 import map3 from "../client/assets/map3.json" with { type: 'json' }; // 41 noder: 3 servrar
 const ALL_MAPS = [map1, map2, map3];
-// --------------
-*/
+
 
 import { Bugs } from "../client/shared/bugs.js";
 
@@ -41,17 +34,14 @@ export class GameServer extends EventEmitter {
      * @param {Player} antiVirusPlayer 
      * @param {boolean} isAIvsAI : Sant om båda spelarna är AI
      */
-    constructor(virusPlayer, antiVirusPlayer) {
+    constructor(virusPlayer, antiVirusPlayer, isAIvsAI = false) {
         super();
-        console.log("Game started!") //ta bort för nedan logik
-
-        /*
+        this.isAIvsAI = isAIvsAI;
+        
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         this.currentMap = ALL_MAPS[Math.floor(Math.random() * ALL_MAPS.length)];
         console.log("Game started with random map!");
-        // --------------
-        */
-
+        // ----------------------------------------
 
         this.virusP = virusPlayer;
         this.virusP.setVirus();
@@ -60,15 +50,10 @@ export class GameServer extends EventEmitter {
         this.antivirusReady = false;
         this.gameStarted = false;
 
-
         const board = new Board();
-        BoardCreator.createFromJSON(board, mapData); //ta bort för nedan logik
-
-        /*
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         BoardCreator.createFromJSON(board, this.currentMap);
         // --------------
-        */
 
         // Hardcoded positions for now
         board.spawnVirus();
@@ -192,6 +177,7 @@ export class GameServer extends EventEmitter {
         this.spectators.push(spectator);
         const specData = {
             ...this.gameState.getSerializedState(),
+            mapData: this.currentMap,
             isSpectator: true,
             isVirus: false,
             isAIvsAI: this.isAIvsAI, // skicka med så klienten vet om AI VS AI
@@ -237,14 +223,14 @@ export class GameServer extends EventEmitter {
 
         const virusData = {
             ...data,
-            //mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
+            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: true,
             isAIvsAI: this.isAIvsAI, // AI VS AI
         };
 
         const antivirusData = {
             ...data,
-            //mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
+            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: false,
             isAIvsAI: this.isAIvsAI, // AI VS AI
         };
