@@ -168,8 +168,8 @@ export class GameUI extends EventTarget {
         }
 
         const queueType =
-            role === "virus" ? "ai_as_virus" :
-            "ai_as_antivirus";
+            role === "virus" ? "ai_as_antivirus" :
+            "ai_as_virus";
 
         this.socket.emit(ACTIONS.FIND_GAME, queueType);
     }
