@@ -20,6 +20,9 @@ export class Game extends Phaser.Scene {
 
     constructor(config) {
         super(config);
+
+        this.bgMovement = true;
+
         // Setting up socket signals in constructor so it doesn't connect them again when we restart
 
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
@@ -28,8 +31,6 @@ export class Game extends Phaser.Scene {
                 return;
             }
             // Play the sound effect
-
-            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);
