@@ -172,7 +172,7 @@
     "en": "Virus: Can walk to nodes next to the head, grows by eating bugs and wins by covering two servers at the same time."    
   },
   "antivirustutorial": {
-    "sv": "Antivirus: Kan gå med en av sina sköldarna per tur, skyddar servrarna från virus och försöker stänga in viruset.",
+    "sv": "Antivirus: Kan gå med en av sina sköldar per tur, skyddar servrarna från virus och vinner genom att stänga in viruset.",
     "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornerning it."
   },
   "bugtutorial": {
@@ -200,8 +200,8 @@
     "en": "Sound"
   },
   "aibutton": {
-    "sv": "Spela med AI",
-    "en": "Play With AI"
+    "sv": "Spela mot AI",
+    "en": "Play against AI"
   },
   "watchaibutton": {
     "sv": "Kolla AI mot AI",

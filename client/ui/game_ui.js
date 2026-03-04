@@ -226,9 +226,6 @@ export class GameUI extends EventTarget {
             this.htmlManager.showOnly(this.mainmenu);
             lucide.createIcons();
 
-            // musik
-            this.soundManager.playMusic();
-
             this.mainmenu.start.onclick = () => {
                 this.soundManager.play('click'); // ljud
 

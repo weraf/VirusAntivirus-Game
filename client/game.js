@@ -94,9 +94,13 @@ export class Game extends Phaser.Scene {
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
-        // ljud
-        this.soundManager = new SoundManager(this, this.gameBoard);
-
+        if (this.soundManager === undefined) {
+            // skapa soundmanager om den inte redan finns
+            this.soundManager = new SoundManager(this, this.gameBoard);
+            // musik
+            this.soundManager.playMusic();
+        }
+        
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
@@ -249,8 +253,7 @@ export class Game extends Phaser.Scene {
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
         
-        // Starta Ljud
-        this.soundManager.initGameListeners();
+        this.soundManager.connectToBoard(this.gameBoard);
 
         // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
