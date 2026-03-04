@@ -143,8 +143,8 @@ function virusHeuristic(body, bugSet, avSet, allNodes) {
         : 30;
 
     // buggar viktiga när vi är korta, servrar viktiga när vi är längre
-    const bugWeight    = Math.max(0, 8 - len) * 12;
-    const serverWeight = 20 + len * 3;
+    const bugWeight    = Math.max(8, 20 - len) * 12;
+    const serverWeight = 10 + len * 2;
 
     return (
           len * 25

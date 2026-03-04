@@ -34,14 +34,6 @@ export class Game extends Phaser.Scene {
         this.load.image('shield', './assets/shield.png');
         this.load.image('fire', './assets/fire.png');
         this.load.image('eyes', './assets/eyes.png');
-        
-        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
-        // ------ HÄR KAN MAN LÄGGA IN FLER KARTOR! ------ 
-        this.load.json('minKarta', './assets/map1.json'); // 33 noder: 3 servrar
-        //this.load.json('minKarta', './assets/map2.json'); // 44 noder: 4 servrar
-        //this.load.json('minKarta', './assets/map3.json'); // 41 noder: 3 servrar
-        // Kan ändras när man lägger in fler kartor! ta bort kommentar på kartan du vill använda!
-        // --------------
 
         //ladda in ljud
         this.load.audio('click', './assets/Click.wav');
@@ -96,19 +88,9 @@ export class Game extends Phaser.Scene {
         window.addEventListener("resize", this.updateCanvasSize.bind(this));
         
         this.onResize();
-        
-        
-        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
-        // Hämta datan från JSON-filen
-        const data = this.cache.json.get('minKarta');
 
         // Skapa Brädet
         this.gameBoard = new Board();
-
-        // GAMMAL LOGIK ---  SKA TAS BORT NÄR SLUMPKARTOR IMPLEMENTERAS:
-        // fyller brädet med boardCreator klassen
-        BoardCreator.createFromJSON(this.gameBoard, data);
-        // --------------
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
@@ -251,9 +233,6 @@ export class Game extends Phaser.Scene {
     }
 
     startGame(data) {
-
-
-        /*
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         // bygger brädet här istället för i create()
         BoardCreator.createFromJSON(this.gameBoard, data.mapData);
@@ -261,7 +240,6 @@ export class Game extends Phaser.Scene {
         this.gameState = new GameState(this.gameBoard, 20000);
         this.ui.connectToGameState(this.gameState);
         //------------------
-        */
 
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
