@@ -31,6 +31,14 @@
     "fi": "",
     "zh": "取消"
   },
+  "backToMainMenu": {
+    "sv": "Tillbaka till huvudmenyn",
+    "en": "Back to main menu"
+  },
+  "prandom": {
+    "sv": "Slumpmässig",
+    "en": "Random"
+  },
   "pvirus": {
     "sv": "Virus",
     "en": "Virus",
@@ -191,39 +199,7 @@
     "sv": "Ljud",
     "en": "Sound"
   },
-  "settingssoundeffects": {
-    "sv": "Ljudeffekter",
-    "en": "Sound effects"
-  },
-  "settingsmusic": {
-    "sv": "Musik",
-    "en": "Music"
-  },
-  "off-pmasterbtn": {
-    "sv": "Av",
-    "en": "Off"
-  },
-  "on-pmasterbtn": {
-    "sv": "På",
-    "en": "On"
-  },
-  "off-psfxbtn": {
-    "sv": "Av",
-    "en": "Off"
-  },
-  "on-psfxbtn": {
-    "sv": "På",
-    "en": "On"
-  },
-  "off-pmusicbtn": {
-    "sv": "Av",
-    "en": "Off"
-  },
-  "on-pmusicbtn": {
-    "sv": "På",
-    "en": "On"
-  },
-    "aibutton": {
+  "aibutton": {
     "sv": "Spela med AI",
     "en": "Play With AI"
   },
@@ -234,6 +210,10 @@
   "you": {
     "sv": "Du",
     "en": "You"
+  },
+  "bgsettings": {
+    "sv": "Bakgrund",
+    "en": "Background"
   }
   
 }

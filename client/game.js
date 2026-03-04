@@ -66,6 +66,7 @@ export class Game extends Phaser.Scene {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
         this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
+        this.bgMovement = true;
         
         // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
@@ -101,6 +102,9 @@ export class Game extends Phaser.Scene {
         this.queuePreference = QUEUE_PREFERENCE.ANY;
         this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
         this.ui.connectToGameState(this.gameState);
+        this.ui.bgToggle = (checked) => {
+            this.bgMovement = checked;
+        };
 
 
         this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
@@ -319,7 +323,9 @@ export class Game extends Phaser.Scene {
             this.gameDrawer.animate();
         }
         // Slowly scroll the background, multiply with delta to get it frame-rate independant
-        this.bg.tilePositionY -= 0.02*delta;
+        if (this.bgMovement) {
+            this.bg.tilePositionY -= 0.02*delta;
+        }
     }
     
     
