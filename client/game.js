@@ -66,6 +66,7 @@ export class Game extends Phaser.Scene {
     }
 
     leaveGame() {
+        this.started = false; // Stops the lose event from showing
         socket.emit(ACTIONS.LEAVE_GAME);
         // Objects created with scene.add are automatically destroyed by phaser
         this.gameState.stopTimer(); // Stop the timer so it won't keep updating the UI
@@ -133,10 +134,6 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
-            if (this.isSpectator) {
-                // We don't show tutorial box when spectating
-                this.ui.tutorialFinished = true;
-            }
             this.startGame(data);
         });
 
