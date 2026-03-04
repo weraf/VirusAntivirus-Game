@@ -227,7 +227,7 @@ export class GameUI extends EventTarget {
             lucide.createIcons();
 
             // musik
-            //this.soundManager.playMusic();
+            this.soundManager.playMusic();
 
             this.mainmenu.start.onclick = () => {
                 this.soundManager.play('click'); // ljud
@@ -362,7 +362,8 @@ export class GameUI extends EventTarget {
             this.settings.musicToggle.onclick = (e) => {
                 this.soundManager.play('click'); // ljud
                 if (e.target.checked) {
-                    this.soundManager.setVolume("musicVolume", 1);
+                    this.soundManager.setVolume("musicVolume", 0.1);
+                    this.soundManager.playMusic();
                 } else {
                     this.soundManager.setVolume("musicVolume", 0);
                 }

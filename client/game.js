@@ -42,8 +42,7 @@ export class Game extends Phaser.Scene {
         this.load.audio('bugMove', './assets/bugMove.wav');
         this.load.audio('lose', './assets/lose.wav');
         this.load.audio('win', './assets/win.wav');
-        //this.load.audio('music', './assets/song.mp3');
-        
+        this.load.audio('music', './assets/music.mp3');
     }
     
     onResize() {

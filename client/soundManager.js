@@ -4,7 +4,7 @@ export class SoundManager {
         this.board = board;
         this.isReady = false;
         this.sfxVolume = 1;
-        this.musicVolume = 1;
+        this.musicVolume = 0.1;
         this.currentMusic = null;
     }
 
@@ -46,7 +46,13 @@ export class SoundManager {
     }
 
     playMusic() {
-        this.currentMusic = this.scene.sound.add('music', this.musicVolume);
+        if (this.currentMusic) return;
+
+        this.currentMusic = this.scene.sound.add('music', {
+            volume: this.musicVolume,
+            loop: true
+        });
+
         this.currentMusic.play();
     }
 
