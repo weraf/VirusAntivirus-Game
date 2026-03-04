@@ -1,38 +1,28 @@
 export class SoundManager {
-    constructor(scene, board) {
+    constructor(scene) {
         this.scene = scene;
-        this.board = board;
-        this.isReady = false;
         this.sfxVolume = 1;
         this.musicVolume = 0.1;
         this.currentMusic = null;
     }
 
-    initGameListeners() {
-        if (!this.board.virus || !this.board.antivirus || !this.board.bugs) {
-            console.warn("hittar ej virus, antivirus eller buggar");
-            return;
-        }
-
+    connectToBoard(board) {
         // bugg omplacering
-        this.board.bugs.addEventListener("bug_moved", () => {
-            if (this.isReady) this.play('bugMove', 0.8);
+        board.bugs.addEventListener("bug_moved", () => {
+            this.play('bugMove', 0.8);
         });
 
         // Virus
-        this.board.virus.addEventListener("moved", () => {
-            if (this.isReady) this.play('Vmove', 0.5);
+        board.virus.addEventListener("moved", () => {
+            this.play('Vmove', 0.5);
         });
 
         // Antivirus
-        this.board.antivirus.addEventListener("moved", () => {
-            if (this.isReady) this.play('AVmove', 0.3);
+        board.antivirus.addEventListener("moved", () => {
+            this.play('AVmove', 0.3);
         });
-
-        setTimeout(() => { 
-            this.isReady = true; 
-            console.log("ljud redo");
-        }, 200);
+        // The timeout that was here earlier doesn't seem neccesary
+        
     }
 
     playWinLose(virusWon, isPlayerVirus) {
@@ -66,7 +56,7 @@ export class SoundManager {
     play(key, volume = 0.5) {
         const thisVolume = volume * this.sfxVolume;
         if (thisVolume <= 0) return;
-        console.log("spelar ljud:", key); 
+        //console.log("spelar ljud:", key); 
         try {
             this.scene.sound.play(key, {volume: thisVolume});
         } catch (e) {

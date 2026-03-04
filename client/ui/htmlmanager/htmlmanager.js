@@ -244,4 +244,10 @@ export class HtmlInstance extends EventTarget {
         this.dispatchEvent(new Event(HtmlInstance.EVENTS.SHOWN));
         HtmlManager.show(this.root);
     }
+
+    // Remove from document
+    destroy() {
+        this.root.remove();
+    }
+
 }

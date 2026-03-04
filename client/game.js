@@ -18,6 +18,16 @@ const socket = io();
 // Game klassen. Exporteras för att kunna använda som type-hint
 export class Game extends Phaser.Scene {
 
+    constructor(config) {
+        super(config);
+
+        this.bgMovement = true;
+
+        // Setting up socket signals in constructor so it doesn't connect them again when we restart
+        this.connectSocket();
+        this.initUI();
+    }
+
     // Ladda in JSON-filen (Mapp filen)
     preload() {
         this.load.image('bg', './assets/backdrop.png');
@@ -54,11 +64,22 @@ export class Game extends Phaser.Scene {
         // This will trigger onResize() to trigger
     }
 
+    leaveGame() {
+        this.started = false; // Stops the lose event from showing
+        socket.emit(ACTIONS.LEAVE_GAME);
+        // Objects created with scene.add are automatically destroyed by phaser
+        this.gameState.stopTimer(); // Stop the timer so it won't keep updating the UI
+        //this.gameState = null;
+        //this.gameBoard = null;
+        this.ui.backToMenu();
+        this.scene.restart();
+    }
+
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
         this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
-        this.bgMovement = true;
+        
         
         // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
@@ -73,34 +94,33 @@ export class Game extends Phaser.Scene {
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
-        // ljud
-        this.soundManager = new SoundManager(this, this.gameBoard);
-
+        if (this.soundManager === undefined) {
+            // skapa soundmanager om den inte redan finns
+            this.soundManager = new SoundManager(this, this.gameBoard);
+            // musik
+            this.soundManager.playMusic();
+        }
+        
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
         this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
-        this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+        
+        this.ui.setSocket(socket);
+        this.ui.setSoundManager(this.soundManager);
         this.ui.connectToGameState(this.gameState);
-        this.ui.bgToggle = (checked) => {
-            this.bgMovement = checked;
-        };
+    }
 
-
-        this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
-            this.inputHandler.tempRemoveInput();
-        })
-
-        this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
-            this.inputHandler.addBackInput();
-        })
-
+    connectSocket() {
+        // Only do this once, on website start
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
+            if (!this.started) {
+                // We have probably already left the game, don't show losescreen
+                return;
+            }
             // Play the sound effect
-
-            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);
@@ -117,7 +137,6 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
-
             this.startGame(data);
         });
 
@@ -193,12 +212,24 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.START_TUTORIAL, () => {
             this.ui.showTutorial();
         })
-        /*this.startGame({
-            virusNodes: [],
-            antivirusNodes: [],
-            bugNodes: [],
-            currentPlayer: 0,
-        });*/
+
+    }
+
+    initUI() {
+        // Only do this once, on website start
+        this.ui = new GameUI(document.getElementById("ui"));
+        this.ui.addEventListener(GameUI.EVENTS.LEAVE_GAME,this.leaveGame.bind(this));
+        this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
+            this.inputHandler.tempRemoveInput();
+        })
+        
+        this.ui.bgToggle = (checked) => {
+            this.bgMovement = checked;
+        };
+
+        this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
+            this.inputHandler.addBackInput();
+        })
     }
 
     startGame(data) {
@@ -222,8 +253,7 @@ export class Game extends Phaser.Scene {
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
         
-        // Starta Ljud
-        this.soundManager.initGameListeners();
+        this.soundManager.connectToBoard(this.gameBoard);
 
         // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
