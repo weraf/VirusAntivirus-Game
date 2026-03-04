@@ -105,11 +105,10 @@ export class GameUI extends EventTarget {
     }
 
     showGameStart(isVirus, isSpectator) {
-        this.player_indicator.midleavebutton.hidden = true; // Hide leave button as default
-
+        
+        this.player_indicator.midleavebutton.hidden = false;
+        this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
         if (isSpectator) {
-            this.player_indicator.midleavebutton.hidden = false;
-            this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
             HtmlManager.hide(this.player_indicator.youantivirus)
             HtmlManager.hide(this.player_indicator.youvirus)
         } else {

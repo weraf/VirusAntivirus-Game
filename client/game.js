@@ -23,6 +23,10 @@ export class Game extends Phaser.Scene {
         // Setting up socket signals in constructor so it doesn't connect them again when we restart
 
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
+            if (!this.started) {
+                // We have probably already left the game, don't show losescreen
+                return;
+            }
             // Play the sound effect
 
             // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
@@ -42,7 +46,10 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
-
+            if (this.isSpectator) {
+                // We don't show tutorial box when spectating
+                this.ui.tutorialFinished = true;
+            }
             this.startGame(data);
         });
 
