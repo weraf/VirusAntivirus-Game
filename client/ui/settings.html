@@ -7,27 +7,36 @@
         {soundsettings}
     </p>
 
-    <div class="settingsbutton">
-        <button id="masterButtonOff">{off-pmasterbtn}</button>
-        <button class="onbutton" id="masterButtonOn">{on-pmasterbtn}</button>
+    <div class="settingsrow">
+        <div class="settingsbutton">
+        <i data-lucide="audio-lines" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sfxToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="settingsbutton">
+            <i data-lucide="music" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="musicToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
     </div>
 
     <p class="undertext text">
-        {settingssoundeffects}
+        {bgsettings}
     </p>
 
-    <div class="settingsbutton">
-        <button id="sfxButtonOff">{off-psfxbtn}</button>
-        <button class="onbutton" id="sfxButtonOn">{on-psfxbtn}</button>
-    </div>
-
-    <p class="undertext text">
-        {settingsmusic}
-    </p>
-
-    <div class="settingsbutton">
-        <button id="musicButtonOff">{off-pmusicbtn}</button>
-        <button class="onbutton" id="musicButtonOn">{on-pmusicbtn}</button>
+    <div class="settingsrow">
+        <div class="settingsbutton">
+        <i data-lucide="square-arrow-down" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="bgMove" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
     </div>
 
     <div class="backb">
