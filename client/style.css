@@ -220,10 +220,10 @@ html, button {
 }
 
 #abort {
-    width: 240px;
+    width: 200px;
     border-radius: 10px;
     text-align: center;
-    height: 50px;
+    height: 40px;
 }
 
 .wintext {
@@ -415,6 +415,7 @@ html, button {
     background-color: #5c5c5c;
     color: white;
     transition: all 0.2s ease;
+    height: 50px;
 }
 
 .queue-role:hover {
