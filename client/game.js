@@ -106,8 +106,19 @@ export class Game extends Phaser.Scene {
             this.bgMovement = checked;
         };
 
+
+        this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
+            this.inputHandler.tempRemoveInput();
+        })
+
+        this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
+            this.inputHandler.addBackInput();
+        })
+
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
             // Play the sound effect
+
+            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);
@@ -195,6 +206,10 @@ export class Game extends Phaser.Scene {
                 this.antivirusTurn();
             }
             
+        })
+
+        socket.on(EVENTS.START_TUTORIAL, () => {
+            this.ui.showTutorial();
         })
         /*this.startGame({
             virusNodes: [],

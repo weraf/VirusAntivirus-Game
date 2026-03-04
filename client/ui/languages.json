@@ -17,11 +17,18 @@
   },
   "searchinggame": {
     "sv": "Söker spel...",
-    "en": "Looking for game..."
+    "en": "Looking for game...",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "abort": {
     "sv": "Avbryt",
     "en": "Cancel",
+    "da": "",
+    "no": "",
+    "fi": "",
     "zh": "取消"
   },
   "backToMainMenu": {
@@ -34,47 +41,155 @@
   },
   "pvirus": {
     "sv": "Virus",
-    "en": "Virus"
+    "en": "Virus",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "pantivirus": {
     "sv": "Antivirus",
-    "en": "Antivirus"
+    "en": "Antivirus",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "pspectator": {
     "sv": "Åskådare",
-    "en": "Spectator"
+    "en": "Spectator",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "playingas": {
     "sv": "Du spelar som",
-    "en": "You're playing as"
+    "en": "You're playing as",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "pickmode": {
     "sv": "Välj din spelare",
-    "en": "Pick your player"
+    "en": "Pick your player",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "viruswon": {
     "sv": "Viruset vinner!",
-    "en": "The virus won!"
+    "en": "The virus won!",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "antiviruswon": {
     "sv": "Antiviruset vinner!",
-    "en": "The Antivirus won!"
+    "en": "The Antivirus won!",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "virusdescription": {
     "sv": "Virusets spelpjäs består av en kropp som upptar flera noder samtidigt i en sammanhängande koppling. Spelaren utför ett drag genom att välja en ledig, angränsande nod att flytta till där kroppen flyttar sedan längs med rörelseriktningen. Möjliga drag indikeras av gröna cirklar.\nTurordningen går därefter över till motståndaren.\n \nVirusets syfte är att angripa kartans servrar. Målet för viruset är att skapa en sammanhängande koppling mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste viruset undvika att bli isolerad på kartan",
-    "en": "The virus piece consists of a body that covers several nodes at the same time in a continuous link. The player makes a move by selecting an adjacent node to move to, where the body moves along the direction of the movement. Possible moves are indicated by green circles.\nThe turn is then over and the opponent makes their move.\n \nThe virus goal is to attack the servers on the map. The goal is to establish a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus cannot make any valid moves, so the virus have to prevent itself from becoming isolated on the map."
+    "en": "The virus piece consists of a body that covers several nodes at the same time in a continuous link. The player makes a move by selecting an adjacent node to move to, where the body moves along the direction of the movement. Possible moves are indicated by green circles.\nThe turn is then over and the opponent makes their move.\n \nThe virus goal is to attack the servers on the map. The goal is to establish a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus cannot make any valid moves, so the virus have to prevent itself from becoming isolated on the map.",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "antivirusdescription": {
     "sv": "Antiviruset har två spelpjäser som placeras på två olika noder angränsande till kartans servrar.\n Antiviruset utför ett drag genom att:\n1. Välja en av spelpjäserna som ska flyttas\n2. Välja en angränsande nod för att flytta spelpjäsen \nTurordningen går därefter över till motståndaren.\n \nAntivirusets syfte är att försvara kartans servrar från virusets angrepp. Målet är att förhindra viruset från att skapa en sammanhängande länk mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste antiviruset sträva efter att isolera viruset på kartan.",    
-    "en": "The antivirus has two pieces that are placed on two different nodes adjacent to the servers on the map. \nThe antivirus makes a move by: \n1. Selecting one of the pieces to be moved. \n2. Select an adjacent node to move the piece. \nThe turn is then over and the opponent makes their move\n \nThe antivirus goal is to defend the servers from the virus attack. The goal is to prevent the virus from creating a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus is unable to make any valid moves, so the antivirus has to work toward isolating the virus on the map."
+    "en": "The antivirus has two pieces that are placed on two different nodes adjacent to the servers on the map. \nThe antivirus makes a move by: \n1. Selecting one of the pieces to be moved. \n2. Select an adjacent node to move the piece. \nThe turn is then over and the opponent makes their move\n \nThe antivirus goal is to defend the servers from the virus attack. The goal is to prevent the virus from creating a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus is unable to make any valid moves, so the antivirus has to work toward isolating the virus on the map.",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "prules": {
     "sv": "Regler",
-    "en": "Rules"
+    "en": "Rules",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
   },
   "leave": {
     "sv": "Lämna",
-    "en": "Leave"
+    "en": "Leave",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "displayrules": {
+    "sv": "Regler",
+    "en": "Rules",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "exittutorial": {
+    "sv": "Redo att starta",
+    "en": "Ready to start",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "ingamerules": {
+    "sv": "Reglerna på svenska",
+    "en": "The rules in english",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  },
+  "ingamerulebutton": {
+    "sv": "Regler",
+    "en": "The Rules",
+    "da": "",
+    "no": "",
+    "fi": "",
+    "zh": ""
+  }, 
+  "waiting": {
+    "sv": "Väntar på att andra spelaren är redo.",
+    "en": "Waiting for the other player to ready up."
+  },
+  "exitrules": {
+    "sv": "Tillbaka till spelet",
+    "en": "Back to game"
+  },
+  "virustutorial": {
+    "sv": "Virus: Kan gå till noder bredvid huvudet, blir längre genom att gå på buggar, vinner om den täcker två servrar samtidigt.",
+    "en": "Virus: Can walk to nodes next to the head, grows by eating bugs and wins by covering two servers at the same time."    
+  },
+  "antivirustutorial": {
+    "sv": "Antivirus: Kan gå med en av sina sköldarna per tur, skyddar servrarna från virus och försöker stänga in viruset.",
+    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornerning it."
+  },
+  "bugtutorial": {
+    "sv": "Bugg: De omflyttas om de gås på.",
+    "en": "Bug: They are randomly placed elsewhere when walked on."    
+  },
+  "servertutorial": {
+    "sv": "Server: Viruset försöker invadera dem och antivirusen skyddar dem.",
+    "en": "Server: Virus wants to invade them, antiviruses wants to protect them"
+  },
+  "generalrules": {
+    "sv": "Du har 20 sekunder på dig att göra ett drag, efter det så blir det automatiskt motståndarens tur.",
+    "en": "You have 20 seconds to make a move, if you exceed that time you will lose your chance to move that turn."
+  },
+  "rules": {
+    "sv": "Regler",
+    "en": "Rules"
   },
   "psettingsbtn": {
     "sv": "Tillbaka",
@@ -100,4 +215,5 @@
     "sv": "Bakgrund",
     "en": "Background"
   }
+  
 }

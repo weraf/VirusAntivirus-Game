@@ -3,7 +3,12 @@ import { Translator } from "./translator.js";
 import { QUEUE_PREFERENCE, ACTIONS, EVENTS } from "../shared/enums.js";
 import { GameState } from "../shared/gamestate.js";
 
-export class GameUI {
+export class GameUI extends EventTarget {
+
+    static EVENTS = {
+        PAUSE: "PAUSE",
+        UNPAUSE: "UNPAUSE"
+    } 
 
     /**
      * 
@@ -12,6 +17,7 @@ export class GameUI {
      * @param {SoundManager}
      */
     constructor(parent, socket, soundManager) {
+        super();
         this.soundManager = soundManager;
         this.htmlManager = new HtmlManager(parent);
         Translator.connectToHTMLManager(this.htmlManager);
@@ -22,6 +28,9 @@ export class GameUI {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
+        this.tutorialFinished = false; // variable to distinguish between rules ingame and rules in tutorial
+        this.rulesOpened = false; // are the rules currently open in game?
+        
     }
 
     /**
@@ -58,6 +67,7 @@ export class GameUI {
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
         this.winscreen.leavebutton.onclick = this.leaveGame.bind(this);
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
+        this.rules.hide()
     }
 
     showCurrentPlayer(current) {
@@ -101,8 +111,19 @@ export class GameUI {
             }
         }
         this.showCurrentPlayer(0);
+        this.queue.hide()
+        this.setRulesButton();
         this.htmlManager.showOnly(this.player_indicator);
         HtmlManager.show(this.settingsIngame);
+        this.rulesbutton.show();
+    }
+
+    setRulesButton() {
+        this.rules.setPlaceholder("exittutorial", "exitrules") // Visa olika texter beroende på
+    }
+
+    showTutorial() {
+        this.queue.switchTo(this.rules);
     }
 
     isSmallScreen() {
@@ -110,6 +131,7 @@ export class GameUI {
     }
 
     startFullscreen() {
+        return; // temporary 
         if (!this.isSmallScreen()) {
             return; // Only auto enable fullscreen on small screens (mobile)
         }
@@ -160,7 +182,10 @@ export class GameUI {
             "./ui/winscreen.html",
             "./ui/settings.html",
             "./ui/aiselect.html",
-            "./ui/settingsingame.html"
+            "./ui/settingsingame.html",
+            "./ui/rulesbutton.html",
+            "./ui/rules.html",
+            "./ui/waiting.html"
         ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
@@ -168,6 +193,14 @@ export class GameUI {
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.aiSelect = this.htmlManager.create("aiselect");
             this.winscreen = this.htmlManager.create("winscreen");
+            this.rules = this.htmlManager.create("rules");
+            this.rulesbutton = this.htmlManager.create("rulesbutton");
+            this.waiting = this.htmlManager.create("waiting");
+
+            this.ui = document.getElementById("ui");
+
+            const ruleswindow = this.rules.root
+            
             this.settings = this.htmlManager.create("settings");
             this.settingsIngame = this.htmlManager.create("settingsingame");
 
@@ -266,6 +299,36 @@ export class GameUI {
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
 
+            this.rulesbutton.rulesbutton.onclick = () => {
+                this.rulesOpened = true;
+                this.soundManager.play('click'); // ljud 🤑
+                this.rules.show();
+                this.setRulesButton();
+                this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
+            }
+
+            this.rules.norulesbutton.onclick = () => {
+                if (this.tutorialFinished === true) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                    this.tutorialOpened = false;
+                } else {
+                    this.tutorialFinished = true;
+                    this.socket.emit(ACTIONS.READY)
+                    this.rules.hide();
+                    this.waiting.show();
+                    this.rulesOpened = false;
+                }
+                this.soundManager.play('click'); // ljud 🤑
+            }
+
+            this.ui.onclick = (e) => {
+                if (!ruleswindow.contains(e.target) && this.tutorialFinished && this.rulesOpened && !this.rulesbutton.rulesbutton.contains(e.target)) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                    this.rulesOpened = false;
+                }
+            };
             this.mainmenu.settingsBtn.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.settings)

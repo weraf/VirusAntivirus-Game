@@ -97,12 +97,6 @@ html, button {
     color: white;
 }
 
-.text {
-    color:rgb(0, 0, 0);
-    font-size: 20px;
-    text-align: center;
-}
-
 .vstext {
     font-size: 2rem;
     font-style: italic;
@@ -210,6 +204,11 @@ html, button {
     font-family: 'Gajraj One';
 }
 
+.tutorialimage {
+    width: 500px;
+    height: 500px;
+}
+
 .lowest {
     width: 50%;
     margin-left: auto;
@@ -247,6 +246,12 @@ html, button {
     font-size: larger;
 }
 
+#rulesbutton {
+    margin-top:50px;
+    color: black;
+    width: 100px;
+}
+
 .red {
     color: #ff0060;
 }
@@ -254,6 +259,43 @@ html, button {
 .blue {
     color: #0000ff;
     color: #33c4fd;
+}
+
+.transparent {
+    background-color: rgb(255, 255, 255);
+    padding: 1em;
+    border: 2px;
+    width: 100%;
+    max-width: 800px;
+    border-radius:10cqb;
+}
+
+.description {
+    display: flex;
+    align-items: center;  
+    gap: 1rem;                
+    width: 100%;
+    max-width: 800px;
+    margin-top: 10px;   
+}
+
+.tutimage {
+    width: 100px;             
+    height: auto;
+    flex-shrink: 0;           
+}
+
+.description:last-child {
+    justify-content: center;
+}
+
+.description:first-child {
+    justify-content: center;
+    text-align: center;
+}
+
+#norulesbutton {
+    margin-top: 20px;
 }
 
 .hidden {
