@@ -117,13 +117,6 @@ export class HtmlManager extends EventTarget {
         }
     }
 
-    destroy() {
-        for (let instance of this.instances) {
-            instance.destroy();
-        }
-        this.instances = [];
-    }
-
     /**
      * Helper function to show a hidden html element
      * @param {*} element 
