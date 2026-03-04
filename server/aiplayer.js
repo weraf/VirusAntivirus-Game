@@ -19,6 +19,10 @@ export class AIPlayer extends EventEmitter {
 
     // events från GameServer
     emit(eventName, ...args) {
+        if (eventName === EVENTS.START_TUTORIAL) {
+            super.emit(ACTIONS.READY)
+        }
+
         if (eventName === EVENTS.GAME_FOUND) {
             if (this.isVirus) setTimeout(() => this.doVirusMove(), 300);
             return;

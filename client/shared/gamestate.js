@@ -19,6 +19,7 @@ export class GameState extends EventTarget {
         this.time = timerLength/1000; // hela sekunder
         this.displayInterval = null;
         this.timeLeft = this.timerLength / 1000; // i sekunder
+        this.tutorialFinished = false;
 
     }
 
@@ -38,6 +39,7 @@ export class GameState extends EventTarget {
             this.winner = 0;
         }
     }
+
 
     getVirus() {
         return this.board.virus;
@@ -93,7 +95,14 @@ export class GameState extends EventTarget {
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
         this.changeTurn();
-        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
+        this.checkWin();
+        if (this.gameOver === true) {
+                this.dispatchEvent(new CustomEvent(GameState.EVENTS.GAME_OVER, {
+                detail: this.winner === 0 // If virus won
+            }));
+        } else {
+            this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
+        }
     }
 
     stopTimer() {

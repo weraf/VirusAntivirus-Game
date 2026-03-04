@@ -56,6 +56,9 @@ export class GameServer extends EventEmitter {
         this.virusP = virusPlayer;
         this.virusP.setVirus();
         this.antivirusP = antiVirusPlayer;
+        this.virusReady = false;
+        this.antivirusReady = false;
+        this.gameStarted = false;
 
 
         const board = new Board();
@@ -72,17 +75,43 @@ export class GameServer extends EventEmitter {
         board.spawnAntivirus();
         board.spawnStartBugs();
 
+        // Här skickar vi och startar inte game förrän skit
+
+        console.log("Game has been found");
+
+        this.virusP.on(ACTIONS.READY, () => {
+            if (!this.virusReady) {
+                console.log("Virus ready")
+                this.virusReady = true;
+                this.tryGameStart();
+            }
+
+        })
+
+        this.antivirusP.on(ACTIONS.READY, () => {
+            if (!this.antivirusReady) {
+                console.log("Antivirus ready")
+                this.antivirusReady = true;
+                this.tryGameStart();
+            }
+        })
+
+        // Below is commented because it is used as a template for above code snippet
+        //this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
+        //this.virusP.on(ACTIONS.LEAVE_GAME,this.playerLeft.bind(this,this.virusP));
+
         this.gameState = new GameState(board, 20000);
 
+        this.sendTutorialStart();
         // --------------------------- AI IMPLEMENTATION ---------------------------
         if (this.virusP instanceof AIPlayer)     this.virusP.board = board;
         if (this.antivirusP instanceof AIPlayer) this.antivirusP.board = board;
         // -------------------------------------------------------------------------
 
-        // Skicka initial state till båda spelarna
-        this.sendGameStart();
+        // use events to not start timer/input and wait until both players have
+        // clicked on a ready button when they have read the rules ?
 
-        this.gameState.startTimer(); //
+        //this.gameState.startTimer(); //
         
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
@@ -97,19 +126,12 @@ export class GameServer extends EventEmitter {
         });
         
         // Make the bugs move when stepped on, then listen to this movement
-        this.gameState.board.connectBugListeners();
+        this.gameState.board.connectBugListeners();                                 // Can it cause issues when syncing? Maybe
         this.gameState.board.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED, (e) => {
             // We can't emit to client directly since that would place it before the move event,
             // resulting in the client snake not noticing that it should grow (since the bug is already moved)
             this.pendingBugMovements.push({from:e.detail.from.id, to:e.detail.to.id});
         });
-
-        // ---------------------------------- AI IMPLEMENTATION ---------------------------------
-        this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
-        this.virusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.virusP));
-        this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
-        this.antivirusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.antivirusP));
-        // ---------------------------------------------------------------------------------------
 
         // If either player disconnect/leaves, the game is over and can be removed from the server
         this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
@@ -230,5 +252,23 @@ export class GameServer extends EventEmitter {
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
     }
+
+    tryGameStart() {
+        if (this.virusReady === true && this.antivirusReady === true && this.gameStarted === false) {
+            console.log("Both players ready")
+            this.gameStarted = true;
+
+            this.sendGameStart()
+            this.gameState.startTimer();
+
+        }
+    }
+
+    sendTutorialStart() {
+        console.log("Tutorial has started")
+        this.emitAll(EVENTS.START_TUTORIAL);
+    }
+
+
     
 }

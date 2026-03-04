@@ -7,7 +7,9 @@ export class GameUI extends EventTarget {
 
     static EVENTS = {
         LEAVE_GAME: "leave_game",
-    }
+        PAUSE: "PAUSE",
+        UNPAUSE: "UNPAUSE"
+    } 
 
     /**
      * 
@@ -30,6 +32,9 @@ export class GameUI extends EventTarget {
         // Another option is having the class send events and game reacting on that,
         // but that would be a lot more code for doing the same thing.
         this.socket = socket;
+        this.tutorialFinished = false; // variable to distinguish between rules ingame and rules in tutorial
+        this.rulesOpened = false; // are the rules currently open in game?
+        
     }
 
     /**
@@ -74,6 +79,7 @@ export class GameUI extends EventTarget {
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
         this.winscreen.leavebutton.onclick = this.leaveGamePressed.bind(this);
         this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
+        this.rules.hide()
     }
 
     showCurrentPlayer(current) {
@@ -117,7 +123,19 @@ export class GameUI extends EventTarget {
             }
         }
         this.showCurrentPlayer(0);
-        this.queue.switchTo(this.player_indicator);
+        this.queue.hide()
+        this.setRulesButton();
+        this.htmlManager.showOnly(this.player_indicator);
+        HtmlManager.show(this.settingsIngame);
+        this.rulesbutton.show();
+    }
+
+    setRulesButton() {
+        this.rules.setPlaceholder("exittutorial", "exitrules") // Visa olika texter beroende på
+    }
+
+    showTutorial() {
+        this.queue.switchTo(this.rules);
     }
 
     isSmallScreen() {
@@ -125,6 +143,7 @@ export class GameUI extends EventTarget {
     }
 
     startFullscreen() {
+        return; // temporary 
         if (!this.isSmallScreen()) {
             return; // Only auto enable fullscreen on small screens (mobile)
         }
@@ -136,76 +155,120 @@ export class GameUI extends EventTarget {
         }
     }
 
+    changeQueuePreference(type) {
+
+        if (this.queuePreference === type) return;
+
+        this.queuePreference = type;
+
+        this.queue.queue_any.classList.remove("selected");
+        this.queue.queue_virus.classList.remove("selected");
+        this.queue.queue_antivirus.classList.remove("selected");
+
+        if (type === "any") this.queue.queue_any.classList.add("selected");
+        if (type === "virus") this.queue.queue_virus.classList.add("selected");
+        if (type === "antivirus") this.queue.queue_antivirus.classList.add("selected");
+
+        this.socket.emit(ACTIONS.STOP_FINDING_GAME);
+        this.socket.emit(ACTIONS.FIND_GAME, type);
+    }
+
+    startAIGame(role) {
+
+        if (role === "random") {
+            role = Math.random() < 0.5 ? "virus" : "antivirus";
+        }
+
+        const queueType =
+            role === "virus" ? "ai_as_virus" :
+            "ai_as_antivirus";
+
+        this.socket.emit(ACTIONS.FIND_GAME, queueType);
+    }
+
     setup() {
-        this.htmlManager.loadAll(["./ui/mainmenu.html", "./ui/queue.html", "./ui/player_indicator.html","./ui/winscreen.html", "./ui/settings.html"]).then(() => {
+        this.htmlManager.loadAll([
+            "./ui/mainmenu.html",
+            "./ui/queue.html",
+            "./ui/player_indicator.html",
+            "./ui/winscreen.html",
+            "./ui/settings.html",
+            "./ui/aiselect.html",
+            "./ui/settingsingame.html",
+            "./ui/rulesbutton.html",
+            "./ui/rules.html",
+            "./ui/waiting.html"
+        ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
             this.queue = this.htmlManager.create("queue");
             this.player_indicator = this.htmlManager.create("player_indicator");
+            this.aiSelect = this.htmlManager.create("aiselect");
             this.winscreen = this.htmlManager.create("winscreen");
+            this.rules = this.htmlManager.create("rules");
+            this.rulesbutton = this.htmlManager.create("rulesbutton");
+            this.waiting = this.htmlManager.create("waiting");
+
+            this.ui = document.getElementById("ui");
+
+            const ruleswindow = this.rules.root
+            
             this.settings = this.htmlManager.create("settings");
+            this.settingsIngame = this.htmlManager.create("settingsingame");
 
             // Blank description text från början
             this.htmlManager.showOnly(this.mainmenu);
-
-            // Blank description text från början
-            this.mainmenu.setPlaceholder("description", "");
+            lucide.createIcons();
 
             // musik
             //this.soundManager.playMusic();
 
-            this.mainmenu.virus.onclick = () => {
-                this.soundManager.play('click');
-
-                this.queuePreference = QUEUE_PREFERENCE.VIRUS;
-
-                this.mainmenu.switchTo(this.queue);
-
-                this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
-                this.startFullscreen();
-            }
-
-            this.mainmenu.spectate.onclick = () => {
-                this.soundManager.play('click'); // ljud
-                this.mainmenu.switchTo(this.queue);
-                this.socket.emit(ACTIONS.SPECTATE_GAME);
-                this.startFullscreen();
-            }
-            
-            this.mainmenu.antivirus.onclick = () => {
-                this.soundManager.play('click');
-
-                this.queuePreference = QUEUE_PREFERENCE.ANTIVIRUS;
-                // Visa en linje på den markerade knappen
-                // this.mainmenu.antivirus.classList.add("selected");
-                // this.mainmenu.virus.classList.remove("selected");
-
-
-                this.mainmenu.switchTo(this.queue);
-
-                this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
-                this.startFullscreen();
-            }
-
             this.mainmenu.start.onclick = () => {
                 this.soundManager.play('click'); // ljud
-                this.mainmenu.switchTo(this.queue)
-                this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.ANY);
-                this.startFullscreen();
+
+                this.queuePreference = QUEUE_PREFERENCE.ANY; // Etablera queue preferencen är random.
+
+                this.mainmenu.switchTo(this.queue);
+
+                this.queue.queue_any.classList.add("selected");
+                this.queue.queue_virus.classList.remove("selected");
+                this.queue.queue_antivirus.classList.remove("selected");
+
+                this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
+                // this.startFullscreen();
             }
 
             // --------------------- AI BUTTON ----------------------- 
             if (this.mainmenu.playai) {
                 this.mainmenu.playai.onclick = () => {
                     this.soundManager.play('click');
-                    this.mainmenu.switchTo(this.queue);
-                    if (this.queuePreference === QUEUE_PREFERENCE.ANTIVIRUS) {
-                        this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_AS_VIRUS);
-                    } else {
-                        this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_AS_ANTIVIRUS);
-                    }
+                    this.mainmenu.switchTo(this.aiSelect);
+                    // this.startFullscreen();
                 }
             }
+
+            // AI select buttons
+            this.aiSelect.ai_random.onclick = () => {
+                this.soundManager.play('click');
+                this.startAIGame("random");
+            };
+
+            this.aiSelect.ai_virus.onclick = () => {
+                this.soundManager.play('click');
+                this.startAIGame("virus");
+            };
+
+            this.aiSelect.ai_antivirus.onclick = () => {
+                this.soundManager.play('click');
+                this.startAIGame("antivirus");
+            };
+
+            this.aiSelect.abort.onclick = () => {
+                this.soundManager.play('click');
+                this.aiSelect.switchTo(this.mainmenu);
+                this.socket.emit(ACTIONS.STOP_FINDING_GAME)
+            };
+
             // -------------------------------------------------------
 
             // --------------------- AI VS AI BUTTON -----------------
@@ -217,6 +280,19 @@ export class GameUI extends EventTarget {
                 }
             }
             // -------------------------------------------------------
+
+            // Ändra queue preference i kön
+            this.queue.queue_any.onclick = () => {
+                this.changeQueuePreference("any");
+            };
+
+            this.queue.queue_virus.onclick = () => {
+                this.changeQueuePreference("virus");
+            };
+
+            this.queue.queue_antivirus.onclick = () => {
+                this.changeQueuePreference("antivirus");
+            };
 
 
             this.queue.abort.onclick = () => {
@@ -235,56 +311,79 @@ export class GameUI extends EventTarget {
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
 
+            this.rulesbutton.rulesbutton.onclick = () => {
+                this.rulesOpened = true;
+                this.soundManager.play('click'); // ljud 🤑
+                this.rules.show();
+                this.setRulesButton();
+                this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
+            }
+
+            this.rules.norulesbutton.onclick = () => {
+                if (this.tutorialFinished === true) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                    this.tutorialOpened = false;
+                } else {
+                    this.tutorialFinished = true;
+                    this.socket.emit(ACTIONS.READY)
+                    this.rules.hide();
+                    this.waiting.show();
+                    this.rulesOpened = false;
+                }
+                this.soundManager.play('click'); // ljud 🤑
+            }
+
+            this.ui.onclick = (e) => {
+                if (!ruleswindow.contains(e.target) && this.tutorialFinished && this.rulesOpened && !this.rulesbutton.rulesbutton.contains(e.target)) {
+                    this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
+                    this.rules.hide();
+                    this.rulesOpened = false;
+                }
+            };
             this.mainmenu.settingsBtn.onclick = () => {
                 this.soundManager.play('click'); // ljud
                 this.mainmenu.switchTo(this.settings)
             }
 
             this.settings.backBtn.onclick = () => {
+                this.soundManager.play('click');
+                if (this.settingsFrom === "game") {
+                    this.settings.switchTo(this.settingsIngame);
+                } else {
+                    this.settings.switchTo(this.mainmenu);
+                }
+            };
+
+            this.settings.sfxToggle.onclick = (e) => {
+                if (e.target.checked) {
+                    this.soundManager.sfxVolume = 1;
+                    this.soundManager.play('click'); // ljud
+                } else {
+                    this.soundManager.sfxVolume = 0;
+                }
+            };
+
+            this.settings.musicToggle.onclick = (e) => {
                 this.soundManager.play('click'); // ljud
-                this.settings.switchTo(this.mainmenu)
-            }
-
-            this.settings.masterButtonOn.onclick = () => {
-                this.soundManager.setVolume("masterVolume", 1)
-                this.soundManager.play('click');
-                this.settings.masterButtonOn.classList.add("onbutton");
-                this.settings.masterButtonOff.classList.remove("offbutton");
+                if (e.target.checked) {
+                    this.soundManager.setVolume("musicVolume", 1);
+                } else {
+                    this.soundManager.setVolume("musicVolume", 0);
+                }
             };
-
-            this.settings.masterButtonOff.onclick = () => {
-                this.soundManager.setVolume("masterVolume", 0)
-                this.settings.masterButtonOff.classList.add("offbutton");
-                this.settings.masterButtonOn.classList.remove("onbutton");
+            
+            this.settings.bgMove.onclick = (e) => {
+                this.soundManager.play('click'); // ljud
+                if (this.bgToggle) 
+                    this.bgToggle(e.target.checked);
             };
-
-            this.settings.sfxButtonOn.onclick = () => {
-                this.soundManager.sfxVolume = 1;
+            
+            this.settingsIngame.igSettingsBtn.onclick = () => {
                 this.soundManager.play('click');
-                this.settings.sfxButtonOn.classList.add("onbutton");
-                this.settings.sfxButtonOff.classList.remove("offbutton");
-            }
-
-            this.settings.sfxButtonOff.onclick = () => {
-                this.soundManager.sfxVolume = 0;
-                this.settings.sfxButtonOff.classList.add("offbutton");
-                this.settings.sfxButtonOn.classList.remove("onbutton");
-            }
-
-            this.settings.musicButtonOn.onclick = () => {
-                this.soundManager.play('click');
-                this.soundManager.setVolume("musicVolume", 1)
-                this.settings.musicButtonOn.classList.add("onbutton");
-                this.settings.musicButtonOff.classList.remove("offbutton");
-            }
-
-            this.settings.musicButtonOff.onclick = () => {
-                this.soundManager.setVolume("musicVolume", 0)
-                this.settings.musicButtonOff.classList.add("offbutton");
-                this.settings.musicButtonOn.classList.remove("onbutton");
-            }
-
-            lucide.createIcons();
+                this.settingsFrom = "game";
+                this.settingsIngame.switchTo(this.settings);
+            };
         })
     }
 

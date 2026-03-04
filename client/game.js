@@ -25,6 +25,8 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
             // Play the sound effect
 
+            // Stop Timer rakt här under? 7 miljoner merge conflicts stökar till
+
             this.soundManager.playWinLose(virusWon, this.isVirus); 
             this.ui.showWinScreen(virusWon);
      
@@ -113,9 +115,25 @@ export class Game extends Phaser.Scene {
             
         })
 
+        socket.on(EVENTS.START_TUTORIAL, () => {
+            this.ui.showTutorial();
+        })
+
         // Create the UI here, since we only create it once
         this.ui = new GameUI(document.getElementById("ui"));
         this.ui.addEventListener(GameUI.EVENTS.LEAVE_GAME,this.leaveGame.bind(this));
+        this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
+            this.inputHandler.tempRemoveInput();
+        })
+        
+        this.ui.bgToggle = (checked) => {
+            this.bgMovement = checked;
+        };
+
+        this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
+            this.inputHandler.addBackInput();
+        })
+        
 
     }
 
@@ -322,7 +340,9 @@ export class Game extends Phaser.Scene {
             this.gameDrawer.animate();
         }
         // Slowly scroll the background, multiply with delta to get it frame-rate independant
-        this.bg.tilePositionY -= 0.02*delta;
+        if (this.bgMovement) {
+            this.bg.tilePositionY -= 0.02*delta;
+        }
     }
     
     
