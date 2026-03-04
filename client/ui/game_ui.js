@@ -110,18 +110,15 @@ export class GameUI extends EventTarget {
         
         this.player_indicator.midleavebutton.hidden = false;
         this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
+        HtmlManager.setVisible(this.player_indicator.specnextmatch,isSpectator);
         if (isSpectator) {
-            HtmlManager.hide(this.player_indicator.youantivirus)
-            HtmlManager.hide(this.player_indicator.youvirus)
+            HtmlManager.hide(this.player_indicator.youantivirus);
+            HtmlManager.hide(this.player_indicator.youvirus);
         } else {
             // Show who I am
-            if (isVirus) {
-                HtmlManager.hide(this.player_indicator.youantivirus)
-                HtmlManager.show(this.player_indicator.youvirus)
-            } else {
-                HtmlManager.hide(this.player_indicator.youvirus)
-                HtmlManager.show(this.player_indicator.youantivirus)
-            }
+            HtmlManager.setVisible(this.player_indicator.youantivirus,!isVirus);
+            HtmlManager.setVisible(this.player_indicator.youvirus,isVirus);
+            HtmlManager.show(this.player_indicator.youvirus);
         }
         this.showCurrentPlayer(0);
         this.queue.hide()
@@ -192,6 +189,11 @@ export class GameUI extends EventTarget {
         this.socket.emit(ACTIONS.FIND_GAME, queueType);
     }
 
+    switchToQueue(showPickPlayer=true) {
+        this.mainmenu.switchTo(this.queue);
+        HtmlManager.setVisible(this.queue.pickrole,showPickPlayer);
+    }
+
     setup() {
         this.htmlManager.loadAll([
             "./ui/mainmenu.html",
@@ -231,7 +233,7 @@ export class GameUI extends EventTarget {
 
                 this.queuePreference = QUEUE_PREFERENCE.ANY; // Etablera queue preferencen är random.
 
-                this.mainmenu.switchTo(this.queue);
+                this.switchToQueue();
 
                 this.queue.queue_any.classList.add("selected");
                 this.queue.queue_virus.classList.remove("selected");
@@ -239,6 +241,12 @@ export class GameUI extends EventTarget {
 
                 this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
                 // this.startFullscreen();
+            }
+
+            this.mainmenu.spectatebutton.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.switchToQueue(false);
+                this.socket.emit(ACTIONS.SPECTATE_GAME);
             }
 
             // --------------------- AI BUTTON ----------------------- 
@@ -278,7 +286,7 @@ export class GameUI extends EventTarget {
             if (this.mainmenu.watchai) {
                 this.mainmenu.watchai.onclick = () => {
                     this.soundManager.play('click');
-                    this.mainmenu.switchTo(this.queue);
+                    this.switchToQueue();
                     this.socket.emit(ACTIONS.FIND_GAME, QUEUE_PREFERENCE.AI_VS_AI);
                 }
             }

@@ -140,6 +140,14 @@ export class HtmlManager extends EventTarget {
         }
         element.classList.add("hidden")
     }
+
+    static setVisible(element,visible) {
+        if (visible) {
+            HtmlManager.show(element);
+        } else {
+            HtmlManager.hide(element);
+        }
+    }
 }
 
 export class HtmlInstance extends EventTarget {
