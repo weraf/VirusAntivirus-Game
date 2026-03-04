@@ -102,6 +102,7 @@ export class GameUI {
         }
         this.showCurrentPlayer(0);
         this.htmlManager.showOnly(this.player_indicator);
+        HtmlManager.show(this.settingsIngame);
     }
 
     isSmallScreen() {
@@ -158,7 +159,8 @@ export class GameUI {
             "./ui/player_indicator.html",
             "./ui/winscreen.html",
             "./ui/settings.html",
-            "./ui/aiselect.html"
+            "./ui/aiselect.html",
+            "./ui/settingsingame.html"
         ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
@@ -167,9 +169,11 @@ export class GameUI {
             this.aiSelect = this.htmlManager.create("aiselect");
             this.winscreen = this.htmlManager.create("winscreen");
             this.settings = this.htmlManager.create("settings");
+            this.settingsIngame = this.htmlManager.create("settingsingame");
 
             // Blank description text från början
             this.htmlManager.showOnly(this.mainmenu);
+            lucide.createIcons();
 
             // musik
             //this.soundManager.playMusic();
@@ -268,50 +272,43 @@ export class GameUI {
             }
 
             this.settings.backBtn.onclick = () => {
+                this.soundManager.play('click');
+                if (this.settingsFrom === "game") {
+                    this.settings.switchTo(this.settingsIngame);
+                } else {
+                    this.settings.switchTo(this.mainmenu);
+                }
+            };
+
+            this.settings.sfxToggle.onclick = (e) => {
+                if (e.target.checked) {
+                    this.soundManager.sfxVolume = 1;
+                    this.soundManager.play('click'); // ljud
+                } else {
+                    this.soundManager.sfxVolume = 0;
+                }
+            };
+
+            this.settings.musicToggle.onclick = (e) => {
                 this.soundManager.play('click'); // ljud
-                this.settings.switchTo(this.mainmenu)
-            }
-
-            this.settings.masterButtonOn.onclick = () => {
-                this.soundManager.setVolume("masterVolume", 1)
-                this.soundManager.play('click');
-                this.settings.masterButtonOn.classList.add("onbutton");
-                this.settings.masterButtonOff.classList.remove("offbutton");
+                if (e.target.checked) {
+                    this.soundManager.setVolume("musicVolume", 1);
+                } else {
+                    this.soundManager.setVolume("musicVolume", 0);
+                }
             };
-
-            this.settings.masterButtonOff.onclick = () => {
-                this.soundManager.setVolume("masterVolume", 0)
-                this.settings.masterButtonOff.classList.add("offbutton");
-                this.settings.masterButtonOn.classList.remove("onbutton");
+            
+            this.settings.bgMove.onclick = (e) => {
+                this.soundManager.play('click'); // ljud
+                if (this.bgToggle) 
+                    this.bgToggle(e.target.checked);
             };
-
-            this.settings.sfxButtonOn.onclick = () => {
-                this.soundManager.sfxVolume = 1;
+            
+            this.settingsIngame.igSettingsBtn.onclick = () => {
                 this.soundManager.play('click');
-                this.settings.sfxButtonOn.classList.add("onbutton");
-                this.settings.sfxButtonOff.classList.remove("offbutton");
-            }
-
-            this.settings.sfxButtonOff.onclick = () => {
-                this.soundManager.sfxVolume = 0;
-                this.settings.sfxButtonOff.classList.add("offbutton");
-                this.settings.sfxButtonOn.classList.remove("onbutton");
-            }
-
-            this.settings.musicButtonOn.onclick = () => {
-                this.soundManager.play('click');
-                this.soundManager.setVolume("musicVolume", 1)
-                this.settings.musicButtonOn.classList.add("onbutton");
-                this.settings.musicButtonOff.classList.remove("offbutton");
-            }
-
-            this.settings.musicButtonOff.onclick = () => {
-                this.soundManager.setVolume("musicVolume", 0)
-                this.settings.musicButtonOff.classList.add("offbutton");
-                this.settings.musicButtonOn.classList.remove("onbutton");
-            }
-
-            lucide.createIcons();
+                this.settingsFrom = "game";
+                this.settingsIngame.switchTo(this.settings);
+            };
         })
     }
 }
