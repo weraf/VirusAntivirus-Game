@@ -55,14 +55,6 @@
     "fi": "",
     "zh": ""
   },
-  "pspectator": {
-    "sv": "Åskådare",
-    "en": "Spectator",
-    "da": "",
-    "no": "",
-    "fi": "",
-    "zh": ""
-  },
   "playingas": {
     "sv": "Du spelar som",
     "en": "You're playing as",
@@ -173,7 +165,7 @@
   },
   "antivirustutorial": {
     "sv": "Antivirus: Kan gå med en av sina sköldar per tur, skyddar servrarna från virus och vinner genom att stänga in viruset.",
-    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornerning it."
+    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornering it."
   },
   "bugtutorial": {
     "sv": "Bugg: De omflyttas om de gås på.",
@@ -181,7 +173,7 @@
   },
   "servertutorial": {
     "sv": "Server: Viruset försöker invadera dem och antivirusen skyddar dem.",
-    "en": "Server: Virus wants to invade them, antiviruses wants to protect them"
+    "en": "Server: Virus wants to invade them, antiviruses wants to protect them."
   },
   "generalrules": {
     "sv": "Du har 20 sekunder på dig att göra ett drag, efter det så blir det automatiskt motståndarens tur.",
@@ -206,6 +198,10 @@
   "watchaibutton": {
     "sv": "Kolla AI mot AI",
     "en": "Watch AI vs AI"
+  },
+  "spectatebutton": {
+    "sv": "Kolla på match",
+    "en": "Spectate match"
   },
   "you": {
     "sv": "Du",

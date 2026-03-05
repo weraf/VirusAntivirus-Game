@@ -23,7 +23,7 @@ export class GameServer extends EventEmitter {
     spectators = []; // Array of user instances that are spectating
     pendingBugMovements = [];
 
-    isAIvsAI = false;         // AI vs AI-spel
+    id = 0;
     
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -32,15 +32,13 @@ export class GameServer extends EventEmitter {
      * 
      * @param {Player} virusPlayer 
      * @param {Player} antiVirusPlayer 
-     * @param {boolean} isAIvsAI : Sant om båda spelarna är AI
      */
-    constructor(virusPlayer, antiVirusPlayer, isAIvsAI = false) {
+    constructor(virusPlayer, antiVirusPlayer, gameID) {
         super();
-        this.isAIvsAI = isAIvsAI;
+        this.id = gameID;
         
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         this.currentMap = ALL_MAPS[Math.floor(Math.random() * ALL_MAPS.length)];
-        console.log("Game started with random map!");
         // ----------------------------------------
 
         this.virusP = virusPlayer;
@@ -62,11 +60,10 @@ export class GameServer extends EventEmitter {
 
         // Här skickar vi och startar inte game förrän skit
 
-        console.log("Game has been found");
+        console.log("New game created");
 
         this.virusP.on(ACTIONS.READY, () => {
             if (!this.virusReady) {
-                console.log("Virus ready")
                 this.virusReady = true;
                 this.tryGameStart();
             }
@@ -75,7 +72,6 @@ export class GameServer extends EventEmitter {
 
         this.antivirusP.on(ACTIONS.READY, () => {
             if (!this.antivirusReady) {
-                console.log("Antivirus ready")
                 this.antivirusReady = true;
                 this.tryGameStart();
             }
@@ -176,21 +172,23 @@ export class GameServer extends EventEmitter {
     addSpectator(spectator) {
         this.spectators.push(spectator);
         const specData = {
-            ...this.gameState.getSerializedState(),
-            mapData: this.currentMap,
+            ...this.getSerializedData(),
             isSpectator: true,
             isVirus: false,
-            isAIvsAI: this.isAIvsAI, // skicka med så klienten vet om AI VS AI
         }
-        spectator.on(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
-        spectator.on(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
-        spectator.emit(EVENTS.GAME_FOUND,specData)
+        const removeSpecFunc = this.removeSpectator.bind(this,spectator);
+        spectator.on(ACTIONS.DISCONNECT,removeSpecFunc);
+        spectator.on(ACTIONS.LEAVE_GAME,removeSpecFunc);
+        // Save reference so we can disconnect these specific functions
+        spectator.removeSpecFunc = removeSpecFunc;
+        spectator.emit(EVENTS.GAME_FOUND,specData);
     }
     
     removeSpectator(spectator) {
         this.spectators = this.spectators.filter((s) => {return s != spectator});
-        spectator.removeListener(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
-        spectator.removeListener(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
+        spectator.removeListener(ACTIONS.DISCONNECT,spectator.removeSpecFunc);
+        spectator.removeListener(ACTIONS.LEAVE_GAME,spectator.removeSpecFunc);
+        spectator.removeSpecFunc = undefined; // unset
     }
 
     // Sends an event to both players (and spectators)
@@ -218,21 +216,24 @@ export class GameServer extends EventEmitter {
         }
     }
 
-    sendGameStart() {
+    getSerializedData() {
         const data = this.gameState.getSerializedState();
+        data["mapData"] = this.currentMap;
+        data["gameID"] = this.id;
+        return data;
+    }
+
+    sendGameStart() {
+        const data = this.getSerializedData();
 
         const virusData = {
             ...data,
-            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: true,
-            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
 
         const antivirusData = {
             ...data,
-            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: false,
-            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
@@ -241,7 +242,6 @@ export class GameServer extends EventEmitter {
 
     tryGameStart() {
         if (this.virusReady === true && this.antivirusReady === true && this.gameStarted === false) {
-            console.log("Both players ready")
             this.gameStarted = true;
 
             this.sendGameStart()
@@ -251,7 +251,6 @@ export class GameServer extends EventEmitter {
     }
 
     sendTutorialStart() {
-        console.log("Tutorial has started")
         this.emitAll(EVENTS.START_TUTORIAL);
     }
 

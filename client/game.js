@@ -69,8 +69,8 @@ export class Game extends Phaser.Scene {
         socket.emit(ACTIONS.LEAVE_GAME);
         // Objects created with scene.add are automatically destroyed by phaser
         this.gameState.stopTimer(); // Stop the timer so it won't keep updating the UI
-        //this.gameState = null;
-        //this.gameBoard = null;
+        this.gameState = null;
+        this.gameBoard = null;
         this.ui.backToMenu();
         this.scene.restart();
     }
@@ -230,6 +230,12 @@ export class Game extends Phaser.Scene {
         this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
             this.inputHandler.addBackInput();
         })
+
+        this.ui.addEventListener(GameUI.EVENTS.SPECTATE_NEXT, () => {
+            this.leaveGame();
+            this.ui.switchToQueue(false);
+            setTimeout(() => {socket.emit(ACTIONS.SPECTATE_NEXT,this.gameID)},100);
+        })
     }
 
     startGame(data) {
@@ -238,9 +244,10 @@ export class Game extends Phaser.Scene {
         BoardCreator.createFromJSON(this.gameBoard, data.mapData);
         // Skapa GameState efter att brädet är byggt
         this.gameState = new GameState(this.gameBoard, 20000);
+        this.gameState.currentPlayer = data.currentPlayer;
         this.ui.connectToGameState(this.gameState);
+        this.gameID = data.gameID;
         //------------------
-
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
         );
@@ -258,14 +265,14 @@ export class Game extends Phaser.Scene {
         // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
-        this.ui.showGameStart(this.isVirus,this.isSpectator);
+        this.ui.showGameStart(this.isVirus,this.isSpectator,data.currentPlayer == 0);
 
         this.started = true; 
         
         this.gameDrawer.draw(); 
 
         // Start timer
-        this.gameState.startTimer();
+        this.gameState.startTimer(data.currentTimer);
 
         if (this.isVirus) {
             this.virusTurn();
