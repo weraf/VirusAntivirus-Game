@@ -8,7 +8,8 @@ export class GameUI extends EventTarget {
     static EVENTS = {
         LEAVE_GAME: "leave_game",
         PAUSE: "PAUSE",
-        UNPAUSE: "UNPAUSE"
+        UNPAUSE: "UNPAUSE",
+        SPECTATE_NEXT: "spectate_next",
     } 
 
     /**
@@ -106,7 +107,7 @@ export class GameUI extends EventTarget {
         }
     }
 
-    showGameStart(isVirus, isSpectator) {
+    showGameStart(isVirus, isSpectator, virusStarts = true) {
         
         this.player_indicator.midleavebutton.hidden = false;
         this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
@@ -118,9 +119,8 @@ export class GameUI extends EventTarget {
             // Show who I am
             HtmlManager.setVisible(this.player_indicator.youantivirus,!isVirus);
             HtmlManager.setVisible(this.player_indicator.youvirus,isVirus);
-            HtmlManager.show(this.player_indicator.youvirus);
         }
-        this.showCurrentPlayer(0);
+        this.showCurrentPlayer(virusStarts ? 0 : 1);
         this.queue.hide()
         // Show "Back to game"
         this.rules.setPlaceholder("closerules", "exitrules") // Visa olika texter beroende på
@@ -245,8 +245,7 @@ export class GameUI extends EventTarget {
 
             this.mainmenu.spectatebutton.onclick = () => {
                 this.soundManager.play('click'); // ljud
-                this.switchToQueue(false);
-                this.socket.emit(ACTIONS.SPECTATE_GAME);
+                this.spectatingPressed();
             }
 
             // --------------------- AI BUTTON ----------------------- 
@@ -385,7 +384,16 @@ export class GameUI extends EventTarget {
                 this.settingsFrom = "game";
                 this.settingsIngame.switchTo(this.settings);
             };
+
+            this.player_indicator.specnextmatch.onclick = () => {
+                this.dispatchEvent(new Event(GameUI.EVENTS.SPECTATE_NEXT));
+            }
         })
+    }
+
+    spectatingPressed() {
+        this.switchToQueue(false);
+        this.socket.emit(ACTIONS.SPECTATE_GAME);
     }
 
     closeRules() {

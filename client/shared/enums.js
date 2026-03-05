@@ -11,7 +11,8 @@ export const ACTIONS = {
     TEST_ACTION: "test_action", //
     VIRUS_MOVE: "virus_move", // test virus make move
     ANTIVIRUS_MOVE: "antivirus_move", // antivirus move
-    SPECTATE_GAME: "spectate_game", // When client wants to spectate a game
+    SPECTATE_GAME: "spectate_game", // When client wants to spectate a game.
+    SPECTATE_NEXT: "spectate_next", // When client wants to spectate another game.
     LEAVE_GAME: "leave_game", // When a player/spectator want to leave
     READY: "ready", // When a player has read the rules in the tutorial
 } 
