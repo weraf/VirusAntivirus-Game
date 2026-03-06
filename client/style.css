@@ -284,6 +284,10 @@ html, button {
     width: 100px;
 }
 
+.ingamelanguage {
+    margin-left: auto;
+}
+
 .red {
     color: #ff0060;
 }
@@ -421,23 +425,9 @@ html, button {
 
 .settingsrow {
     display: flex;
-    justify-content: center;
-    gap: 40px;
-}
-
-.settingsbutton {
-    display: flex;
-    flex-direction: column;
+    justify-content: space-between; /* push first left, last right */
+    width: 100%;
     align-items: center;
-}
-
-.settingsbutton > button {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 10px;
-    background-color: #5c5c5c;
-    border: none;
-    color: white;
 }
 
 .queue-role {
@@ -528,4 +518,43 @@ html, button {
 
 #specnextmatch {
     justify-self: end;
+}
+
+.bottomrow {
+    position: relative;
+}
+
+.center-btn {
+    text-align: center;
+    width: 100%;
+}
+
+#languageIconBtn {
+    position: absolute;   
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.settingsrow.menubuttons {
+    display: flex;
+    justify-content: space-between; 
+    width: 100%;
+    align-items: center;
+}
+
+.settingsrow.menubuttons > :first-child {
+    margin-right: auto; 
+    margin-left: 0;   
+}
+
+.middle-buttons {
+    display: flex;
+    gap: 10px;         
+}
+
+.middle-buttons .smallbutton {
+    flex: 1;            
+    min-width: 100px;   
+    text-align: center; 
 }

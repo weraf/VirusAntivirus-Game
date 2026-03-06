@@ -109,8 +109,12 @@ export class GameUI extends EventTarget {
 
     showGameStart(isVirus, isSpectator, virusStarts = true) {
         
-        this.player_indicator.midleavebutton.hidden = false;
+        if (!isSpectator) {
+            this.player_indicator.midleavebutton.hidden = true;  
+        }
+        //this.player_indicator.midleavebutton.hidden = false;
         this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
+
         HtmlManager.setVisible(this.player_indicator.specnextmatch,isSpectator);
         if (isSpectator) {
             HtmlManager.hide(this.player_indicator.youantivirus);
@@ -120,13 +124,16 @@ export class GameUI extends EventTarget {
             HtmlManager.setVisible(this.player_indicator.youantivirus,!isVirus);
             HtmlManager.setVisible(this.player_indicator.youvirus,isVirus);
         }
+
+
         this.showCurrentPlayer(virusStarts ? 0 : 1);
         this.queue.hide()
         // Show "Back to game"
+
+
         this.rules.setPlaceholder("closerules", "exitrules") // Visa olika texter beroende på
         this.htmlManager.showOnly(this.player_indicator);
         HtmlManager.show(this.settingsIngame);
-        this.rulesbutton.show();
         this.inGame = true;
     }
 
@@ -205,7 +212,8 @@ export class GameUI extends EventTarget {
             "./ui/settingsingame.html",
             "./ui/rulesbutton.html",
             "./ui/rules.html",
-            "./ui/waiting.html"
+            "./ui/waiting.html",
+            "./ui/sharedsettings.html"
         ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
@@ -213,16 +221,18 @@ export class GameUI extends EventTarget {
             this.player_indicator = this.htmlManager.create("player_indicator");
             this.aiSelect = this.htmlManager.create("aiselect");
             this.winscreen = this.htmlManager.create("winscreen");
-            this.rules = this.htmlManager.create("rules");
             this.rulesbutton = this.htmlManager.create("rulesbutton");
             this.waiting = this.htmlManager.create("waiting");
+            this.sharedsettings = this.htmlManager.create("sharedsettings")
 
             this.ui = document.getElementById("ui");
+            this.innertext = this.sharedsettings.root.querySelector(".innertext");
 
-            const ruleswindow = this.rules.root
-            
             this.settings = this.htmlManager.create("settings");
             this.settingsIngame = this.htmlManager.create("settingsingame");
+            this.rules = this.htmlManager.create("rules");
+
+            const ruleswindow = this.rules.root
 
             // Blank description text från början
             this.htmlManager.showOnly(this.mainmenu);
@@ -321,12 +331,13 @@ export class GameUI extends EventTarget {
                 Translator.refreshInstances(this.htmlManager.getVisibleInstances())
             }
 
-            this.rulesbutton.rulesbutton.onclick = () => {
-                this.rulesOpened = true;
-                this.soundManager.play('click'); // ljud 🤑
-                this.rules.show();
-                this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
-            }
+            // finns inte längre
+            //this.rulesbutton.rulesbutton.onclick = () => {
+            //    this.rulesOpened = true;
+            //    this.soundManager.play('click'); // ljud 🤑
+            //    this.rules.show();
+            //    this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE));
+            //}
 
             this.rules.norulesbutton.onclick = () => {
                 this.closeRules();
@@ -334,9 +345,12 @@ export class GameUI extends EventTarget {
             }
 
             this.ui.onclick = (e) => {
+                // Does not work properly anymore
                 if (!ruleswindow.contains(e.target) && this.inGame && this.rulesOpened && !this.rulesbutton.rulesbutton.contains(e.target)) {
                     this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
                     this.rules.hide();
+                    this.settings.hide()
+                    this.sharedsettings.hide()
                     this.rulesOpened = false;
                 }
             };
@@ -382,12 +396,44 @@ export class GameUI extends EventTarget {
             this.settingsIngame.igSettingsBtn.onclick = () => {
                 this.soundManager.play('click');
                 this.settingsFrom = "game";
-                this.settingsIngame.switchTo(this.settings);
+                this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE))
+                this.sharedsettings.show()
             };
 
             this.player_indicator.specnextmatch.onclick = () => {
                 this.dispatchEvent(new Event(GameUI.EVENTS.SPECTATE_NEXT));
             }
+
+            this.sharedsettings.settingsleavebutton.onclick = () => {
+                this.dispatchEvent(new Event(GameUI.EVENTS.LEAVE_GAME));
+            }
+
+            this.sharedsettings.languageBtn.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                if (Translator.language === "en") {
+                    Translator.setLanguage("sv");
+                } else {
+                    Translator.setLanguage("en");
+                }
+                Translator.refreshInstances(this.htmlManager.getVisibleInstances())
+            }
+            this.sharedsettings.backtogame.onclick = () => {
+                this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE))
+                this.sharedsettings.hide()
+            }
+
+            this.sharedsettings.showsound.onclick = () => {
+                this.soundManager.play('click');
+                this.settings.show()
+                this.settingsFrom = "game";
+            };
+
+
+            this.sharedsettings.showrules.onclick = () => {
+                this.soundManager.play('click');
+                this.rules.show()
+            };
+
         })
     }
 
@@ -396,11 +442,16 @@ export class GameUI extends EventTarget {
         this.socket.emit(ACTIONS.SPECTATE_GAME);
     }
 
+    showInSettings(instance) {
+        this.innertext.innerHTML = "";          
+        this.innertext.appendChild(instance.root.cloneNode(true));
+    }
+
     closeRules() {
         if (this.inGame) {
-            this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
             this.rules.hide();
-        } else {
+        } 
+        else {
             this.tutorialFinished = true;
             this.socket.emit(ACTIONS.READY);
             this.rules.hide();
