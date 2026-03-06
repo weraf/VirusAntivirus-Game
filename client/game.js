@@ -68,7 +68,7 @@ export class Game extends Phaser.Scene {
         this.started = false; // Stops the lose event from showing
         socket.emit(ACTIONS.LEAVE_GAME);
         // Objects created with scene.add are automatically destroyed by phaser
-        this.gameState.stopTimer(); // Stop the timer so it won't keep updating the UI
+        this.gameState.stopGame(); // Stop the timer so it won't keep updating the UI
         this.gameState = null;
         this.gameBoard = null;
         this.ui.backToMenu();
