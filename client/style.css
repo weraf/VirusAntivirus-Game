@@ -558,3 +558,8 @@ html, button {
     min-width: 100px;   
     text-align: center; 
 }
+
+.qrCode {
+    position: absolute;
+    top:480px;
+}
