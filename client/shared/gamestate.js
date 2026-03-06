@@ -52,6 +52,9 @@ export class GameState extends EventTarget {
 
     // Startar en timer this.timerLength ms lång
     startTimer(setTimerSeconds = this.timerLength / 1000) {
+        if (this.gameOver) {
+            return;
+        }
         clearTimeout(this.timer);
         clearInterval(this.displayInterval);
     

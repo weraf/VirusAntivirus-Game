@@ -189,6 +189,13 @@ export class GameServer extends EventEmitter {
         spectator.removeListener(ACTIONS.DISCONNECT,spectator.removeSpecFunc);
         spectator.removeListener(ACTIONS.LEAVE_GAME,spectator.removeSpecFunc);
         spectator.removeSpecFunc = undefined; // unset
+        if (this.virusP instanceof AIPlayer && this.antivirusP instanceof AIPlayer) {
+            // Spelare har slutat spectata AIvsAI match
+            if (this.spectators.length == 0) {
+                // Ingen kollar längre på denna AIvsAI match, avbryt matchen
+                this.gameFinished();
+            }
+        }
     }
 
     // Sends an event to both players (and spectators)
@@ -203,6 +210,10 @@ export class GameServer extends EventEmitter {
     gameFinished() {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
+        
+        if (!this.gameState.gameOver) {
+            this.gameState.stopGame();
+        }
 
         // Remove connected events
         for (const spec of this.spectators) {

@@ -105,10 +105,14 @@ export class LobbyHandler extends EventEmitter {
     }
 
     userSpectateNext(user,currentGameID) {
-        this.userStartSpectate(user,this.getNextActiveGameID(currentGameID));
+        const nextGame = this.getNextActiveGameID(currentGameID);
+        this.userStartSpectate(user,nextGame);
     }
 
     getNextActiveGameID(gameid) {
+        if (this.games.length == 0) {
+            return null;
+        }
         // Gets the next game id with wraparound (used for spectating the next game)
         for (const game of this.games) {
             if (game.id > gameid) {
