@@ -116,7 +116,7 @@ html, button {
 }
 
 .vstext {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-style: italic;
 }
 
@@ -127,8 +127,21 @@ html, button {
 
 #timer {
     width: 3ch;
-    font-size: 5.5rem;
-    margin-top: -0.5rem; /*Move slighty up*/
+    font-size: 5rem;
+    margin-top: -0.5rem;
+}
+
+@media only screen and (max-width: 600px) {
+    #timer {
+        font-size: 3rem;
+    }
+    .turncontainer img {
+        width: 60px;
+        height: 60px;
+    }
+    .vstext {
+        font-size: 1rem;
+    }
 }
 
 .timecritical {
@@ -146,11 +159,8 @@ html, button {
 .turnui {
     display: flex;
     top: -1rem !important; /*Cancel the padding on the ui container*/
-    padding: 1rem;
     flex-direction: column;
     gap: 10px;
-    background-color: #00000040;
-    background: linear-gradient(180deg, #000000cc, #00000000);
 }
 
 .activeturn .youindicator {
@@ -183,6 +193,10 @@ html, button {
     display: flex;
     flex-direction: row;
     gap: 10px;
+    background-color: #00000040;
+    background: linear-gradient(180deg, #000000cc, #00000000);
+    padding: 1rem;
+    padding-bottom: 0;
 }
 
 .title {
