@@ -409,7 +409,6 @@ export class GameUI extends EventTarget {
             }
 
             this.sharedsettings.languageBtn.onclick = () => {
-                console.log("Swag Perpetrator 5019")
                 this.soundManager.play('click'); // ljud
                 if (Translator.language === "en") {
                     Translator.setLanguage("sv");
