@@ -71,6 +71,8 @@ export class Game extends Phaser.Scene {
         this.gameState.stopGame(); // Stop the timer so it won't keep updating the UI
         this.gameState = null;
         this.gameBoard = null;
+        this.inputHandler.removeAllInput();
+        this.inputHandler = null;
         this.ui.backToMenu();
         this.scene.restart();
     }
