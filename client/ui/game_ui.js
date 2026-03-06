@@ -109,8 +109,12 @@ export class GameUI extends EventTarget {
 
     showGameStart(isVirus, isSpectator, virusStarts = true) {
         
-        this.player_indicator.midleavebutton.hidden = false;
+        if (!isSpectator) {
+            this.player_indicator.midleavebutton.hidden = true;  
+        }
+        //this.player_indicator.midleavebutton.hidden = false;
         this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
+
         HtmlManager.setVisible(this.player_indicator.specnextmatch,isSpectator);
         if (isSpectator) {
             HtmlManager.hide(this.player_indicator.youantivirus);
@@ -120,9 +124,13 @@ export class GameUI extends EventTarget {
             HtmlManager.setVisible(this.player_indicator.youantivirus,!isVirus);
             HtmlManager.setVisible(this.player_indicator.youvirus,isVirus);
         }
+
+
         this.showCurrentPlayer(virusStarts ? 0 : 1);
         this.queue.hide()
         // Show "Back to game"
+
+
         this.rules.setPlaceholder("closerules", "exitrules") // Visa olika texter beroende på
         this.htmlManager.showOnly(this.player_indicator);
         HtmlManager.show(this.settingsIngame);
@@ -133,6 +141,7 @@ export class GameUI extends EventTarget {
     showTutorial() {
         this.queue.switchTo(this.rules);
         if (this.tutorialFinished) {
+            this.socket.emit(ACTIONS.READY) // desync issue? idk if it comes from here
             // Already read tutorial, auto close tutorial box
             this.closeRules();
         } else {
@@ -205,7 +214,8 @@ export class GameUI extends EventTarget {
             "./ui/settingsingame.html",
             "./ui/rulesbutton.html",
             "./ui/rules.html",
-            "./ui/waiting.html"
+            "./ui/waiting.html",
+            "./ui/sharedsettings.html"
         ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
@@ -216,6 +226,7 @@ export class GameUI extends EventTarget {
             this.rules = this.htmlManager.create("rules");
             this.rulesbutton = this.htmlManager.create("rulesbutton");
             this.waiting = this.htmlManager.create("waiting");
+            this.sharedsettings = this.htmlManager.create("sharedsettings")
 
             this.ui = document.getElementById("ui");
 
@@ -382,12 +393,21 @@ export class GameUI extends EventTarget {
             this.settingsIngame.igSettingsBtn.onclick = () => {
                 this.soundManager.play('click');
                 this.settingsFrom = "game";
-                this.settingsIngame.switchTo(this.settings);
+                this.settingsIngame.switchTo(this.sharedsettings);
             };
 
             this.player_indicator.specnextmatch.onclick = () => {
                 this.dispatchEvent(new Event(GameUI.EVENTS.SPECTATE_NEXT));
             }
+
+            this.sharedsettings.settingsleavebutton.onclick = () => {
+                this.dispatchEvent(new Event(GameUI.EVENTS.LEAVE_GAME));
+            }
+
+            this.sharedsettings.showrules.onclick = () => {
+                this.sharedsettings.settingscontainer.hide()
+                this.sharedsettings.rulescontainer.show()
+            };
         })
     }
 
@@ -400,7 +420,8 @@ export class GameUI extends EventTarget {
         if (this.inGame) {
             this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE));
             this.rules.hide();
-        } else {
+        } 
+        else {
             this.tutorialFinished = true;
             this.socket.emit(ACTIONS.READY);
             this.rules.hide();
