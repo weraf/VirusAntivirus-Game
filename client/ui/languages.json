@@ -222,5 +222,9 @@
   "backtogame": {
     "sv": "Tillbaka till spelet",
     "en": "Back to the game"
+  },
+  "menu": {
+    "sv": "Meny",
+    "en": "Menu"
   }
 }
