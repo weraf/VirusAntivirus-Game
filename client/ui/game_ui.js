@@ -231,8 +231,12 @@ export class GameUI extends EventTarget {
             this.settings = this.htmlManager.create("settings");
             this.settingsIngame = this.htmlManager.create("settingsingame");
             this.rules = this.htmlManager.create("rules");
-
             const ruleswindow = this.rules.root
+
+            new QRCode(this.settings.qrCode, { 
+                text:window.location.origin , // Ändra om man vill ha en specifik URL
+                width:256, 
+                height:256 });
 
             // Blank description text från början
             this.htmlManager.showOnly(this.mainmenu);
@@ -384,6 +388,15 @@ export class GameUI extends EventTarget {
                     this.soundManager.playMusic();
                 } else {
                     this.soundManager.setVolume("musicVolume", 0);
+                }
+            };
+
+            this.settings.qrToggle.onclick = (e) => {
+                this.soundManager.play('click'); // ljud
+                if (e.target.checked) {
+                    this.settings.qrCode.classList.remove("hidden")
+                } else {
+                    this.settings.qrCode.classList.add("hidden")
                 }
             };
             
