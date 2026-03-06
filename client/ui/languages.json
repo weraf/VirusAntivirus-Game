@@ -210,6 +210,17 @@
   "bgsettings": {
     "sv": "Bakgrund",
     "en": "Background"
+  },
+  "leavegame": {
+    "sv": "Lämna spelet",
+    "en": "Leave the game"
+  },
+  "sound": {
+    "sv": "Ljud",
+    "en": "Sound"
+  },
+  "backtogame": {
+    "sv": "Tillbaka till spelet",
+    "en": "Back to the game"
   }
-  
 }

@@ -270,6 +270,10 @@ html, button {
     width: 100px;
 }
 
+.ingamelanguage {
+    margin-left: auto;
+}
+
 .red {
     color: #ff0060;
 }
@@ -515,3 +519,20 @@ html, button {
 #specnextmatch {
     justify-self: end;
 }
+
+.bottomrow {
+    position: relative;
+}
+
+.center-btn {
+    text-align: center;
+    width: 100%;
+}
+
+#languageIconBtn {
+    position: absolute;   
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
