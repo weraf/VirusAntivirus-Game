@@ -327,12 +327,7 @@ export class GameUI extends EventTarget {
 
             this.mainmenu.languageBtn.onclick = () => {
                 this.soundManager.play('click'); // ljud
-                if (Translator.language === "en") {
-                    Translator.setLanguage("sv");
-                } else {
-                    Translator.setLanguage("en");
-                }
-                Translator.refreshInstances(this.htmlManager.getVisibleInstances())
+                this.showLanguagePicker();
             }
 
             // finns inte längre
@@ -423,12 +418,7 @@ export class GameUI extends EventTarget {
 
             this.sharedsettings.languageBtn.onclick = () => {
                 this.soundManager.play('click'); // ljud
-                if (Translator.language === "en") {
-                    Translator.setLanguage("sv");
-                } else {
-                    Translator.setLanguage("en");
-                }
-                Translator.refreshInstances(this.htmlManager.getVisibleInstances())
+                this.showLanguagePicker();
             }
             this.sharedsettings.backtogame.onclick = () => {
                 this.dispatchEvent(new Event(GameUI.EVENTS.UNPAUSE))
@@ -448,6 +438,51 @@ export class GameUI extends EventTarget {
             };
 
         })
+    }
+    showLanguagePicker() {
+        const languages = [
+            { code: "sv", label: "Svenska" },
+            { code: "en", label: "English" },
+            { code: "ar", label: "العربية" },
+        ];
+    
+        document.getElementById("language-picker-overlay")?.remove();
+    
+        const overlay = document.createElement("div");
+        overlay.id = "language-picker-overlay";
+        overlay.style.cssText = `
+            position: fixed; inset: 0; background: rgba(48, 45, 45, 0.6);
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
+        `;
+    
+        const box = document.createElement("div");
+        box.style.cssText = `
+            background:rgb(32, 16, 47); border-radius: 12px; padding: 24px;
+            display: flex; flex-direction: column; gap: 12px; min-width: 220px;
+        `;
+    
+        for (const lang of languages) {
+            const btn = document.createElement("button");
+            btn.textContent = lang.label;
+            btn.style.cssText = `
+                padding: 12px; border-radius: 8px; border: none; cursor: pointer;
+                font-size: 1.1rem;
+                background: ${Translator.language === lang.code ? "#4a4aff" : "#2a2a4a"};
+                color: white;
+            `;
+            btn.onclick = () => {
+                this.soundManager.play('click');
+                Translator.setLanguage(lang.code);
+                Translator.refreshInstances(this.htmlManager.getVisibleInstances());
+                document.documentElement.dir = lang.code === "ar" ? "rtl" : "ltr";
+                overlay.remove();
+            };
+            box.appendChild(btn);
+        }
+    
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
     }
 
     spectatingPressed() {
