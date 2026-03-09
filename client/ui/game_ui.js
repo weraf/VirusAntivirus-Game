@@ -81,7 +81,7 @@ export class GameUI extends EventTarget {
         this.player_indicator.switchTo(this.winscreen);
         this.winscreen.wintext.classList.add(virusWon ? "red" : "blue");
         this.winscreen.leavebutton.onclick = this.leaveGamePressed.bind(this);
-        this.player_indicator.midleavebutton.hidden = true; // Hide the other leave button
+        this.settingsIngame.hide(); // Hide the settinsmenu button
         this.rules.hide()
     }
 
@@ -109,13 +109,7 @@ export class GameUI extends EventTarget {
 
     showGameStart(isVirus, isSpectator, virusStarts = true) {
         
-        if (!isSpectator) {
-            this.player_indicator.midleavebutton.hidden = true;  
-        }
-        //this.player_indicator.midleavebutton.hidden = false;
-        this.player_indicator.midleavebutton.onclick = this.leaveGamePressed.bind(this);
-
-        HtmlManager.setVisible(this.player_indicator.specnextmatch,isSpectator);
+        HtmlManager.setVisible(this.settingsIngame.specnextmatch,isSpectator);
         if (isSpectator) {
             HtmlManager.hide(this.player_indicator.youantivirus);
             HtmlManager.hide(this.player_indicator.youvirus);
@@ -124,7 +118,6 @@ export class GameUI extends EventTarget {
             HtmlManager.setVisible(this.player_indicator.youantivirus,!isVirus);
             HtmlManager.setVisible(this.player_indicator.youvirus,isVirus);
         }
-
 
         this.showCurrentPlayer(virusStarts ? 0 : 1);
         this.queue.hide()
@@ -360,7 +353,7 @@ export class GameUI extends EventTarget {
 
             this.settings.backBtn.onclick = () => {
                 this.soundManager.play('click');
-                if (this.settingsFrom === "game") {
+                if (this.inGame) {
                     this.settings.switchTo(this.settingsIngame);
                 } else {
                     this.settings.switchTo(this.mainmenu);
@@ -403,12 +396,11 @@ export class GameUI extends EventTarget {
             
             this.settingsIngame.igSettingsBtn.onclick = () => {
                 this.soundManager.play('click');
-                this.settingsFrom = "game";
                 this.dispatchEvent(new Event(GameUI.EVENTS.PAUSE))
                 this.sharedsettings.show()
             };
 
-            this.player_indicator.specnextmatch.onclick = () => {
+            this.settingsIngame.specnextmatch.onclick = () => {
                 this.dispatchEvent(new Event(GameUI.EVENTS.SPECTATE_NEXT));
             }
 
@@ -428,7 +420,6 @@ export class GameUI extends EventTarget {
             this.sharedsettings.showsound.onclick = () => {
                 this.soundManager.play('click');
                 this.settings.show()
-                this.settingsFrom = "game";
             };
 
 

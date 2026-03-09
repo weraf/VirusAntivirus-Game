@@ -131,7 +131,7 @@ html, button {
     margin-top: -0.5rem;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 1000px) {
     #timer {
         font-size: 3rem;
     }
@@ -143,6 +143,7 @@ html, button {
         font-size: 1rem;
     }
 }
+
 
 .timecritical {
     /*Make the time flash*/
@@ -203,8 +204,9 @@ html, button {
     color:rgb(255, 255, 255);
     text-align: center;
     font-size: 35px;
-    font-family: 'Gajraj One';
+    font-family: 'Gajraj One', sans-serif;
     text-shadow: 3px 3px 3px #000000;
+    margin-block: 40px;
 }
 
 .modelist {
@@ -233,7 +235,7 @@ html, button {
     color:aqua;
     text-align: center;
     font-size: 18px;
-    font-family: 'Gajraj One';
+    font-family: 'Gajraj One', sans-serif;
 }
 
 .tutorialimage {
@@ -259,23 +261,33 @@ html, button {
 }
 
 .wintext {
-    font-size: calc( min( 10vw, 10vh) );
+    font-family: 'Gajraj One', sans-serif;
+    font-size: 45px;
     text-align: center;
     line-height: 1em;
-    text-shadow: 0.5vh 0.5vh 0px black;
+    text-shadow: 5px 5px 0px black;
     margin-bottom: 1rem;
-}
-
-.winpanel {
-    background-color: rgba(48, 56, 54, 0.8);
-    border-radius: 1vw;
-    padding: 2vw;
-    display: flex;
-    flex-direction: column;
 }
 
 .winpanel > button {
     font-size: larger;
+    width: 200px;
+    align-self: center;
+}
+
+.rulelist {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.align-center {
+    align-self: center;
+}
+
+.align-stretch {
+    align-self: stretch;
 }
 
 #rulesbutton {
@@ -309,25 +321,15 @@ html, button {
 .description {
     display: flex;
     align-items: center;  
-    gap: 1rem;                
+    gap: 10px;                
     width: 100%;
     max-width: 800px;
-    margin-top: 10px;   
 }
 
 .tutimage {
     width: 100px;             
     height: auto;
     flex-shrink: 0;           
-}
-
-.description:last-child {
-    justify-content: center;
-}
-
-.description:first-child {
-    justify-content: center;
-    text-align: center;
 }
 
 #norulesbutton {
@@ -363,13 +365,43 @@ html, button {
     background: linear-gradient(90deg, #ff0040, #ff6a00);
     box-shadow: 0 15px 30px rgba(0,0,0,0.4);
     transition: all 0.2s ease;
+}
+
+.start-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.gap {
+    gap: 10px;
 }
 
 .start-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 25px rgba(0,0,0,0.6);
+}
+
+
+@media only screen and (max-height: 600px) {
+    .start-container {
+        flex-direction: row;
+        align-items: stretch;
+    }
+    .main {
+        max-width: 700px;
+    }
+    .mainsubcontainer {
+        max-width: 500px;
+    }
+
+    .rulelist {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
 }
 
 .icon-btn {
@@ -490,9 +522,9 @@ html, button {
 }
 
 .igSettings {
-    position: absolute;
-    top: 10px;
-    right: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .igSettings button {

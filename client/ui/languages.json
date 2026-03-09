@@ -182,23 +182,23 @@
     "ar": "ارجع للعبة"
   },
   "virustutorial": {
-    "sv": "Virus: Kan gå till noder bredvid huvudet, blir längre genom att gå på buggar, vinner om den täcker två servrar samtidigt.",
-    "en": "Virus: Can walk to nodes next to the head, grows by eating bugs and wins by covering two servers at the same time.",
+    "sv": "Virus: Kan gå till noder bredvid huvudet, blir längre genom att gå på buggar.",
+    "en": "Virus: Can walk to nodes next to the head, grows by walking on bugs.",
     "ar": "الفيروس: يتحرك لنود جنبه، يكبر لما ياكل بج، يكسب لو غطى سيرفرين في نفس الوقت."   
   },
   "antivirustutorial": {
-    "sv": "Antivirus: Kan gå med en av sina sköldar per tur, skyddar servrarna från virus och vinner genom att stänga in viruset.",
-    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornering it.",
+    "sv": "Antivirus: Kan gå med en av sina sköldar per tur, blockerar virus och vinner genom att stänga in viruset.",
+    "en": "Antivirus: Can walk with one of their shields per turn, blocks the virus and wins by cornering the virus.",
     "ar": "الأنتي فيروس: يحرك درع واحدة في كل دور، يحمي السيرفرات ويكسب لو حاصر الفيروس."
   },
   "bugtutorial": {
-    "sv": "Bugg: De omflyttas om de gås på.",
-    "en": "Bug: They are randomly placed elsewhere when walked on.",
+    "sv": "Bugg: Äts av viruset för att bli längre.",
+    "en": "Bug: The virus eats them to get longer.",
     "ar": "بج: لما حد يمشي عليه بيتنقل لمكان تاني."    
   },
   "servertutorial": {
-    "sv": "Server: Viruset försöker invadera dem och antivirusen skyddar dem.",
-    "en": "Server: Virus wants to invade them, antiviruses wants to protect them.",
+    "sv": "Server: Viruset vinner om de täcker två servrar samtidigt. Antiviruset kan inte gå på dem.",
+    "en": "Server: The virus wins if it covers two servers at once. The antivirus can't walk on them.",
     "ar": "سيرفر: الفيروس عايز يدخله والأنتي فيروس عايز يحميه."
   },
   "generalrules": {
