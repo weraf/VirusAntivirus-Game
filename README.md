@@ -62,24 +62,6 @@ Du har **20 sekunder** på dig att göra ett drag. Överskrids tiden blir det au
 ---
 ## Installation
 
-### Krav
-- [Node.js](https://nodejs.org) (v18 eller senare rekommenderas)
-
-### Steg
-
-```bash
-# Klona repot
-git clone 
-cd VirusAntivirus-Game
-
-# Installera beroenden
-npm install
-```
-
----
-
-## Installation
-
 ### Alternativ 1: Node.js direkt
 
 **Krav:** [Node.js](https://nodejs.org) v20 eller senare
