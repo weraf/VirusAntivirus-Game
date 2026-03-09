@@ -80,7 +80,7 @@ npm install
 
 ### Alternativ 1: Node.js direkt
 
-**Krav:** [Node.js](https://nodejs.org) v18 eller senare
+**Krav:** [Node.js](https://nodejs.org) v20 eller senare
 
 ```bash
 # Klona repot
