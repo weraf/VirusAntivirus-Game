@@ -1,3 +1,9 @@
+:root {
+    --padding-s: 10px;
+    --padding-m: 20px;
+    --padding-l: 40px;
+}
+
 /*Fixa så att skärmen inte har vita kanter runt sig*/
 body, html {
     margin: 0;
@@ -10,7 +16,7 @@ button:hover {
 .roles {
     display: flex;
     gap: 12px;
-    margin-block: 20px;
+    margin-block: var(--padding-m);
 }
 
 /*Stil för testui*/
@@ -80,13 +86,13 @@ button:hover {
     box-shadow: 0 60px 80px rgba(0,0,0,0.5);
     max-width: 600px;
     width: 100%;
-    padding-inline: 40px;
+    padding-inline: var(--padding-l);
     /*This will make the border fit inside the screen*/
     box-sizing: border-box;
 }
 
 #pickrole > p {
-    margin-block: 20px;
+    margin-block: var(--padding-m);
 }
 
 .title + .mainsubcontainer {
@@ -94,7 +100,7 @@ button:hover {
 }
 
 .mainsubcontainer {
-    margin: 40px;
+    margin: var(--padding-l);
     max-width: 300px;
     width: 100%;
 }
@@ -131,20 +137,6 @@ html, button {
     margin-top: -0.5rem;
 }
 
-@media only screen and (max-width: 1100px) {
-    #timer {
-        font-size: 3rem;
-    }
-    .turncontainer img {
-        width: 60px;
-        height: 60px;
-    }
-    .vstext {
-        font-size: 1rem;
-    }
-}
-
-
 .timecritical {
     /*Make the time flash*/
     color: #ff1060;
@@ -161,7 +153,7 @@ html, button {
     display: flex;
     top: -1rem !important; /*Cancel the padding on the ui container*/
     flex-direction: column;
-    gap: 10px;
+    gap: var(--padding-s);
 }
 
 .activeturn .youindicator {
@@ -193,11 +185,27 @@ html, button {
 .turnindicator {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: var(--padding-s);
     background-color: #00000040;
     background: linear-gradient(180deg, #000000cc, #00000000);
     padding: 1rem;
     padding-bottom: 0;
+}
+
+@media only screen and (max-width: 1100px) {
+    #timer {
+        font-size: 3rem;
+    }
+    .turncontainer img {
+        width: 60px;
+        height: 60px;
+    }
+    .vstext {
+        font-size: 1rem;
+    }
+    .youindicator {
+        font-size: 1.5rem;
+    }
 }
 
 .title {
@@ -206,19 +214,19 @@ html, button {
     font-size: 35px;
     font-family: 'Gajraj One', sans-serif;
     text-shadow: 3px 3px 3px #000000;
-    margin-block: 40px;
+    margin-block: var(--padding-l);
 }
 
 .modelist {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     text-align: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: var(--padding-s);
+    margin-bottom: var(--padding-s);
 }
 
 .modelist > button {
-    padding: 10px;
+    padding: var(--padding-s);
     font-size: 16px;
     border-radius: 10px;
     border: none;
@@ -254,10 +262,13 @@ html, button {
 }
 
 #abort {
-    width: 200px;
-    border-radius: 10px;
-    text-align: center;
-    height: 40px;
+    min-width: 200px;
+}
+
+.settingsbutton {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .wintext {
@@ -275,11 +286,16 @@ html, button {
     align-self: center;
 }
 
+.rulepanel {
+    padding: var(--padding-l);
+}
+
 .rulelist {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--padding-s);
     align-items: stretch;
+    margin-top: var(--padding-s);
 }
 
 .align-center {
@@ -296,10 +312,6 @@ html, button {
     width: 100px;
 }
 
-.ingamelanguage {
-    margin-left: auto;
-}
-
 .red {
     color: #ff0060;
 }
@@ -309,19 +321,10 @@ html, button {
     color: #33c4fd;
 }
 
-.transparent {
-    background-color: rgb(255, 255, 255);
-    padding: 20px;
-    border: 2px;
-    width: 100%;
-    max-width: 800px;
-    border-radius: 20px;
-}
-
 .description {
     display: flex;
     align-items: center;  
-    gap: 10px;                
+    gap: var(--padding-s);                
     width: 100%;
     max-width: 800px;
 }
@@ -333,7 +336,7 @@ html, button {
 }
 
 #norulesbutton {
-    margin-top: 20px;
+    margin-top: var(--padding-m);
 }
 
 .hidden {
@@ -341,7 +344,7 @@ html, button {
 }
 
 .margin-top {
-    margin-top: 40px;
+    margin-top: var(--padding-l);
 }
 
 .row {
@@ -357,7 +360,7 @@ html, button {
 
 .start-btn {
     width: 100%;
-    padding: 20px;
+    padding: var(--padding-m);
     font-size: 20px;
     font-weight: bold;
     border-radius: 12px;
@@ -370,13 +373,14 @@ html, button {
 .start-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    gap: var(--padding-s);
+    margin-top: var(--padding-s);
+    margin-bottom: var(--padding-s);
+    align-self: stretch;
 }
 
 .gap {
-    gap: 10px;
+    gap: var(--padding-s);
 }
 
 .start-btn:hover {
@@ -390,16 +394,21 @@ html, button {
         flex-direction: row;
         align-items: stretch;
     }
-    .main {
+    .main.widen {
         max-width: 700px;
     }
-    .mainsubcontainer {
+    .main.widen > .mainsubcontainer {
         max-width: 500px;
     }
 
     .rulelist {
         display: grid;
         grid-template-columns: 1fr 1fr;
+    }
+    :root {
+        /*Make whitespace smaller*/
+        --padding-l: 30px;
+        --padding-m: 15px;
     }
 
 }
@@ -423,17 +432,17 @@ html, button {
 .backb {
     display: grid;
     text-align: center;
-    gap: 10px;
+    gap: var(--padding-s)10px;
 }
 
 .backb > button {
-    padding: 10px 18px;
+    padding: var(--padding-s) 18px;
     border-radius: 12px;
     border: none;
     background-color: #5c5c5c;
     color: white;
     transition: all 0.2s ease;
-    margin-top: 30px
+    margin-top: var(--padding-m);
 }
 
 .backbutton {
@@ -457,13 +466,12 @@ html, button {
 
 .settingsrow {
     display: flex;
-    justify-content: space-between; /* push first left, last right */
-    width: 100%;
+    gap: var(--padding-l);
     align-items: center;
 }
 
 .queue-role {
-    padding: 10px 18px;
+    padding: var(--padding-s) 18px;
     border-radius: 12px;
     border: none;
     background-color: #5c5c5c;
@@ -490,7 +498,7 @@ html, button {
     background: #13131f;
     border-radius: 30px;
     cursor: pointer;
-    margin-top: 5px
+    direction: ltr; /*Makes it not break on arabic*/
 }
 
 .toggle-switch input {
@@ -524,7 +532,7 @@ html, button {
 .igSettings {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--padding-s);
 }
 
 .igSettings button {
@@ -568,21 +576,22 @@ html, button {
     transform: translateY(-50%);
 }
 
-.settingsrow.menubuttons {
+.menubuttons {
     display: flex;
+    flex-direction: row;
     justify-content: space-between; 
     width: 100%;
     align-items: center;
 }
 
-.settingsrow.menubuttons > :first-child {
-    margin-right: auto; 
-    margin-left: 0;   
+
+.menubuttons .icon-btn {
+    padding-inline: 0; /*Align all the way to the edge*/
 }
 
 .middle-buttons {
     display: flex;
-    gap: 10px;         
+    gap: var(--padding-s);         
 }
 
 .middle-buttons .smallbutton {

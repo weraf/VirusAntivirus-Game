@@ -110,6 +110,7 @@ export class LobbyHandler extends EventEmitter {
     }
 
     getNextActiveGameID(gameid) {
+        console.log(this.games.map((g) => {return g.id}));
         if (this.games.length == 0) {
             return null;
         }

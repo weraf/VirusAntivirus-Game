@@ -142,11 +142,10 @@ export class GameUI extends EventTarget {
     }
 
     isSmallScreen() {
-        return Math.min(window.innerWidth,window.innerHeight) < 800;
+        return Math.min(window.innerWidth,window.innerHeight) < 500;
     }
 
     startFullscreen() {
-        return; // temporary 
         if (!this.isSmallScreen()) {
             return; // Only auto enable fullscreen on small screens (mobile)
         }
@@ -247,7 +246,7 @@ export class GameUI extends EventTarget {
                 this.queue.queue_antivirus.classList.remove("selected");
 
                 this.socket.emit(ACTIONS.FIND_GAME, this.queuePreference);
-                // this.startFullscreen();
+                this.startFullscreen();
             }
 
             this.mainmenu.spectatebutton.onclick = () => {
@@ -260,7 +259,7 @@ export class GameUI extends EventTarget {
                 this.mainmenu.playai.onclick = () => {
                     this.soundManager.play('click');
                     this.mainmenu.switchTo(this.aiSelect);
-                    // this.startFullscreen();
+                    this.startFullscreen();
                 }
             }
 
