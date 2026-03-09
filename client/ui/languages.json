@@ -2,6 +2,7 @@
   "startbutton": {
     "sv": "Spela",
     "en": "Play",
+    "ar": "العب",
     "da": "Spille",
     "no": "Spille",
     "fi": "Pelaa",
@@ -10,6 +11,7 @@
   "languagebutton": {
     "sv": "Ändra språk",
     "en": "Change language",
+    "ar": "غير اللغة",
     "da": "Skift sprog",
     "no": "Bytt språk",
     "fi": "Vaihda kieli",
@@ -18,6 +20,7 @@
   "searchinggame": {
     "sv": "Söker spel...",
     "en": "Looking for game...",
+    "ar": "بندور على لعبة...",
     "da": "",
     "no": "",
     "fi": "",
@@ -26,6 +29,7 @@
   "abort": {
     "sv": "Avbryt",
     "en": "Cancel",
+    "ar": "وقف",
     "da": "",
     "no": "",
     "fi": "",
@@ -33,15 +37,18 @@
   },
   "backToMainMenu": {
     "sv": "Tillbaka till huvudmenyn",
-    "en": "Back to main menu"
+    "en": "Back to main menu",
+    "ar": "ارجع للقايمة الرئيسية"
   },
   "prandom": {
     "sv": "Slumpmässig",
-    "en": "Random"
+    "en": "Random",
+    "ar": "عشوائي"
   },
   "pvirus": {
     "sv": "Virus",
     "en": "Virus",
+    "ar": "فيروس",
     "da": "",
     "no": "",
     "fi": "",
@@ -50,6 +57,7 @@
   "pantivirus": {
     "sv": "Antivirus",
     "en": "Antivirus",
+    "ar": "أنتي فيروس",
     "da": "",
     "no": "",
     "fi": "",
@@ -58,6 +66,7 @@
   "playingas": {
     "sv": "Du spelar som",
     "en": "You're playing as",
+    "ar": "بتلعب كـ",
     "da": "",
     "no": "",
     "fi": "",
@@ -66,6 +75,7 @@
   "pickmode": {
     "sv": "Välj din spelare",
     "en": "Pick your player",
+    "ar": "اختار لاعبك",
     "da": "",
     "no": "",
     "fi": "",
@@ -74,6 +84,7 @@
   "viruswon": {
     "sv": "Viruset vinner!",
     "en": "The virus won!",
+    "ar": "الفيروس كسب!",
     "da": "",
     "no": "",
     "fi": "",
@@ -82,6 +93,7 @@
   "antiviruswon": {
     "sv": "Antiviruset vinner!",
     "en": "The Antivirus won!",
+    "ar": "الأنتي فيروس كسب!",
     "da": "",
     "no": "",
     "fi": "",
@@ -90,6 +102,7 @@
   "virusdescription": {
     "sv": "Virusets spelpjäs består av en kropp som upptar flera noder samtidigt i en sammanhängande koppling. Spelaren utför ett drag genom att välja en ledig, angränsande nod att flytta till där kroppen flyttar sedan längs med rörelseriktningen. Möjliga drag indikeras av gröna cirklar.\nTurordningen går därefter över till motståndaren.\n \nVirusets syfte är att angripa kartans servrar. Målet för viruset är att skapa en sammanhängande koppling mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste viruset undvika att bli isolerad på kartan",
     "en": "The virus piece consists of a body that covers several nodes at the same time in a continuous link. The player makes a move by selecting an adjacent node to move to, where the body moves along the direction of the movement. Possible moves are indicated by green circles.\nThe turn is then over and the opponent makes their move.\n \nThe virus goal is to attack the servers on the map. The goal is to establish a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus cannot make any valid moves, so the virus have to prevent itself from becoming isolated on the map.",
+    "ar": "الفيروس عبارة عن جسم بيتحرك على النود. اختار نود جنب الراس عشان تتحرك، والجسم هيمشي معاك. الحركات المتاحة بتتوضح بدوائر خضرا.\nبعدين الدور بيعدي للخصم.\n \nهدف الفيروس إنه يوصل سيرفرين في نفس الوقت.\n \nالأنتي فيروس بيكسب لو الفيروس ملقاش حركة، فلازم الفيروس ميتحاصرش.",
     "da": "",
     "no": "",
     "fi": "",
@@ -98,6 +111,7 @@
   "antivirusdescription": {
     "sv": "Antiviruset har två spelpjäser som placeras på två olika noder angränsande till kartans servrar.\n Antiviruset utför ett drag genom att:\n1. Välja en av spelpjäserna som ska flyttas\n2. Välja en angränsande nod för att flytta spelpjäsen \nTurordningen går därefter över till motståndaren.\n \nAntivirusets syfte är att försvara kartans servrar från virusets angrepp. Målet är att förhindra viruset från att skapa en sammanhängande länk mellan två av kartans tre servrar.\n \n Antiviruset vinner när viruset inte kan utföra några giltiga drag, därför måste antiviruset sträva efter att isolera viruset på kartan.",    
     "en": "The antivirus has two pieces that are placed on two different nodes adjacent to the servers on the map. \nThe antivirus makes a move by: \n1. Selecting one of the pieces to be moved. \n2. Select an adjacent node to move the piece. \nThe turn is then over and the opponent makes their move\n \nThe antivirus goal is to defend the servers from the virus attack. The goal is to prevent the virus from creating a continuous link between two of the three servers on the map.\n \nThe antivirus wins when the virus is unable to make any valid moves, so the antivirus has to work toward isolating the virus on the map.",
+    "ar": "الأنتي فيروس عنده قطعتين بيحطهم جنب السيرفرات.\nعشان تتحرك:\n1. اختار واحدة من القطعتين\n2. اختار نود جنبها تتحرك ليه\nبعدين الدور بيعدي للخصم.\n \nهدف الأنتي فيروس إنه يحمي السيرفرات ويمنع الفيروس من الوصول لاتنين في نفس الوقت.\n \nالأنتي فيروس بيكسب لو حاصر الفيروس ومعندوش حركات.",
     "da": "",
     "no": "",
     "fi": "",
@@ -106,6 +120,7 @@
   "prules": {
     "sv": "Regler",
     "en": "Rules",
+    "ar": "القواعد",
     "da": "",
     "no": "",
     "fi": "",
@@ -114,6 +129,7 @@
   "leave": {
     "sv": "Lämna",
     "en": "Leave",
+    "ar": "اخرج",
     "da": "",
     "no": "",
     "fi": "",
@@ -122,6 +138,7 @@
   "displayrules": {
     "sv": "Regler",
     "en": "Rules",
+    "ar": "القواعد",
     "da": "",
     "no": "",
     "fi": "",
@@ -130,6 +147,7 @@
   "exittutorial": {
     "sv": "Redo att starta",
     "en": "Ready to start",
+    "ar": "جاهز نبدأ",
     "da": "",
     "no": "",
     "fi": "",
@@ -138,6 +156,7 @@
   "ingamerules": {
     "sv": "Reglerna på svenska",
     "en": "The rules in english",
+    "ar": "القواعد بالعربي",
     "da": "",
     "no": "",
     "fi": "",
@@ -146,6 +165,7 @@
   "ingamerulebutton": {
     "sv": "Regler",
     "en": "The Rules",
+    "ar": "القواعد",
     "da": "",
     "no": "",
     "fi": "",
@@ -153,78 +173,97 @@
   }, 
   "waiting": {
     "sv": "Väntar på att andra spelaren är redo.",
-    "en": "Waiting for the other player to ready up."
+    "en": "Waiting for the other player to ready up.",
+    "ar": "مستنيين اللاعب التاني..."
   },
   "exitrules": {
     "sv": "Tillbaka",
-    "en": "Back to game"
+    "en": "Back to game",
+    "ar": "ارجع للعبة"
   },
   "virustutorial": {
     "sv": "Virus: Kan gå till noder bredvid huvudet, blir längre genom att gå på buggar, vinner om den täcker två servrar samtidigt.",
-    "en": "Virus: Can walk to nodes next to the head, grows by eating bugs and wins by covering two servers at the same time."    
+    "en": "Virus: Can walk to nodes next to the head, grows by eating bugs and wins by covering two servers at the same time.",
+    "ar": "الفيروس: يتحرك لنود جنبه، يكبر لما ياكل بج، يكسب لو غطى سيرفرين في نفس الوقت."   
   },
   "antivirustutorial": {
     "sv": "Antivirus: Kan gå med en av sina sköldar per tur, skyddar servrarna från virus och vinner genom att stänga in viruset.",
-    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornering it."
+    "en": "Antivirus: Can walk with one of their shields per turn, protects the servers from the virus and wins by cornering it.",
+    "ar": "الأنتي فيروس: يحرك درع واحدة في كل دور، يحمي السيرفرات ويكسب لو حاصر الفيروس."
   },
   "bugtutorial": {
     "sv": "Bugg: De omflyttas om de gås på.",
-    "en": "Bug: They are randomly placed elsewhere when walked on."    
+    "en": "Bug: They are randomly placed elsewhere when walked on.",
+    "ar": "بج: لما حد يمشي عليه بيتنقل لمكان تاني."    
   },
   "servertutorial": {
     "sv": "Server: Viruset försöker invadera dem och antivirusen skyddar dem.",
-    "en": "Server: Virus wants to invade them, antiviruses wants to protect them."
+    "en": "Server: Virus wants to invade them, antiviruses wants to protect them.",
+    "ar": "سيرفر: الفيروس عايز يدخله والأنتي فيروس عايز يحميه."
   },
   "generalrules": {
     "sv": "Du har 20 sekunder på dig att göra ett drag, efter det så blir det automatiskt motståndarens tur.",
-    "en": "You have 20 seconds to make a move, if you exceed that time you will lose your chance to move that turn."
+    "en": "You have 20 seconds to make a move, if you exceed that time you will lose your chance to move that turn.",
+    "ar": "عندك 20 ثانية تعمل حركة، لو عدت الوقت الدور بيعدي للخصم تلقائي."
   },
   "rules": {
     "sv": "Regler",
-    "en": "Rules"
+    "en": "Rules",
+    "ar": "القواعد"
   },
   "psettingsbtn": {
     "sv": "Tillbaka",
-    "en": "Back"    
+    "en": "Back",
+    "ar": "ارجع"   
   },
   "soundsettings": {
     "sv": "Ljud",
-    "en": "Sound"
+    "en": "Sound",
+    "ar": "الصوت"
   },
   "aibutton": {
     "sv": "Spela mot AI",
-    "en": "Play against AI"
+    "en": "Play against AI",
+    "ar": "العب ضد الكمبيوتر"
   },
   "watchaibutton": {
     "sv": "Kolla AI mot AI",
-    "en": "Watch AI vs AI"
+    "en": "Watch AI vs AI",
+    "ar": "تفرج على كمبيوتر ضد كمبيوتر"
   },
   "spectatebutton": {
     "sv": "Kolla på match",
-    "en": "Spectate match"
+    "en": "Spectate match",
+    "ar": "تفرج على ماتش"
   },
   "you": {
     "sv": "Du",
-    "en": "You"
+    "en": "You",
+    "ar": "انت"
   },
   "bgsettings": {
     "sv": "Bakgrund",
-    "en": "Background"
+    "en": "Background",
+    "ar": "الخلفية"
   },
   "leavegame": {
     "sv": "Lämna spelet",
-    "en": "Leave the game"
+    "en": "Leave the game",
+    "ar": "اخرج من اللعبة"
   },
   "sound": {
     "sv": "Ljud",
-    "en": "Sound"
+    "en": "Sound",
+    "ar": "الصوت"
   },
   "backtogame": {
     "sv": "Tillbaka till spelet",
-    "en": "Back to the game"
+    "en": "Back to the game",
+    "ar": "ارجع للعبة"
   },
   "menu": {
     "sv": "Meny",
-    "en": "Menu"
+    "en": "Menu",
+    "ar": "القايمة"
   }
 }
