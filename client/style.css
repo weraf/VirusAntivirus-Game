@@ -600,6 +600,11 @@ html, button {
     text-align: center; 
 }
 
+#qrShow {
+    background:white;
+    padding:5px;
+}
+
 #qrShow > * {
     height:10vw;
     width:10vw
