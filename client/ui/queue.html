@@ -1,9 +1,30 @@
-<div class="center text">
-    <p class="ingametext"> 
-        {searchinggame}
-    </p>
+<div class="center panel main">
+    <div class="mainsubcontainer">
+        <p class="ingametext"> 
+            {searchinggame}
+        </p>
 
-    <button class="text" id="abort">  
-        {abort}
-    </button>
+        <div id="pickrole">
+            <p class="undertext text">
+                {pickmode}
+            </p>
+            <div class="roles">
+                <button id="queue_any" class="queue-role selected">
+                    {prandom}
+                </button>
+                
+                <button id="queue_virus" class="queue-role">
+                    {pvirus}
+                </button>
+                
+                <button id="queue_antivirus" class="queue-role">
+                    {pantivirus}
+                </button>
+            </div>
+        </div>
+        <button class="smallbutton" id="abort">  
+            {abort}
+        </button>
+        
+    </div>
 </div>

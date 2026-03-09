@@ -13,8 +13,6 @@ const RED = 0xff1060;
 const DARK_RED = 0xB00451;
 const GREEN = 0x10ff80;
 
-const BLUE = 0x0020ef;
-
 export class GameDrawer {
     /**
      * @param {Phaser.Scene} scene 
@@ -130,13 +128,17 @@ export class GameDrawer {
             minX = Math.min(node.x, minX); minY = Math.min(node.y, minY);
             maxX = Math.max(node.x, maxX); maxY = Math.max(node.y, maxY);
         }
+        minY -= 40; // Add extra room for turn ui
         const margin = 50;
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;
         this.scene.cameras.main.centerOn(centerX, centerY);
-        let zoom = Math.min(this.scene.scale.width / (maxX - minX + margin * 2), 
-                            this.scene.scale.height / (maxY - minY + margin * 2));
+        const sizeX = maxX - minX + margin * 2;
+        const sizeY = maxY - minY + margin * 2;
+        let zoom = Math.min(this.scene.scale.width / sizeX, 
+                            this.scene.scale.height / sizeY);
         this.scene.cameras.main.setZoom(zoom);
+        return {x: (this.scene.cameras.main.displayWidth-sizeX), y: (this.scene.cameras.main.displayHeight-sizeY)};
     }
 
     animate() {

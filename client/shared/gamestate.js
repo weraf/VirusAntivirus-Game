@@ -18,7 +18,8 @@ export class GameState extends EventTarget {
         this.winner = null;
         this.time = timerLength/1000; // hela sekunder
         this.displayInterval = null;
-        this.timeLeft = this.timerLength / 1000; // i sekunder
+        this.timeMaxSeconds = this.timerLength / 1000; // i sekunder. Vad nuvarande timer är satt på
+        this.tutorialFinished = false;
 
     }
 
@@ -39,6 +40,7 @@ export class GameState extends EventTarget {
         }
     }
 
+
     getVirus() {
         return this.board.virus;
     }
@@ -49,23 +51,33 @@ export class GameState extends EventTarget {
 
 
     // Startar en timer this.timerLength ms lång
-    startTimer() {
+    startTimer(setTimerSeconds = this.timerLength / 1000) {
+        if (this.gameOver) {
+            return;
+        }
         clearTimeout(this.timer);
         clearInterval(this.displayInterval);
     
         this.startTime = Date.now(); // viktigt att detta uppdateras
-        this.timeLeft = this.timerLength / 1000; // reset kvarvarande tid
+        this.timeMaxSeconds = setTimerSeconds; // reset kvarvarande tid
     
-        this.timer = setTimeout(() => this.timedOut(), this.timerLength);
+        this.timer = setTimeout(() => this.timedOut(), setTimerSeconds*1000);
     
         this.displayInterval = setInterval(() => this.updateTimerDisplay(), 1000);
         this.updateTimerDisplay(); // första visningen direkt
     }
 
+    getTimeLeft() {
+        if (!this.startTime) {
+            return this.timerLength/1000;
+        }
+        const elapsed = (Date.now() - this.startTime) / 1000;
+        const seconds = Math.max(0, Math.ceil(this.timeMaxSeconds - elapsed));
+        return seconds;
+    }
 
     updateTimerDisplay() {
-        const elapsed = (Date.now() - this.startTime) / 1000;
-        const seconds = Math.max(0, Math.ceil(this.timeLeft - elapsed));
+        const seconds = this.getTimeLeft();
     
         this.dispatchEvent(new CustomEvent(GameState.EVENTS.UPDATE_TIMER, {
             detail: seconds
@@ -85,7 +97,6 @@ export class GameState extends EventTarget {
         this.dispatchEvent(new CustomEvent(GameState.EVENTS.TURN_CHANGED, {
             detail: this.currentPlayer
         }));
-        this.timeLeft = this.timerLength / 1000; // reset timer
         this.startTimer();
     }
     
@@ -93,7 +104,14 @@ export class GameState extends EventTarget {
     // GameServer kan väl plocka upp detta eventet, skicka till båda spelarna och servern en changeTurn grej
     timedOut() {
         this.changeTurn();
-        this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
+        this.checkWin();
+        if (this.gameOver === true) {
+                this.dispatchEvent(new CustomEvent(GameState.EVENTS.GAME_OVER, {
+                detail: this.winner === 0 // If virus won
+            }));
+        } else {
+            this.dispatchEvent(new CustomEvent(GameState.EVENTS.TIMED_OUT))
+        }
     }
 
     stopTimer() {
@@ -129,6 +147,7 @@ export class GameState extends EventTarget {
             antivirusNodes: this.getAntiVirus().nodes.map(n => n.id),
             bugNodes: this.board.bugs.nodes.map(n => n.id),
             currentPlayer: this.currentPlayer,
+            currentTimer: this.getTimeLeft(),
         };
         return data;
     }

@@ -57,6 +57,18 @@ export default class InputHandler extends EventTarget {
         this.dispatchEvent(new Event(InputHandler.EVENTS.CHANGED));
     }
 
+    tempRemoveInput() {
+        this.clickZones.forEach(clickZone => {
+            clickZone.disableInteractive();
+        })
+    }
+
+    addBackInput() {
+        this.clickZones.forEach(clickZone => {
+            clickZone.setInteractive();
+        })
+    }
+
     get activeNodes() {
         // Return all nodes that has a clickzone
         const nodes = [];

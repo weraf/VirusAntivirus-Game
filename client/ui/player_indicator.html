@@ -1,6 +1,21 @@
-<div class="top left">
-    <span class="ingametext" id="playingas">{playingas} {myplayer}.</span>
-    <button class="ingametext" id="midleavebutton">{leave}</button>
-    <div class="ingametext" id="timer">{timer}</div>
-    <div class="ingametext" id="currentplayer">Turn: {currentplayer}</div>
+<div class="top center turnui" id="turnui">
+    <div class="turnindicator">
+        <div class="turncontainer" id="turnvirus">
+            <img src="./assets/virusicon.svg" alt="" height="80">
+            <span class="youindicator" id="youvirus">{you}</span>
+        </div>
+        <div class="timercontainer">
+            <span class="vstext">VS</span>
+            <span class="ingametext" id="timer">{timer}</span>
+        </div>
+        <div class="turncontainer" id="turnantivirus">
+            <img src="./assets/shield.svg" alt="" height="80">
+            <span class="youindicator" id="youantivirus">{you}</span>
+        </div>
+    </div>
+
+        <div class="gamecontrols">
+        <button class="smallbutton" id="midleavebutton">{leave}</button>
+        <button class="icon-btn" id="specnextmatch"><i data-lucide="arrow-big-right"></i></button>
+    </div>
 </div>

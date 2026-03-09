@@ -18,6 +18,16 @@ const socket = io();
 // Game klassen. Exporteras för att kunna använda som type-hint
 export class Game extends Phaser.Scene {
 
+    constructor(config) {
+        super(config);
+
+        this.bgMovement = true;
+
+        // Setting up socket signals in constructor so it doesn't connect them again when we restart
+        this.connectSocket();
+        this.initUI();
+    }
+
     // Ladda in JSON-filen (Mapp filen)
     preload() {
         this.load.image('bg', './assets/backdrop.png');
@@ -32,6 +42,7 @@ export class Game extends Phaser.Scene {
         this.load.audio('bugMove', './assets/bugMove.wav');
         this.load.audio('lose', './assets/lose.wav');
         this.load.audio('win', './assets/win.wav');
+        this.load.audio('music', './assets/music.mp3');
     }
     
     onResize() {
@@ -53,10 +64,24 @@ export class Game extends Phaser.Scene {
         // This will trigger onResize() to trigger
     }
 
+    leaveGame() {
+        this.started = false; // Stops the lose event from showing
+        socket.emit(ACTIONS.LEAVE_GAME);
+        // Objects created with scene.add are automatically destroyed by phaser
+        this.gameState.stopGame(); // Stop the timer so it won't keep updating the UI
+        this.gameState = null;
+        this.gameBoard = null;
+        this.inputHandler.removeAllInput();
+        this.inputHandler = null;
+        this.ui.backToMenu();
+        this.scene.restart();
+    }
+
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
         this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
+        
         
         // Update screen when canvas changes size
         this.scale.on("resize",this.onResize.bind(this));
@@ -71,19 +96,32 @@ export class Game extends Phaser.Scene {
         
         // Virus, buggar och antivirus skapas vid startGame(); 
 
-        // ljud
-        this.soundManager = new SoundManager(this, this.gameBoard);
-
+        if (this.soundManager === undefined) {
+            // skapa soundmanager om den inte redan finns
+            this.soundManager = new SoundManager(this, this.gameBoard);
+            // musik
+            this.soundManager.playMusic();
+        }
+        
         // STORY 3
         // Skapa en indatahanterare med förmågan att ändra logik beroende på musklick
         this.inputHandler = new InputHandler(this, this.gameBoard);
 
         this.gameState = new GameState(this.gameBoard, 20000);
         this.queuePreference = QUEUE_PREFERENCE.ANY;
-        this.ui = new GameUI(document.getElementById("ui"), socket, this.soundManager);
+        
+        this.ui.setSocket(socket);
+        this.ui.setSoundManager(this.soundManager);
         this.ui.connectToGameState(this.gameState);
+    }
 
+    connectSocket() {
+        // Only do this once, on website start
         socket.on(EVENTS.GAME_OVER, (virusWon, disconnect) => {
+            if (!this.started) {
+                // We have probably already left the game, don't show losescreen
+                return;
+            }
             // Play the sound effect
 
             this.soundManager.playWinLose(virusWon, this.isVirus); 
@@ -101,7 +139,6 @@ export class Game extends Phaser.Scene {
         socket.on(EVENTS.GAME_FOUND, (data) => {  
             this.isVirus = data.isVirus;
             this.isSpectator = data.isSpectator !== undefined && data.isSpectator;
-
             this.startGame(data);
         });
 
@@ -173,12 +210,34 @@ export class Game extends Phaser.Scene {
             }
             
         })
-        /*this.startGame({
-            virusNodes: [],
-            antivirusNodes: [],
-            bugNodes: [],
-            currentPlayer: 0,
-        });*/
+
+        socket.on(EVENTS.START_TUTORIAL, () => {
+            this.ui.showTutorial();
+        })
+
+    }
+
+    initUI() {
+        // Only do this once, on website start
+        this.ui = new GameUI(document.getElementById("ui"));
+        this.ui.addEventListener(GameUI.EVENTS.LEAVE_GAME,this.leaveGame.bind(this));
+        this.ui.addEventListener(GameUI.EVENTS.PAUSE, () => {
+            this.inputHandler.tempRemoveInput();
+        })
+        
+        this.ui.bgToggle = (checked) => {
+            this.bgMovement = checked;
+        };
+
+        this.ui.addEventListener(GameUI.EVENTS.UNPAUSE, () => {
+            this.inputHandler.addBackInput();
+        })
+
+        this.ui.addEventListener(GameUI.EVENTS.SPECTATE_NEXT, () => {
+            this.leaveGame();
+            this.ui.switchToQueue(false);
+            setTimeout(() => {socket.emit(ACTIONS.SPECTATE_NEXT,this.gameID)},100);
+        })
     }
 
     startGame(data) {
@@ -187,7 +246,9 @@ export class Game extends Phaser.Scene {
         BoardCreator.createFromJSON(this.gameBoard, data.mapData);
         // Skapa GameState efter att brädet är byggt
         this.gameState = new GameState(this.gameBoard, 20000);
+        this.gameState.currentPlayer = data.currentPlayer;
         this.ui.connectToGameState(this.gameState);
+        this.gameID = data.gameID;
         //------------------
 
         this.gameBoard.spawnVirus(
@@ -202,20 +263,19 @@ export class Game extends Phaser.Scene {
             data.bugNodes.map(id => this.gameBoard.getNode(id))
         );
         
-        // Starta Ljud
-        this.soundManager.initGameListeners();
+        this.soundManager.connectToBoard(this.gameBoard);
 
         // Game has started, now we can create game drawer
         this.gameDrawer = new GameDrawer(this, this.gameBoard, this.inputHandler);
 
-        this.ui.showGameStart(this.isVirus,this.isSpectator);
+        this.ui.showGameStart(this.isVirus,this.isSpectator,data.currentPlayer == 0);
 
         this.started = true; 
         
         this.gameDrawer.draw(); 
 
         // Start timer
-        this.gameState.startTimer();
+        this.gameState.startTimer(data.currentTimer);
 
         if (this.isVirus) {
             this.virusTurn();
@@ -281,7 +341,9 @@ export class Game extends Phaser.Scene {
             this.gameDrawer.animate();
         }
         // Slowly scroll the background, multiply with delta to get it frame-rate independant
-        this.bg.tilePositionY -= 0.02*delta;
+        if (this.bgMovement) {
+            this.bg.tilePositionY -= 0.02*delta;
+        }
     }
     
     

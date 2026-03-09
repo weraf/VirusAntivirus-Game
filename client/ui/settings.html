@@ -1,0 +1,55 @@
+<div class="sharedsettings center panel main">
+    <p class="title text">
+        Virus VS Antivirus
+    </p>
+
+    <div class="mainsubcontainer">
+        <p class="undertext text">
+        {soundsettings}
+    </p>
+
+    <div class="settingsrow">
+        <div class="settingsbutton">
+        <i data-lucide="audio-lines" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="sfxToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <div class="settingsbutton">
+            <i data-lucide="music" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="musicToggle" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <p class="undertext text">
+        {bgsettings}
+    </p>
+
+    <div class="settingsrow">
+        <div class="settingsbutton">
+        <i data-lucide="square-arrow-down" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="bgMove" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="settingsbutton" id="qr-code">
+            <i data-lucide="qr-code" class="icon-settings"></i>
+            <label class="toggle-switch">
+                <input type="checkbox" id="qrToggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="backb">
+        <button class="backbutton" id="backBtn">{psettingsbtn}</button>
+    </div>
+    </div>
+    <div id="qrCode" class="qrCode hidden"></div>
+</div>

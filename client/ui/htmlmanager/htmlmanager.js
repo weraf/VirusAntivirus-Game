@@ -140,11 +140,19 @@ export class HtmlManager extends EventTarget {
         }
         element.classList.add("hidden")
     }
+
+    static setVisible(element,visible) {
+        if (visible) {
+            HtmlManager.show(element);
+        } else {
+            HtmlManager.hide(element);
+        }
+    }
 }
 
 export class HtmlInstance extends EventTarget {
     root;
-    placeholderNodes = {}
+    placeholderNodes = {} // Key to array of textnodes
     visible = true;
 
     static EVENTS = {
@@ -180,7 +188,10 @@ export class HtmlInstance extends EventTarget {
                 
                 const before = document.createTextNode(split[0])
                 const placeholder = document.createTextNode(key)
-                foundPlaceholders[key] = placeholder
+                if (foundPlaceholders[key] === undefined) {
+                    foundPlaceholders[key] = [] // Create new array  
+                }
+                foundPlaceholders[key].push(placeholder)
                 const after = document.createTextNode(split[1])
                 // Add the nodes so that the order is the same as before, but split up
                 node.parentNode.insertBefore(before,node) 
@@ -206,7 +217,10 @@ export class HtmlInstance extends EventTarget {
             }
             throw new Error("Couldn't find placeholder: "+key)
         }
-        this.placeholderNodes[key].nodeValue = value;
+        // Set all placeholder nodes with this
+        this.placeholderNodes[key].forEach((textNode) => {
+            textNode.nodeValue = value;
+        });
         this.dispatchEvent(new CustomEvent(HtmlInstance.EVENTS.PLACEHOLDER_SET,{"detail":{"placeholder":key,"value":value}}))
     }
 
@@ -238,4 +252,10 @@ export class HtmlInstance extends EventTarget {
         this.dispatchEvent(new Event(HtmlInstance.EVENTS.SHOWN));
         HtmlManager.show(this.root);
     }
+
+    // Remove from document
+    destroy() {
+        this.root.remove();
+    }
+
 }

@@ -9,6 +9,7 @@ export class LobbyHandler extends EventEmitter {
     queue = new GameQueue();
     spectateQueue = new SpectateQueue(); // Special queue for waiting spectators
     games = []
+    gameCount = 0; // How many games have started, used for setting game id
 
     static EVENTS = {
         GAME_STARTED: "game_started",
@@ -61,7 +62,7 @@ export class LobbyHandler extends EventEmitter {
      * @param {boolean} humanIsVirus 
      */
     createAIGame(virusPlayer, antivirusPlayer) {
-        const newGame = new GameServer(virusPlayer, antivirusPlayer);
+        const newGame = new GameServer(virusPlayer, antivirusPlayer, this.getNextNewGameID());
         this.games.push(newGame);
         newGame.once(GameServer.SIGNAL_GAME_FINISHED, this.gameFinished.bind(this, newGame));
         for (const user of this.spectateQueue.popAll()) {
@@ -76,7 +77,7 @@ export class LobbyHandler extends EventEmitter {
     createAIvsAIGame(user) {
         const virusAI     = new AIPlayer();
         const antivirusAI = new AIPlayer();
-        const newGame     = new GameServer(virusAI, antivirusAI, true); // true : isAIvsAI
+        const newGame     = new GameServer(virusAI, antivirusAI, this.getNextNewGameID());
         this.games.push(newGame);
         newGame.once(GameServer.SIGNAL_GAME_FINISHED, this.gameFinished.bind(this, newGame));
         // lägg till som spectator
@@ -84,20 +85,48 @@ export class LobbyHandler extends EventEmitter {
     }
     // ------------------------------------------------------------------------------------------
 
-    userStartSpectate(user) {
+    userStartSpectate(user, gameid = null) {
         if (this.games.length == 0) {
             // No active games, wait until a game is created
             this.spectateQueue.addUser(user);
             return
         }
-        // Take the last game in the array (= the newest one) and send the user there
-        this.games[this.games.length-1].addSpectator(user);
+        if (gameid === null) {
+            // Take the last game in the array (= the newest one) and send the user there
+            gameid = this.games[this.games.length-1].id 
+        }
+        const game = this.games.find((game) => {return game.id === gameid});
+        if (!game) {
+            // Game not found
+            this.spectateQueue.addUser(user);
+            return    
+        } 
+        game.addSpectator(user);
+    }
+
+    userSpectateNext(user,currentGameID) {
+        const nextGame = this.getNextActiveGameID(currentGameID);
+        this.userStartSpectate(user,nextGame);
+    }
+
+    getNextActiveGameID(gameid) {
+        if (this.games.length == 0) {
+            return null;
+        }
+        // Gets the next game id with wraparound (used for spectating the next game)
+        for (const game of this.games) {
+            if (game.id > gameid) {
+                return game.id;
+            }
+        }
+        // No game with higher id found, return the first one
+        return this.games[0].id;
     }
 
     createGame(virusUser,antiVirusUser) {
         const p1 = new Player(virusUser);
         const p2 = new Player(antiVirusUser);
-        const newGame = new GameServer(p1,p2);
+        const newGame = new GameServer(p1,p2,this.getNextNewGameID());
         this.games.push(newGame);
         // Remove the game from the active games array when the game is finished. Listens only to once.
         newGame.once(GameServer.SIGNAL_GAME_FINISHED,this.gameFinished.bind(this,newGame))
@@ -112,12 +141,11 @@ export class LobbyHandler extends EventEmitter {
         console.log("Game finished");
     }
 
-    removeUserFromQueue(user) {
-        user.removeListener(ACTIONS.DISCONNECT,this.removeUserFromQueue.bind(this,user));
-        user.removeListener(ACTIONS.STOP_FINDING_GAME,this.removeUserFromQueue.bind(this,user));
-        this.queue = this.queue.filter((u) => {return u != user});
-        return user; // Returns the user that got removed
+    getNextNewGameID() {
+        this.gameCount++;
+        return this.gameCount;
     }
+
 }
 
 class SpectateQueue {
@@ -184,8 +212,15 @@ class GameQueue {
         let virusUser = null;
         let antiVirusUser = null;
         if (this.anyQueue.length >= 2) {
-            virusUser = this.anyQueue[0];
-            antiVirusUser = this.anyQueue[1];
+            // Both has any, randomize which gets virus
+            const P1Virus = Math.random() < 0.5;
+            if (P1Virus) {
+                virusUser = this.anyQueue[0];
+                antiVirusUser = this.anyQueue[1];
+            } else {
+                virusUser = this.anyQueue[1];
+                antiVirusUser = this.anyQueue[0];
+            }
         } else {
             // Fill from picked arrays
             if (this.virusQueue.length > 0) {

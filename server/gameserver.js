@@ -23,7 +23,7 @@ export class GameServer extends EventEmitter {
     spectators = []; // Array of user instances that are spectating
     pendingBugMovements = [];
 
-    isAIvsAI = false;         // AI vs AI-spel
+    id = 0;
     
     // Emitted when the game should be removed from the active games list
     static SIGNAL_GAME_FINISHED = "game_finished" 
@@ -32,7 +32,6 @@ export class GameServer extends EventEmitter {
      * 
      * @param {Player} virusPlayer 
      * @param {Player} antiVirusPlayer 
-     * @param {boolean} isAIvsAI : Sant om båda spelarna är AI
      */
     constructor(virusPlayer, antiVirusPlayer, isAIvsAI = false) {
         super();
@@ -41,11 +40,13 @@ export class GameServer extends EventEmitter {
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         this.currentMap = ALL_MAPS[Math.floor(Math.random() * ALL_MAPS.length)];
         console.log("Game started with random map!");
-        // ----------------------------------------
 
         this.virusP = virusPlayer;
         this.virusP.setVirus();
         this.antivirusP = antiVirusPlayer;
+        this.virusReady = false;
+        this.antivirusReady = false;
+        this.gameStarted = false;
 
         const board = new Board();
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
@@ -57,17 +58,41 @@ export class GameServer extends EventEmitter {
         board.spawnAntivirus();
         board.spawnStartBugs();
 
+        // Här skickar vi och startar inte game förrän skit
+
+        console.log("New game created");
+
+        this.virusP.on(ACTIONS.READY, () => {
+            if (!this.virusReady) {
+                this.virusReady = true;
+                this.tryGameStart();
+            }
+
+        })
+
+        this.antivirusP.on(ACTIONS.READY, () => {
+            if (!this.antivirusReady) {
+                this.antivirusReady = true;
+                this.tryGameStart();
+            }
+        })
+
+        // Below is commented because it is used as a template for above code snippet
+        //this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
+        //this.virusP.on(ACTIONS.LEAVE_GAME,this.playerLeft.bind(this,this.virusP));
+
         this.gameState = new GameState(board, 20000);
 
+        this.sendTutorialStart();
         // --------------------------- AI IMPLEMENTATION ---------------------------
         if (this.virusP instanceof AIPlayer)     this.virusP.board = board;
         if (this.antivirusP instanceof AIPlayer) this.antivirusP.board = board;
         // -------------------------------------------------------------------------
 
-        // Skicka initial state till båda spelarna
-        this.sendGameStart();
+        // use events to not start timer/input and wait until both players have
+        // clicked on a ready button when they have read the rules ?
 
-        this.gameState.startTimer(); //
+        //this.gameState.startTimer(); //
         
 
         this.gameState.addEventListener(GameState.EVENTS.TIMED_OUT, () => {
@@ -82,19 +107,12 @@ export class GameServer extends EventEmitter {
         });
         
         // Make the bugs move when stepped on, then listen to this movement
-        this.gameState.board.connectBugListeners();
+        this.gameState.board.connectBugListeners();                                 // Can it cause issues when syncing? Maybe
         this.gameState.board.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED, (e) => {
             // We can't emit to client directly since that would place it before the move event,
             // resulting in the client snake not noticing that it should grow (since the bug is already moved)
             this.pendingBugMovements.push({from:e.detail.from.id, to:e.detail.to.id});
         });
-
-        // ---------------------------------- AI IMPLEMENTATION ---------------------------------
-        this.virusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.virusP));
-        this.virusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.virusP));
-        this.antivirusP.on(ACTIONS.DISCONNECT, this.playerLeft.bind(this, this.antivirusP));
-        this.antivirusP.on(ACTIONS.LEAVE_GAME, this.playerLeft.bind(this, this.antivirusP));
-        // ---------------------------------------------------------------------------------------
 
         // If either player disconnect/leaves, the game is over and can be removed from the server
         this.virusP.on(ACTIONS.DISCONNECT,this.playerLeft.bind(this,this.virusP));
@@ -156,19 +174,30 @@ export class GameServer extends EventEmitter {
         const specData = {
             ...this.gameState.getSerializedState(),
             mapData: this.currentMap,
+            ...this.getSerializedData(),
             isSpectator: true,
             isVirus: false,
-            isAIvsAI: this.isAIvsAI, // skicka med så klienten vet om AI VS AI
         }
-        spectator.on(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
-        spectator.on(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
-        spectator.emit(EVENTS.GAME_FOUND,specData)
+        const removeSpecFunc = this.removeSpectator.bind(this,spectator);
+        spectator.on(ACTIONS.DISCONNECT,removeSpecFunc);
+        spectator.on(ACTIONS.LEAVE_GAME,removeSpecFunc);
+        // Save reference so we can disconnect these specific functions
+        spectator.removeSpecFunc = removeSpecFunc;
+        spectator.emit(EVENTS.GAME_FOUND,specData);
     }
     
     removeSpectator(spectator) {
         this.spectators = this.spectators.filter((s) => {return s != spectator});
-        spectator.removeListener(ACTIONS.DISCONNECT,this.removeSpectator.bind(this,spectator))
-        spectator.removeListener(ACTIONS.LEAVE_GAME,this.removeSpectator.bind(this,spectator))
+        spectator.removeListener(ACTIONS.DISCONNECT,spectator.removeSpecFunc);
+        spectator.removeListener(ACTIONS.LEAVE_GAME,spectator.removeSpecFunc);
+        spectator.removeSpecFunc = undefined; // unset
+        if (this.virusP instanceof AIPlayer && this.antivirusP instanceof AIPlayer) {
+            // Spelare har slutat spectata AIvsAI match
+            if (this.spectators.length == 0) {
+                // Ingen kollar längre på denna AIvsAI match, avbryt matchen
+                this.gameFinished();
+            }
+        }
     }
 
     // Sends an event to both players (and spectators)
@@ -183,6 +212,10 @@ export class GameServer extends EventEmitter {
     gameFinished() {
         // The lobbyhandler listens to this and removed the GameServer instance from the games array
         this.emit(GameServer.SIGNAL_GAME_FINISHED);
+        
+        if (!this.gameState.gameOver) {
+            this.gameState.stopGame();
+        }
 
         // Remove connected events
         for (const spec of this.spectators) {
@@ -196,25 +229,46 @@ export class GameServer extends EventEmitter {
         }
     }
 
-    sendGameStart() {
+    getSerializedData() {
         const data = this.gameState.getSerializedState();
+        data["mapData"] = this.currentMap;
+        data["gameID"] = this.id;
+        return data;
+    }
+
+    sendGameStart() {
+        const data = this.getSerializedData();
 
         const virusData = {
             ...data,
             mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: true,
-            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
 
         const antivirusData = {
             ...data,
             mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: false,
-            isAIvsAI: this.isAIvsAI, // AI VS AI
         };
     
         this.virusP.emit(EVENTS.GAME_FOUND, virusData);
         this.antivirusP.emit(EVENTS.GAME_FOUND, antivirusData);
     }
+
+    tryGameStart() {
+        if (this.virusReady === true && this.antivirusReady === true && this.gameStarted === false) {
+            this.gameStarted = true;
+
+            this.sendGameStart()
+            this.gameState.startTimer();
+
+        }
+    }
+
+    sendTutorialStart() {
+        this.emitAll(EVENTS.START_TUTORIAL);
+    }
+
+
     
 }

@@ -7,6 +7,12 @@ button:hover {
     cursor: pointer;
 }
 
+.roles {
+    display: flex;
+    gap: 12px;
+    margin-block: 20px;
+}
+
 /*Stil för testui*/
 .panel {
     position: relative;
@@ -44,16 +50,15 @@ button:hover {
     pointer-events: none;
 }
 
-.gamemode {
+.gamemode, .smallbutton {
     padding: 12px;
     border-radius: 10px;
     border: none;
     background-color: #5c5c5c;
-    color: white;
     transition: all 0.2s ease;
 }
 
-.gamemode:hover {
+.gamemode:hover, .smallbutton:hover {
     background-color: #777;
 }
 
@@ -63,7 +68,7 @@ button:hover {
     box-shadow: 0 0 15px rgba(255,255,255,0.4);
 }
 
-.center {
+.flex-center, .main, .mainsubcontainer {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -71,13 +76,32 @@ button:hover {
 
 .main {
     background: linear-gradient(180deg, #1e1e2f, #2a2a40);
-    padding: 40px;
     border-radius: 20px;
     box-shadow: 0 60px 80px rgba(0,0,0,0.5);
-    max-width: 500px;
+    max-width: 600px;
     width: 100%;
+    padding-inline: 40px;
     /*This will make the border fit inside the screen*/
     box-sizing: border-box;
+}
+
+#pickrole > p {
+    margin-block: 20px;
+}
+
+.title + .mainsubcontainer {
+    margin-top: 0; /*Remove the top padding when placed under the title since the title has margins*/
+}
+
+.mainsubcontainer {
+    margin: 40px;
+    max-width: 300px;
+    width: 100%;
+}
+
+.mainsubcontainer > *:first-child, .mainsubcontainer > *:first-child > *:first-child {
+    /*To make padding consistant up and down*/
+    margin-top: 0;
 }
 
 #ui {
@@ -86,20 +110,93 @@ button:hover {
 }
 
 html, button {
-    /*Makes all text this font*/
+    /*Makes all text this font and white*/
     font-family: "OCR A Std", monospace;
+    color: white;
 }
 
-.text {
-    color:rgb(0, 0, 0);
-    font-size: 20px;
-    text-align: center;
+.vstext {
+    font-size: 1.5rem;
+    font-style: italic;
 }
 
 .ingametext {
-    color:aliceblue;
     font-size: 20px;
     text-align: center;
+}
+
+#timer {
+    width: 3ch;
+    font-size: 5rem;
+    margin-top: -0.5rem;
+}
+
+@media only screen and (max-width: 600px) {
+    #timer {
+        font-size: 3rem;
+    }
+    .turncontainer img {
+        width: 60px;
+        height: 60px;
+    }
+    .vstext {
+        font-size: 1rem;
+    }
+}
+
+.timecritical {
+    /*Make the time flash*/
+    color: #ff1060;
+    animation: blink 0.5s ease-out 0s infinite forwards;
+}
+
+@keyframes blink {
+    0% {transform: scale(100%);}
+    5% {transform: scale(130%);}
+    100% {transform: scale(100%);}
+}
+
+.turnui {
+    display: flex;
+    top: -1rem !important; /*Cancel the padding on the ui container*/
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activeturn .youindicator {
+    color: white;
+}
+
+.timercontainer, .turncontainer {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.turncontainer img {
+    filter: saturate(0%);
+    transition: filter 0.2s ease-in-out;
+}
+.activeturn img {
+    filter: saturate(100%);
+}
+
+.youindicator {
+    /*Center the "you" text on the icon*/
+    font-size: 2rem;
+    color: slategray; /*Set to gray so we can set it to white when it's your turn*/
+    transition: color 0.2s ease-in-out;
+    margin-top: -0.55rem; /*Move slighty up*/
+}
+
+.turnindicator {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    background-color: #00000040;
+    background: linear-gradient(180deg, #000000cc, #00000000);
+    padding: 1rem;
+    padding-bottom: 0;
 }
 
 .title {
@@ -124,7 +221,6 @@ html, button {
     border-radius: 10px;
     border: none;
     background-color: #5c5c5c;
-    color: white;
 }
 
 #description {
@@ -140,6 +236,11 @@ html, button {
     font-family: 'Gajraj One';
 }
 
+.tutorialimage {
+    width: 500px;
+    height: 500px;
+}
+
 .lowest {
     width: 50%;
     margin-left: auto;
@@ -151,10 +252,10 @@ html, button {
 }
 
 #abort {
-    width: 240px;
+    width: 200px;
     border-radius: 10px;
     text-align: center;
-    height: 50px;
+    height: 40px;
 }
 
 .wintext {
@@ -177,6 +278,16 @@ html, button {
     font-size: larger;
 }
 
+#rulesbutton {
+    margin-top:50px;
+    color: black;
+    width: 100px;
+}
+
+.ingamelanguage {
+    margin-left: auto;
+}
+
 .red {
     color: #ff0060;
 }
@@ -186,16 +297,60 @@ html, button {
     color: #33c4fd;
 }
 
+.transparent {
+    background-color: rgb(255, 255, 255);
+    padding: 20px;
+    border: 2px;
+    width: 100%;
+    max-width: 800px;
+    border-radius: 20px;
+}
+
+.description {
+    display: flex;
+    align-items: center;  
+    gap: 1rem;                
+    width: 100%;
+    max-width: 800px;
+    margin-top: 10px;   
+}
+
+.tutimage {
+    width: 100px;             
+    height: auto;
+    flex-shrink: 0;           
+}
+
+.description:last-child {
+    justify-content: center;
+}
+
+.description:first-child {
+    justify-content: center;
+    text-align: center;
+}
+
+#norulesbutton {
+    margin-top: 20px;
+}
+
 .hidden {
     display: none;
 }
 
-.bottom-row {
+.margin-top {
+    margin-top: 40px;
+}
+
+.row {
     display: flex;
     justify-content: space-between;
+    width: 100%;
     align-items: center;
-    width: 85%;
-    margin-top: 20px;
+}
+
+.row > .icon-btn {
+    padding: 0;
 }
 
 .start-btn {
@@ -206,7 +361,6 @@ html, button {
     border-radius: 12px;
     border: none;
     background: linear-gradient(90deg, #ff0040, #ff6a00);
-    color: white;
     box-shadow: 0 15px 30px rgba(0,0,0,0.4);
     transition: all 0.2s ease;
     margin-top: 10px;
@@ -221,7 +375,6 @@ html, button {
 .icon-btn {
     background: transparent;
     border: none;
-    color: white;
     cursor: pointer;
     padding: 8px;
 }
@@ -233,4 +386,180 @@ html, button {
 @font-face {
     font-family: 'Gajraj One';
     src: url('ui/fonts/gajraj-one-v7-latin-regular.woff2') format('woff2');
+}
+
+.backb {
+    display: grid;
+    text-align: center;
+    gap: 10px;
+}
+
+.backb > button {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    background-color: #5c5c5c;
+    color: white;
+    transition: all 0.2s ease;
+    margin-top: 30px
+}
+
+.backbutton {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: #5c5c5c;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.backbutton:hover {
+    background-color: #777;
+}
+
+.backbutton.selected {
+    background-color: #ffffff;
+    color: #1e1e2f;
+    box-shadow: 0 0 15px rgba(255,255,255,0.4);
+}
+
+.settingsrow {
+    display: flex;
+    justify-content: space-between; /* push first left, last right */
+    width: 100%;
+    align-items: center;
+}
+
+.queue-role {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    background-color: #5c5c5c;
+    color: white;
+    transition: all 0.2s ease;
+    height: 50px;
+}
+
+.queue-role:hover {
+    background-color: #777;
+}
+
+.queue-role.selected {
+    background-color: white;
+    color: #1e1e2f;
+    box-shadow: 0 0 10px rgba(255,255,255,0.4);
+}
+
+.toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    width: 50px;
+    height: 30px;
+    background: #13131f;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-top: 5px
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    transition: transform 0.3s;
+    background: #cacaca;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    transform: translateX(18px);
+    background: #ffffff;
+}
+
+.toggle-switch:has(input:checked) {
+    background: #04c804;
+}
+
+.icon-settings {
+    padding: 6px;
+}
+
+.igSettings {
+    position: absolute;
+    top: 10px;
+    right: 5px;
+}
+
+.igSettings button {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.igSettings button:hover {
+    transform: scale(1.4);
+}
+
+.gamecontrols {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+}
+
+#midleavebutton {
+    grid-column: 2;
+}
+
+#specnextmatch {
+    justify-self: end;
+}
+
+.bottomrow {
+    position: relative;
+}
+
+.center-btn {
+    text-align: center;
+    width: 100%;
+}
+
+#languageIconBtn {
+    position: absolute;   
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.settingsrow.menubuttons {
+    display: flex;
+    justify-content: space-between; 
+    width: 100%;
+    align-items: center;
+}
+
+.settingsrow.menubuttons > :first-child {
+    margin-right: auto; 
+    margin-left: 0;   
+}
+
+.middle-buttons {
+    display: flex;
+    gap: 10px;         
+}
+
+.middle-buttons .smallbutton {
+    flex: 1;            
+    min-width: 100px;   
+    text-align: center; 
+}
+
+.qrCode {
+    position: absolute;
+    top:480px;
 }
