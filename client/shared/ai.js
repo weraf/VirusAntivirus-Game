@@ -136,22 +136,22 @@ function virusHeuristic(body, bugSet, avSet, allNodes) {
     const len     = body.length;
 
     const nearSrvDist = servers.length
-        ? Math.min(...servers.map(s => bfsDist(head, s, blocked)))
+        ? Math.min(...servers.map(s => bfsDist(head, s, new Set(avSet))))
         : 0;
     const nearBugDist = bugs.length
-        ? Math.min(...bugs.map(b => bfsDist(head, b, blocked)))
+        ? Math.min(...bugs.map(b => bfsDist(head, b, new Set(avSet))))
         : 30;
 
     // buggar viktiga när vi är korta, servrar viktiga när vi är längre
-    const bugWeight    = Math.max(8, 20 - len) * 12;
-    const serverWeight = 10 + len * 2;
+    const bugWeight    = Math.max(6, 15 - len) * 10;
+    const serverWeight = 8 + len * 2;
 
     return (
-          len * 25
+        len * 20
         + covered * 600
         - nearSrvDist * serverWeight
         - nearBugDist * bugWeight
-        + Math.min(space, 20) * 1.5
+        + Math.min(space, 30) * 8
     );
 }
 
@@ -253,8 +253,8 @@ export class VirusAI {
             
             if (score > best) best = score;
             // Alpha-Beta pruning
-            alpha = Math.max(alpha, best);
-            if (alpha >= beta) break; 
+            //alpha = Math.max(alpha, best);
+            //if (alpha >= beta) break; 
         }
         return best;
     }
