@@ -1,5 +1,7 @@
 # Virus VS Antivirus - Game
 
+Spela nu: [qwazi.campus.ltu.se](https://qwazi.campus.ltu.se/)
+
 Ett webbaserat multiplayer-spel utvecklat i kursen D0020E vid Luleå tekniska universitet. Två spelare tävlar i ett nodbaserat nätverksgrafspel där ett virus försöker infektera servrar medan ett antivirusprogram försöker stoppa det.
 
 ---
@@ -80,7 +82,7 @@ npm install
 
 ### Alternativ 1: Node.js direkt
 
-**Krav:** [Node.js](https://nodejs.org) v18 eller senare
+**Krav:** [Node.js](https://nodejs.org) v20 eller senare
 
 ```bash
 # Klona repot
