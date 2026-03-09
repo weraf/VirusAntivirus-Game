@@ -128,7 +128,7 @@ export class GameDrawer {
             minX = Math.min(node.x, minX); minY = Math.min(node.y, minY);
             maxX = Math.max(node.x, maxX); maxY = Math.max(node.y, maxY);
         }
-        minY -= 40; // Add extra room for turn ui
+        minY -= 70; // Add extra room for turn ui
         const margin = 50;
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;

@@ -131,7 +131,7 @@ html, button {
     margin-top: -0.5rem;
 }
 
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1100px) {
     #timer {
         font-size: 3rem;
     }
