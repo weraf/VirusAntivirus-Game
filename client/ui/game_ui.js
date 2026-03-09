@@ -26,6 +26,7 @@ export class GameUI extends EventTarget {
         this.tutorialFinished = false; // has the tutorial been read? (Don't show it again when starting a match)
         this.rulesOpened = false; // are the rules currently open in game?
         this.inGame = false; // Are we in a game?
+        this.qrLarge = false; // Is the QR code large or small?
     }
     
     /**
@@ -123,10 +124,10 @@ export class GameUI extends EventTarget {
         this.queue.hide()
         // Show "Back to game"
 
-
         this.rules.setPlaceholder("closerules", "exitrules") // Visa olika texter beroende på
         this.htmlManager.showOnly(this.player_indicator);
         HtmlManager.show(this.settingsIngame);
+        this.showQR();
         this.inGame = true;
     }
 
@@ -193,6 +194,19 @@ export class GameUI extends EventTarget {
         HtmlManager.setVisible(this.queue.pickrole,showPickPlayer);
     }
 
+    showQR() {
+        if (this.settings.qrToggle.checked) {
+            this.qr.show();
+            if(this.qrLarge) {
+                this.qr.qrbutton.classList.add("hidden");
+                this.qr.qrShow.classList.remove("hidden");
+            } else {
+                this.qr.qrShow.classList.add("hidden");
+                this.qr.qrbutton.classList.remove("hidden");
+            }
+        }       
+    }
+
     setup() {
         this.htmlManager.loadAll([
             "./ui/mainmenu.html",
@@ -205,7 +219,8 @@ export class GameUI extends EventTarget {
             "./ui/rulesbutton.html",
             "./ui/rules.html",
             "./ui/waiting.html",
-            "./ui/sharedsettings.html"
+            "./ui/sharedsettings.html",
+            "./ui/qr.html"
         ]).then(() => {
             this.mainmenu = this.htmlManager.create("mainmenu");
             this.mainPanel = this.mainmenu.root;
@@ -216,6 +231,7 @@ export class GameUI extends EventTarget {
             this.rulesbutton = this.htmlManager.create("rulesbutton");
             this.waiting = this.htmlManager.create("waiting");
             this.sharedsettings = this.htmlManager.create("sharedsettings")
+            this.qr = this.htmlManager.create("qr")
 
             this.ui = document.getElementById("ui");
             this.innertext = this.sharedsettings.root.querySelector(".innertext");
@@ -225,7 +241,7 @@ export class GameUI extends EventTarget {
             this.rules = this.htmlManager.create("rules");
             const ruleswindow = this.rules.root
 
-            new QRCode(this.settings.qrCode, { 
+            new QRCode(this.qr.qrShow, { 
                 text:window.location.origin , // Ändra om man vill ha en specifik URL
                 width:256, 
                 height:256 });
@@ -381,11 +397,28 @@ export class GameUI extends EventTarget {
             this.settings.qrToggle.onclick = (e) => {
                 this.soundManager.play('click'); // ljud
                 if (e.target.checked) {
-                    this.settings.qrCode.classList.remove("hidden")
+                    this.qr.qrShow.classList.remove("hidden");
+                    this.qr.qrbutton.classList.add("hidden");
+                    this.qrLarge = true;
+                    this.qr.show();
                 } else {
-                    this.settings.qrCode.classList.add("hidden")
-                }
-            };
+                    this.qr.hide();
+                }   
+            }
+
+            this.qr.qrShow.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.qrLarge = false;
+                this.qr.qrShow.classList.add("hidden");
+                this.qr.qrbutton.classList.remove("hidden");
+            }
+
+            this.qr.qrbutton.onclick = () => {
+                this.soundManager.play('click'); // ljud
+                this.qrLarge = true;
+                this.qr.qrbutton.classList.add("hidden");
+                this.qr.qrShow.classList.remove("hidden");
+            }
             
             this.settings.bgMove.onclick = (e) => {
                 this.soundManager.play('click'); // ljud
@@ -501,6 +534,7 @@ export class GameUI extends EventTarget {
     backToMenu() {
         this.htmlManager.showOnly(this.mainmenu);
         this.inGame = false;
+        this.showQR();
     }
 
     destroy() {
