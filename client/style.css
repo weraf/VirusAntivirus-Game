@@ -600,7 +600,7 @@ html, button {
     text-align: center; 
 }
 
-.qrCode {
-    position: absolute;
-    top:480px;
+#qrShow > * {
+    height:10vw;
+    width:10vw
 }
