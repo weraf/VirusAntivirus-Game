@@ -1,6 +1,6 @@
 # Virus VS Antivirus - Game
 
-Spela nu: qwazi.campus.ltu.se
+Spela nu: [qwazi.campus.ltu.se](https://qwazi.campus.ltu.se/)
 
 Ett webbaserat multiplayer-spel utvecklat i kursen D0020E vid Luleå tekniska universitet. Två spelare tävlar i ett nodbaserat nätverksgrafspel där ett virus försöker infektera servrar medan ett antivirusprogram försöker stoppa det.
 
