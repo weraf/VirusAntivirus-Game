@@ -9,7 +9,7 @@ export class SoundManager {
     connectToBoard(board) {
         // bugg omplacering
         board.bugs.addEventListener("bug_moved", () => {
-            this.play('bugMove', 0.8);
+            this.play('bugMove', 0.6);
         });
 
         // Virus
@@ -19,7 +19,7 @@ export class SoundManager {
 
         // Antivirus
         board.antivirus.addEventListener("moved", () => {
-            this.play('AVmove', 0.3);
+            this.play('AVmove', 0.4);
         });
         // The timeout that was here earlier doesn't seem neccesary
         
