@@ -250,6 +250,7 @@ export class Game extends Phaser.Scene {
         this.ui.connectToGameState(this.gameState);
         this.gameID = data.gameID;
         //------------------
+
         this.gameBoard.spawnVirus(
             data.virusNodes.map(id => this.gameBoard.getNode(id))
         );

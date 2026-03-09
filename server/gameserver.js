@@ -33,13 +33,13 @@ export class GameServer extends EventEmitter {
      * @param {Player} virusPlayer 
      * @param {Player} antiVirusPlayer 
      */
-    constructor(virusPlayer, antiVirusPlayer, gameID) {
+    constructor(virusPlayer, antiVirusPlayer, isAIvsAI = false) {
         super();
-        this.id = gameID;
+        this.isAIvsAI = isAIvsAI;
         
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         this.currentMap = ALL_MAPS[Math.floor(Math.random() * ALL_MAPS.length)];
-        // ----------------------------------------
+        console.log("Game started with random map!");
 
         this.virusP = virusPlayer;
         this.virusP.setVirus();
@@ -172,6 +172,8 @@ export class GameServer extends EventEmitter {
     addSpectator(spectator) {
         this.spectators.push(spectator);
         const specData = {
+            ...this.gameState.getSerializedState(),
+            mapData: this.currentMap,
             ...this.getSerializedData(),
             isSpectator: true,
             isVirus: false,
@@ -239,11 +241,13 @@ export class GameServer extends EventEmitter {
 
         const virusData = {
             ...data,
+            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: true,
         };
 
         const antivirusData = {
             ...data,
+            mapData: this.currentMap, // --------- LOGIK FÖR ATT SLUMPA KARTOR!
             isVirus: false,
         };
     
