@@ -33,9 +33,9 @@ export class GameServer extends EventEmitter {
      * @param {Player} virusPlayer 
      * @param {Player} antiVirusPlayer 
      */
-    constructor(virusPlayer, antiVirusPlayer, isAIvsAI = false) {
+    constructor(virusPlayer, antiVirusPlayer, gameID) {
         super();
-        this.isAIvsAI = isAIvsAI;
+        this.id = gameID;
         
         // ----- LOGIK FÖR SLUMPA SPELKARTOR! -----
         this.currentMap = ALL_MAPS[Math.floor(Math.random() * ALL_MAPS.length)];
