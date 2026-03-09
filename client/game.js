@@ -52,7 +52,7 @@ export class Game extends Phaser.Scene {
         const cameraSizeX = this.cameras.main.width/this.cameras.main.zoomX;
         const cameraSizeY = this.cameras.main.height/this.cameras.main.zoomY;
         // Scale the background so it fits the camera area
-        this.bg.setScale(Math.max(cameraSizeX/2000,cameraSizeY/2000));
+        this.bg.setScale(Math.max(cameraSizeX/2048,cameraSizeY/2048));
         // Move the background to the center of the camera
         this.bg.x = this.cameras.main.scrollX+this.cameras.main.centerX;
         this.bg.y = this.cameras.main.scrollY+this.cameras.main.centerY;
@@ -80,7 +80,7 @@ export class Game extends Phaser.Scene {
     create() {
         this.started = false; // Spelet har inte startat ännu, sätts true is startGame()
 
-        this.bg = this.add.tileSprite(0, 0, 2000,2000,'bg');
+        this.bg = this.add.tileSprite(0, 0, 2048,2048,'bg');
         
         
         // Update screen when canvas changes size

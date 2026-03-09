@@ -161,7 +161,7 @@ class BugsDrawer {
         this.nextNodes = [...this.bugs.nodes];
         this.animationProgress = 0.0;
         // Rita om buggarna om de har flyttat på sig
-        this.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED,this.update.bind(this));
+        this.bugs.addEventListener(Bugs.EVENTS.BUG_MOVED,this.update.bind(this, true));
     }
 
     hasChanged() {
@@ -178,12 +178,19 @@ class BugsDrawer {
         return changed;
     }
 
-    update() {
+    update(bugMoved = false) {
         if (this.tween) {
-            return // still animating
+            if (bugMoved) {
+                // Finish the ongoing tween
+                const t = this.tween;
+                this.tween.nextState(); // This will set this.tween to null, there for the t const
+                t.destroy();
+            } else {
+                return; // Don't interupt the ongoing animation
+            }
         }
-        if (!this.hasChanged()) {
-            this.drawBetweenNodes(this.prevNodes,this.bugs.nodes,performance.now()/2000);
+        if (!bugMoved) {
+            this.drawBetweenNodes(this.prevNodes,this.nextNodes,1.0)
             return;
         }
         this.nextNodes = [...this.bugs.nodes]; // shallow copy
@@ -239,11 +246,12 @@ class BugsDrawer {
             // Skip drawing this frame for a buggier effect
             return;
         }
+        const time = performance.now()/2000;
         this.graphics.clear();
         
         fromNodes.forEach((fromNode,index) => {
             const nextNode = toNodes[index];
-            let rot = progress*Math.PI*2;
+            let rot = time*Math.PI*2;
             rot += index;
             if (nextNode != fromNode) {
                 // A new bug as been added
