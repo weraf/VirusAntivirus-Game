@@ -9,7 +9,7 @@ export class SoundManager {
     connectToBoard(board) {
         // bugg omplacering
         board.bugs.addEventListener("bug_moved", () => {
-            this.play('bugMove', 0.6);
+            this.play('bugMove', 0.7);
         });
 
         // Virus

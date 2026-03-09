@@ -39,7 +39,7 @@ export class Game extends Phaser.Scene {
         this.load.audio('click', './assets/Click.wav');
         this.load.audio('AVmove', './assets/AVmove.wav');
         this.load.audio('Vmove', './assets/Vmove.wav');
-        this.load.audio('bugMove', './assets/bugMove.wav');
+        this.load.audio('bugMove', './assets/bugMove_new.wav');
         this.load.audio('lose', './assets/lose.wav');
         this.load.audio('win', './assets/win.wav');
         this.load.audio('music', './assets/music.mp3');
