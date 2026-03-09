@@ -149,11 +149,11 @@ export class GameUI extends EventTarget {
         if (!this.isSmallScreen()) {
             return; // Only auto enable fullscreen on small screens (mobile)
         }
-        const gameElement = document.getElementById("game");
-        if (gameElement.requestFullscreen) {
-            gameElement.requestFullscreen();
-        } else if (gameElement.webkitRequestFullscreen) { /* Safari */
-            gameElement.webkitRequestFullscreen();
+        const fsElement = document.body;
+        if (fsElement.requestFullscreen) {
+            fsElement.requestFullscreen();
+        } else if (fsElement.webkitRequestFullscreen) { /* Safari */
+            fsElement.webkitRequestFullscreen();
         }
     }
 
